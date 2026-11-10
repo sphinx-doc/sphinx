@@ -12,7 +12,7 @@ import re
 import shutil
 import subprocess
 import tempfile
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from hashlib import sha1
 from pathlib import Path
 from subprocess import CalledProcessError
@@ -658,6 +658,28 @@ def pre_render_batch(app: Sphinx, env: BuildEnvironment) -> None:
         (maths[i : i + batch_size], out_paths[i : i + batch_size])
         for i in range(0, len(maths), batch_size)
     ]
+    if max_workers > 1 and len(chunks) > 1:
+        # Compile LaTeX batches in parallel (each chunk is one LaTeX
+        # invocation).  Inner page conversions run sequentially to keep
+        # total concurrent processes bounded by max_workers.
+        outer_workers = min(max_workers, len(chunks))
+        with ThreadPoolExecutor(max_workers=outer_workers) as executor:
+            futures = [
+                executor.submit(
+                    _render_batch_chunk,
+                    chunk_maths,
+                    chunk_paths,
+                    config=config,
+                    confdir=confdir,
+                    builder=builder,
+                    image_format=image_format,
+                    max_workers=1,
+                )
+                for chunk_maths, chunk_paths in chunks
+            ]
+            for future in as_completed(futures):
+                future.result()
+        return
     for idx in status_iterator(
         range(len(chunks)),
         __('pre-rendering math... '),
