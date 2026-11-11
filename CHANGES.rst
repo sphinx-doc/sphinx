@@ -18,6 +18,10 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #14824: Report an error for a zero or negative ``:columns:`` option of the
+  :rst:dir:`hlist` directive instead of crashing the build with a
+  ``ZeroDivisionError`` or silently dropping the list.
+  Patch by Shaurya Bajpai
 
 Testing
 -------

@@ -19,6 +19,28 @@ if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
 
+@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.parametrize('columns', ['0', '-1'])
+def test_hlist_columns_must_be_positive(app: SphinxTestApp, columns: str) -> None:
+    text = f'.. hlist::\n   :columns: {columns}\n\n   * a\n   * b\n'
+    doctree = restructuredtext.parse(app, text, 'index')
+
+    assert not list(doctree.findall(addnodes.hlist))
+    errors = [msg for msg in doctree.findall(nodes.system_message) if msg['level'] >= 3]
+    assert len(errors) == 1
+    assert 'columns' in errors[0].astext()
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_hlist_columns(app: SphinxTestApp) -> None:
+    text = '.. hlist::\n   :columns: 2\n\n   * a\n   * b\n   * c\n'
+    doctree = restructuredtext.parse(app, text, 'index')
+
+    (hlist,) = doctree.findall(addnodes.hlist)
+    assert hlist['ncolumns'] == '2'
+    assert len(hlist.children) == 2
+
+
 @pytest.mark.sphinx('html', testroot='toctree-glob')
 def test_toctree(app: SphinxTestApp) -> None:
     text = '.. toctree::\n\n   foo\n   bar/index\n   baz\n'
