@@ -296,6 +296,7 @@ def test_html_inventory(app: SphinxTestApp) -> None:
     assert set(invdata['std:label'].keys()) == {
         'modindex',
         'py-modindex',
+        'js-modindex',
         'genindex',
         'search',
     }
@@ -310,6 +311,12 @@ def test_html_inventory(app: SphinxTestApp) -> None:
         project_version='',
         uri='https://www.google.com/py-modindex.html',
         display_name='Python Module Index',
+    )
+    assert invdata['std:label']['js-modindex'] == _InventoryItem(
+        project_name='Project name not set',
+        project_version='',
+        uri='https://www.google.com/js-modindex.html',
+        display_name='JavaScript Module Index',
     )
     assert invdata['std:label']['genindex'] == _InventoryItem(
         project_name='Project name not set',

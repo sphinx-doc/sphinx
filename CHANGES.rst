@@ -13,6 +13,10 @@ Deprecated
 Features added
 --------------
 
+* #5517: Add a JavaScript module index and support the ``synopsis`` option
+  for the ``js:module`` directive.
+  Patch by Georgia Preda.
+
 Bugs fixed
 ----------
 

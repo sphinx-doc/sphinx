@@ -21,7 +21,7 @@ from sphinx.addnodes import (
     desc_sig_space,
     desc_signature,
 )
-from sphinx.domains.javascript import JavaScriptDomain
+from sphinx.domains.javascript import JavaScriptDomain, JavaScriptModuleIndex
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.writers.text import STDINDENT
@@ -218,6 +218,83 @@ def test_js_module(app):
         entries=[('single', 'sphinx (module)', 'module-sphinx', '', None)],
     )
     assert_node(doctree[1], nodes.target, ids=['module-sphinx'])
+
+
+@pytest.mark.sphinx('html', testroot='_blank', srcdir='js-module-index')
+def test_js_module_index(app: SphinxTestApp) -> None:
+    (app.srcdir / 'index.rst').write_text(
+        'Modules\n=======\n\n'
+        '.. js:module:: zebra\n\n'
+        '.. js:module:: alpha/tools\n'
+        '   :synopsis: Useful tools\n\n'
+        '.. js:module:: hidden\n'
+        '   :no-index:\n\n'
+        ':ref:`js-modindex`\n',
+        encoding='utf-8',
+    )
+    app.build()
+    assert app.warning.getvalue() == ''
+    html = (app.outdir / 'js-modindex.html').read_text(encoding='utf-8')
+    assert 'JavaScript Module Index' in html
+    assert 'index.html#module-alpha-tools' in html
+    assert 'Useful tools' in html
+    assert html.index('alpha/tools') < html.index('zebra')
+    assert 'hidden' not in html
+    index = (app.outdir / 'index.html').read_text(encoding='utf-8')
+    assert 'href="js-modindex.html"' in index
+
+    # Re-reading a document must remove old entries and refresh descriptions.
+    (app.srcdir / 'index.rst').write_text(
+        'Modules\n=======\n\n.. js:module:: alpha/tools\n   :synopsis: Updated tools\n',
+        encoding='utf-8',
+    )
+    app.env.all_docs['index'] = 0
+    app.build()
+    html = (app.outdir / 'js-modindex.html').read_text(encoding='utf-8')
+    assert 'Updated tools' in html
+    assert 'Useful tools' not in html
+    assert 'zebra' not in html
+    assert app.warning.getvalue() == ''
+
+
+def test_js_module_index_merge_and_filter() -> None:
+    domain = JavaScriptDomain(Mock(domaindata={}))
+    domain.merge_domaindata(
+        {'first', 'second'},
+        {
+            'objects': {},
+            'modules': {
+                'Zebra': ('second', 'module-Zebra', ''),
+                'alpha/tools': ('first', 'module-alpha-tools', 'Tools'),
+                'Alpha': ('first', 'module-Alpha', 'Main module'),
+                '@scope/pkg': ('second', 'module-scope-pkg', 'Scoped module'),
+                'excluded': ('other', 'module-excluded', ''),
+            },
+        },
+    )
+    index = JavaScriptModuleIndex(domain)
+    content, collapse = index.generate()
+    assert not collapse
+    assert [letter for letter, _ in content] == ['@', 'a', 'z']
+    assert [entry.name for entry in content[1][1]] == ['Alpha', 'alpha/tools']
+    assert content[1][1][1].descr == 'Tools'
+    assert index.generate([]) == ([], False)
+    assert index.generate(iter(['first'])) == ([content[1]], False)
+    domain.clear_doc('first')
+    assert index.generate() == ([content[0], content[2]], False)
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='_blank',
+    srcdir='js-module-index-disabled',
+    confoverrides={'html_domain_indices': False},
+)
+def test_js_module_index_disabled(app: SphinxTestApp) -> None:
+    (app.srcdir / 'index.rst').write_text('.. js:module:: example\n', encoding='utf-8')
+    app.build()
+    assert not (app.outdir / 'js-modindex.html').exists()
+    assert app.warning.getvalue() == ''
 
 
 @pytest.mark.sphinx('html', testroot='_blank')

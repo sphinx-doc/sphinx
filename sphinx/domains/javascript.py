@@ -11,7 +11,7 @@ from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
-from sphinx.domains import Domain, ObjType
+from sphinx.domains import Domain, Index, IndexEntry, ObjType
 from sphinx.domains.python._annotations import _pseudo_parse_arglist
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
@@ -21,7 +21,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_id, make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Set
+    from collections.abc import Iterable, Iterator, Set
     from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
@@ -333,6 +333,7 @@ class JSModule(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     option_spec: ClassVar[OptionSpec] = {
+        'synopsis': directives.unchanged,
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
@@ -359,7 +360,11 @@ class JSModule(SphinxDirective):
             domain = self.env.domains.javascript_domain
 
             node_id = make_id(self.env, self.state.document, 'module', mod_name)
-            domain.note_module(modname=mod_name, node_id=node_id)
+            domain.note_module(
+                modname=mod_name,
+                node_id=node_id,
+                synopsis=self.options.get('synopsis', ''),
+            )
             # Make a duplicate entry in 'objects' to facilitate searching for
             # the module in JavaScriptDomain.find_obj()
             domain.note_object(
@@ -409,6 +414,28 @@ class JSXRefRole(XRefRole):
         return title, target
 
 
+class JavaScriptModuleIndex(Index):
+    """Index of JavaScript modules."""
+
+    name = 'modindex'
+    localname = _('JavaScript Module Index')
+    shortname = _('modules')
+    domain: JavaScriptDomain
+
+    def generate(
+        self, docnames: Iterable[str] | None = None
+    ) -> tuple[list[tuple[str, list[IndexEntry]]], bool]:
+        content: dict[str, list[IndexEntry]] = {}
+        selected = frozenset(docnames) if docnames is not None else None
+        modules = sorted(self.domain.modules.items(), key=lambda item: item[0].lower())
+        for modname, (docname, node_id, synopsis) in modules:
+            if selected is not None and docname not in selected:
+                continue
+            entries = content.setdefault(modname[0].lower(), [])
+            entries.append(IndexEntry(modname, 0, docname, node_id, '', '', synopsis))
+        return sorted(content.items()), False
+
+
 class JavaScriptDomain(Domain):
     """JavaScript language domain."""
 
@@ -439,9 +466,12 @@ class JavaScriptDomain(Domain):
         'attr': JSXRefRole(),
         'mod': JSXRefRole(),
     }
-    initial_data: ClassVar[dict[str, dict[str, tuple[str, str]]]] = {
+    indices = [JavaScriptModuleIndex]
+    data_version = 1
+
+    initial_data: ClassVar[dict[str, dict[str, tuple[str, str, str]]]] = {
         'objects': {},  # fullname -> docname, node_id, objtype
-        'modules': {},  # modname  -> docname, node_id
+        'modules': {},  # modname  -> docname, node_id, synopsis
     }
 
     @property
@@ -465,17 +495,17 @@ class JavaScriptDomain(Domain):
         self.objects[fullname] = (self.env.current_document.docname, node_id, objtype)
 
     @property
-    def modules(self) -> dict[str, tuple[str, str]]:
-        return self.data.setdefault('modules', {})  # modname -> docname, node_id
+    def modules(self) -> dict[str, tuple[str, str, str]]:
+        return self.data.setdefault('modules', {})
 
-    def note_module(self, modname: str, node_id: str) -> None:
-        self.modules[modname] = (self.env.current_document.docname, node_id)
+    def note_module(self, modname: str, node_id: str, synopsis: str = '') -> None:
+        self.modules[modname] = (self.env.current_document.docname, node_id, synopsis)
 
     def clear_doc(self, docname: str) -> None:
         for fullname, (pkg_docname, _node_id, _l) in list(self.objects.items()):
             if pkg_docname == docname:
                 del self.objects[fullname]
-        for modname, (pkg_docname, _node_id) in list(self.modules.items()):
+        for modname, (pkg_docname, _node_id, _synopsis) in list(self.modules.items()):
             if pkg_docname == docname:
                 del self.modules[modname]
 
@@ -484,9 +514,9 @@ class JavaScriptDomain(Domain):
         for fullname, (fn, node_id, objtype) in otherdata['objects'].items():
             if fn in docnames:
                 self.objects[fullname] = (fn, node_id, objtype)
-        for mod_name, (pkg_docname, node_id) in otherdata['modules'].items():
+        for mod_name, (pkg_docname, node_id, synopsis) in otherdata['modules'].items():
             if pkg_docname in docnames:
-                self.modules[mod_name] = (pkg_docname, node_id)
+                self.modules[mod_name] = (pkg_docname, node_id, synopsis)
 
     def find_obj(
         self,
@@ -589,7 +619,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     )
     return {
         'version': 'builtin',
-        'env_version': 3,
+        'env_version': 4,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

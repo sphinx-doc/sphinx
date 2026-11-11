@@ -25,6 +25,18 @@ The JavaScript domain (name **js**) provides the following directives:
 
       Module directives support body content.
 
+   .. versionchanged:: 9.3
+
+      Generate a JavaScript module index, which can be linked to using
+      ``:ref:`js-modindex``` and controlled with :confval:`html_domain_indices`.
+
+   .. rst:directive:option:: synopsis
+      :type: text
+
+      A short description of the module, shown in the JavaScript module index.
+
+      .. versionadded:: 9.3
+
 .. rst:directive:: .. js:function:: name(signature)
 
    Describes a JavaScript function or method.  If you want to describe
