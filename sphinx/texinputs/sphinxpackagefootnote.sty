@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{sphinxpackagefootnote}%
- [2025/11/15 v9.0.0 Sphinx custom footnotehyper package (Sphinx team)]
+ [2026/11/11 v9.3.0 Sphinx custom footnotehyper package (Sphinx team)]
 %%
 %% Package: sphinxpackagefootnote
 %% Version: based on footnotehyper.sty 2021/02/04 v1.1d
@@ -26,6 +26,8 @@
 %% - \sphinxlongtablepatch
 %% - fix for a change of babel-french from late June 2025
 %%   (\localleftbox undefined with pdflatex/xelatex, issue #14059)
+%% - fix for a change of babel-french from November 2026 with lualatex
+%%   (roughly s/\FBeveryline@quote/\FB@everyline/, issue #14831)
 %%
 %% Starting with Sphinx v4.5.0, inherited footnotehyper macros for
 %% footnote/footnotetext receive some Sphinx specific extras to
@@ -275,6 +277,11 @@
    \else\csname fi\endcsname\expandafter\@secondoftwo
    \fi
 }%
+%% MEMO: FB refers to babel-french aka frenchb.  We should probably
+%%       drop all of this and tell babel-french if detected to do
+%%       nothing with footnotes, because it is becoming very complex
+%%       to follow its evolution with lualatex.  With pdflatex and
+%%       xelatex, the situation is much simpler thoughn as it is frozen.
 \def\FNH@check{%
    \ifx\@makefntextFB\@undefined
        \expandafter\FNH@check@
@@ -306,10 +313,17 @@
           {\@makefntextORI{}}%
        }%
    }%
+   \ifdefined\FB@everyline %  frenchb>=4.1b 2026-11-01 (lualatex)
+   \def\FNH@postfntext{%
+     \let\FBeverypar@quote\FBeverypar@save
+     \localleftbox{\FB@everyline}%
+   }%
+   \else
    \def\FNH@postfntext{%
      \let\FBeverypar@quote\FBeverypar@save
      \localleftbox{\FBeveryline@quote}%
    }%
+   \fi
 }%
 \def\FNH@check@{%
     \expandafter\FNH@check@a\@makefntext{1.2!3?4,}%
