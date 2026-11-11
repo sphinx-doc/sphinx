@@ -18,6 +18,9 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #14831: LaTeX: fix a lualatex build failure for French documents
+  compiled with babel-french v4.1b 2026-11-01.
+  Patch by Jean-François B.
 
 Testing
 -------
