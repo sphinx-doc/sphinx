@@ -281,7 +281,7 @@ class HList(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     option_spec: ClassVar[OptionSpec] = {
-        'columns': int,
+        'columns': directives.positive_int,
     }
 
     def run(self) -> list[Node]:
