@@ -11,16 +11,36 @@ babel_runner.py update
 
 babel_runner.py compile
     Compile the ".po" catalogue files to ".mo" and ".js" files.
+
+babel_runner.py check [--exclude-failing]
+    Check that the format placeholders of every translation match its
+    msgid. Babel's own checkers do not validate "python-brace-format"
+    messages (python-babel/babel#333), so damaged placeholders slipped
+    through them (#14664). Brace placeholders are validated here for
+    messages flagged "python-brace-format" (babel derives the flag from
+    the msgid); percent placeholders are validated by babel's own
+    "Message.check()". Positional fields may be renumbered and
+    reordered (for example "{}" to "{0}"), which str.format() accepts
+    with the same arguments. With "--exclude-failing" (used by the Transifex
+    sync), failing catalogues are reverted - or removed, when a newly
+    pulled language has no committed version to revert to - so that the
+    automated pull request excludes them, and they are listed in its
+    body. Placeholders that a translation drops are reported as warnings
+    and do not fail the check.
 """
 
 from __future__ import annotations
 
 import json
 import logging
+import re
+import string
+import subprocess
 import sys
 import tempfile
 from os import environ
 from pathlib import Path
+from typing import TYPE_CHECKING, NamedTuple
 
 from babel.messages.catalog import Catalog
 from babel.messages.extract import (
@@ -33,6 +53,9 @@ from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po, write_po
 from babel.util import pathmatch
 from jinja2.ext import babel_extract as extract_jinja2
+
+if TYPE_CHECKING:
+    from babel.messages.catalog import Message
 
 IS_CI = 'CI' in environ
 ROOT = Path(__file__).resolve().parent.parent
@@ -270,6 +293,374 @@ def _get_logger() -> logging.Logger:
     return log
 
 
+_VALID_CONVERSIONS = frozenset('sra')
+
+# str.format() expands a format specification only when it contains a
+# replacement field, and allows one such expansion inside another
+# ("{a:{b}}"); a second one ("{a:{b:{c}}}") raises
+# "ValueError: Max string recursion exceeded".  A specification without
+# a replacement field never expands, so it may nest freely
+# ("{a:{b:>5}}" still formats).
+_MAX_SPEC_DEPTH = 1
+
+
+class _SpecDepthError(ValueError):
+    """Raised for format specifications nested beyond str.format()'s limit."""
+
+
+class _BraceFormat(NamedTuple):
+    """The brace-format placeholders of one message form.
+
+    *auto* counts the automatically numbered ``{}`` fields and *manual*
+    holds the explicit positional indices; fields nested inside format
+    specifications are included in both, since they continue the
+    automatic numbering and follow the same runtime rules. *named*
+    holds the remaining field names, verbatim.
+    """
+
+    auto: int
+    manual: set[int]
+    named: set[str]
+
+
+def _spec_has_field(spec: str) -> bool:
+    """Return whether the format specification holds a replacement field.
+
+    Only such a specification is expanded at formatting time, so only
+    expanding one inside another can exceed str.format()'s recursion
+    limit; a literal specification never expands.
+    """
+    return any(
+        field_name is not None
+        for _literal, field_name, _spec, _conversion in string.Formatter().parse(spec)
+    )
+
+
+def _brace_format_info(text: str, depth: int = 0) -> _BraceFormat:
+    """Parse the brace-format placeholders of *text*.
+
+    Raises ``ValueError`` for what ``str.format()`` rejects at runtime:
+    invalid brace-format syntax, an unknown conversion character, and -
+    as ``_SpecDepthError`` - format specifications nested deeper than
+    str.format() formats.
+    """
+    auto = 0
+    manual: set[int] = set()
+    named: set[str] = set()
+    for _literal, field_name, spec, conversion in string.Formatter().parse(text):
+        if field_name is not None:
+            head = field_name.partition('.')[0].partition('[')[0]
+            if not head:
+                auto += 1
+            elif head.isdigit():
+                manual.add(int(head))
+            else:
+                named.add(field_name)
+        if conversion is not None and conversion not in _VALID_CONVERSIONS:
+            msg = f'unknown conversion {conversion!r}'
+            raise ValueError(msg)
+        if spec:
+            # a specification at the depth limit is fatal only when it
+            # holds a replacement field, since only then does
+            # str.format() recurse into it
+            if depth >= _MAX_SPEC_DEPTH and _spec_has_field(spec):
+                msg = 'max string recursion exceeded'
+                raise _SpecDepthError(msg)
+            nested = _brace_format_info(spec, depth + 1)
+            auto += nested.auto
+            manual |= nested.manual
+            named |= nested.named
+    return _BraceFormat(auto, manual, named)
+
+
+def _positional_arg_count(info: _BraceFormat) -> int:
+    """Return the number of positional arguments the form's fields use."""
+    if info.auto:
+        return info.auto
+    if info.manual:
+        return max(info.manual) + 1
+    return 0
+
+
+_PERCENT_FIELD_RE = re.compile(r'%\((\w+)\)')
+
+
+def _percent_format_fields(text: str) -> set[str]:
+    """Return the set of named percent-format placeholders in *text*."""
+    return set(_PERCENT_FIELD_RE.findall(text))
+
+
+def _placeholder_errors(message: Message) -> list[str]:
+    """Return placeholder mismatches between a message and its translation.
+
+    Brace placeholders are validated for messages flagged
+    ``python-brace-format`` (babel derives the flag from the msgid);
+    percent placeholders are validated by babel's own ``Message.check()``.
+    A translation is in error when its placeholder syntax is invalid, or
+    when ``str.format()`` could not render it with the argument list the
+    msgid passes - both abort formatting at runtime (#14664). Positional
+    fields may nonetheless switch between automatic (``{}``) and explicit
+    (``{0}``) numbering and repeat or reorder the explicit indices:
+    ``str.format()`` accepts all of that with the same arguments, and
+    translators need the reordering whenever the word order of their
+    language differs from English. Placeholders that the translation
+    drops are not errors: the extra arguments are simply unused.
+    """
+    msgstr = message.string
+    if msgstr is None:
+        return []
+
+    errors = []
+    if 'python-brace-format' in message.flags:
+        msgid = message.id
+        if isinstance(msgid, (list, tuple)):
+            msgid_forms = [msgid[0], msgid[1]]
+        else:
+            msgid_forms = [msgid]
+
+        # the argument list the msgid passes: its positional fields
+        # number the arguments, its named fields name them
+        n_args = 0
+        allowed: set[str] = set()
+        for form in msgid_forms:
+            try:
+                info = _brace_format_info(form)
+            except ValueError:
+                # the msgid itself is malformed; that is not a translation error
+                return []
+            if info.auto and info.manual:
+                # str.format() refuses to mix the numberings, so the
+                # msgid itself would fail to format
+                return []
+            n_args = max(n_args, _positional_arg_count(info))
+            allowed |= info.named
+
+        if isinstance(msgstr, (list, tuple)):
+            msgstr_forms = [form for form in msgstr if form is not None]
+        else:
+            msgstr_forms = [msgstr]
+        for form in msgstr_forms:
+            try:
+                info = _brace_format_info(form)
+            except _SpecDepthError:
+                errors.append(
+                    'format specifications in translation are nested'
+                    ' deeper than str.format() allows'
+                )
+                continue
+            except ValueError:
+                errors.append('invalid brace-format syntax in translation')
+                continue
+            errors.extend(
+                f'placeholder {name!r} in translation does not appear in the msgid'
+                for name in sorted(info.named - allowed)
+            )
+            # mirror str.format()'s own rules: the two numberings cannot
+            # be mixed, and every positional field must address one of
+            # the arguments the msgid passes
+            if info.auto and info.manual:
+                errors.append(
+                    'cannot mix automatic and manual field numbering in translation'
+                )
+            elif info.manual and max(info.manual) >= n_args:
+                errors.append(
+                    f'positional field {max(info.manual)} in translation'
+                    ' is out of range for the msgid'
+                )
+            elif info.auto > n_args:
+                errors.append(
+                    'translation uses more positional fields than the msgid'
+                    ' has arguments'
+                )
+
+    # percent placeholders: babel's own check, once a message carries
+    # the "python-format" flag (removable once python-babel/babel#333
+    # also validates brace-format messages there)
+    errors.extend(str(error) for error in message.check())
+    return errors
+
+
+def _missing_placeholders(message: Message) -> list[str]:
+    """Return placeholders of the msgid that the translation drops.
+
+    A dropped placeholder does not break formatting, so it is reported
+    as a warning rather than an error: the message still renders, but
+    loses the information the placeholder carried (a name, a path, ...).
+
+    For plural messages a placeholder only has to appear in one of the
+    translated forms, since a singular form may legitimately omit the
+    count. Positional fields are compared as argument indices, so a
+    translation may renumber them (``{0}`` and ``{}`` are
+    interchangeable); automatically numbered msgid fields are not
+    compared at all.
+    """
+    msgid = message.id
+    if isinstance(msgid, (list, tuple)):
+        msgid_forms = [msgid[0], msgid[1]]
+    else:
+        msgid_forms = [msgid]
+
+    required: set[str] = set()
+    positional: set[int] = set()
+    for form in msgid_forms:
+        try:
+            info = _brace_format_info(form)
+        except ValueError:
+            return []
+        required |= info.named
+        positional |= info.manual
+    required |= _percent_format_fields(''.join(msgid_forms))
+
+    msgstr = message.string
+    if msgstr is None:
+        return []
+    if isinstance(msgstr, (list, tuple)):
+        msgstr_forms = [form for form in msgstr if form]
+    else:
+        msgstr_forms = [msgstr]
+    if not msgstr_forms:
+        return []
+
+    used: set[str] = set()
+    referenced: set[int] = set()
+    for form in msgstr_forms:
+        try:
+            info = _brace_format_info(form)
+        except ValueError:
+            # invalid syntax is already reported by _placeholder_errors()
+            return []
+        used |= info.named
+        used |= _percent_format_fields(form)
+        # an automatic field addresses the argument at its position in
+        # the form, an explicit index the argument it names
+        referenced |= set(range(info.auto)) if info.auto else info.manual
+
+    missing = [
+        f'placeholder {name!r} from the msgid is missing in translation'
+        for name in sorted(required - used)
+    ]
+    missing.extend(
+        f'placeholder {index} from the msgid is missing in translation'
+        for index in sorted(positional - referenced)
+    )
+    return missing
+
+
+def _is_tracked(path: Path) -> bool:
+    """Return whether *path* is tracked in the git repository.
+
+    Git runs from the checkout root, so the answer does not depend on
+    the caller's working directory.  A failed invocation raises rather
+    than letting its empty output pass the catalogue off as untracked
+    (and thus deletable).
+    """
+    process = subprocess.run(
+        ('git', 'ls-files', '--', str(path)),  # ruff: ignore[start-process-with-partial-path]
+        capture_output=True,
+        check=False,
+        cwd=ROOT,
+        text=True,
+    )
+    if process.returncode != 0:
+        msg = (
+            f'git ls-files failed with status {process.returncode}:'
+            f' {process.stderr.strip()}'
+        )
+        raise SystemExit(msg)
+    return bool(process.stdout.strip())
+
+
+def run_check(exclude_failing: bool = False) -> None:
+    """Check catalogue placeholder consistency.
+
+    With *exclude_failing*, revert catalogues that fail the check - or
+    remove them, when a newly pulled language has no committed version
+    to revert to - so the Transifex sync excludes them from the
+    automated pull request, and record them in its body.
+
+    Placeholders that a translation drops are reported as warnings: they
+    neither fail the check nor exclude the catalogue.
+    """
+    log = _get_logger()
+
+    directory = ROOT / 'sphinx' / 'locale'
+    excluded: list[str] = []
+    missing: dict[str, int] = {}
+    failures = 0
+
+    for locale in sorted(directory.iterdir()):
+        po_file = locale / 'LC_MESSAGES' / 'sphinx.po'
+        if not po_file.exists():
+            continue
+
+        with open(po_file, encoding='utf-8') as infile:
+            catalogue = read_po(infile, locale=locale.name, domain='sphinx')
+
+        locale_errors = 0
+        for message in catalogue:
+            if not message.id or not message.string or message.fuzzy:
+                continue
+            errors = _placeholder_errors(message)
+            for error in errors:
+                locale_errors += 1
+                log.error(
+                    'error: %s:%d: %s\nerror:     in message string: %r',
+                    po_file.relative_to(ROOT),
+                    message.lineno,
+                    error,
+                    message.string,
+                )
+            if errors:
+                # a renamed placeholder is already an error; do not also
+                # report the original name as missing
+                continue
+            for warning in _missing_placeholders(message):
+                missing[locale.name] = missing.get(locale.name, 0) + 1
+                log.warning(
+                    'warning: %s:%d: %s\nwarning:     in message string: %r',
+                    po_file.relative_to(ROOT),
+                    message.lineno,
+                    warning,
+                    message.string,
+                )
+
+        if not locale_errors:
+            continue
+        failures += locale_errors
+        if exclude_failing:
+            excluded.append(locale.name)
+            log.info(
+                'excluding catalogue %r from this update (%d errors)',
+                locale.name,
+                locale_errors,
+            )
+            if _is_tracked(po_file):
+                subprocess.run(
+                    ('git', 'checkout', '--', str(po_file)),  # ruff: ignore[start-process-with-partial-path]
+                    check=True,
+                    cwd=ROOT,
+                )
+            else:
+                log.info('removing new catalogue %r', po_file.relative_to(ROOT))
+                po_file.unlink()
+
+    if excluded:
+        _write_pr_body_line('## Catalogues excluded from this update')
+        _write_pr_body_line('')
+        for locale_name in excluded:
+            _write_pr_body_line(f'* {locale_name}')
+
+    if missing:
+        _write_pr_body_line('## Translations missing placeholders')
+        _write_pr_body_line('')
+        for locale_name, count in missing.items():
+            s = 's' if count != 1 else ''
+            _write_pr_body_line(f'* {locale_name}: {count} placeholder{s}')
+
+    if failures and not exclude_failing:
+        raise SystemExit(1)
+
+
 def _write_pr_body_line(message: str) -> None:
     if not IS_CI:
         return
@@ -290,6 +681,8 @@ if __name__ == '__main__':
         run_update()
     elif action == 'compile':
         run_compile()
+    elif action == 'check':
+        run_check(exclude_failing='--exclude-failing' in sys.argv)
     elif action == 'all':
         run_extract()
         run_update()

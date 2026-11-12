@@ -86,6 +86,8 @@ jobs:
         /tmp/tx_cli/tx pull --translations --all --force --use-git-timestamps --workers 10
       env:
         TX_TOKEN: ${{ secrets.TX_TOKEN }}
+    - name: Check message catalogues
+      run: python utils/babel_runner.py check --exclude-failing
     - name: Compile message catalogs
       run: python utils/babel_runner.py compile
     - name: Create Pull Request

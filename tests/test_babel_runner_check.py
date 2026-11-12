@@ -1,0 +1,506 @@
+"""Tests for the format-placeholder check in ``utils/babel_runner.py``.
+
+The check exists because babel's checkers do not validate
+``python-brace-format`` messages at all (python-babel/babel#333), so
+damaged placeholders slipped through ``Catalog.check()`` (see issue
+#14664).
+"""
+
+from __future__ import annotations
+
+import importlib.util
+from pathlib import Path
+from textwrap import dedent
+from types import SimpleNamespace
+from typing import TYPE_CHECKING
+
+import pytest
+from babel.messages.catalog import Message
+
+if TYPE_CHECKING:
+    from types import ModuleType
+    from typing import Any
+
+
+def _load_babel_runner() -> ModuleType:
+    path = Path(__file__).parent.parent / 'utils' / 'babel_runner.py'
+    spec = importlib.util.spec_from_file_location('babel_runner', path)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+babel_runner = _load_babel_runner()
+
+
+def _errors(msgid: str | tuple[str, str], msgstr: str | tuple[str, ...]) -> list[str]:
+    return babel_runner._placeholder_errors(Message(msgid, msgstr))
+
+
+def test_clean_named_placeholders_pass() -> None:
+    assert _errors('bad value {name!r}', 'mauvaise valeur {name!r}') == []
+
+
+def test_missing_placeholder_is_not_an_error() -> None:
+    # dropping a placeholder never breaks str.format(); extra keyword
+    # arguments are simply unused
+    assert _errors('bad value {name!r}', 'valeur incorrecte') == []
+
+
+def test_unknown_placeholder_is_an_error() -> None:
+    assert _errors('bad value {name!r}', 'valeur incorrecte {nom!r}') == [
+        "placeholder 'nom' in translation does not appear in the msgid"
+    ]
+
+
+def test_damaged_syntax_is_an_error() -> None:
+    # the Greek catalogue damage from #14664
+    assert _errors(
+        "the config value '{name}' has type '{current.__name__}';"
+        " expected '{permitted}'.",
+        "η τιμή '{name]' έχει τύπο '[current__name__}'; αναμενόμενη {permitted}.",
+    ) == ['invalid brace-format syntax in translation']
+
+
+def test_renamed_placeholder_is_an_error() -> None:
+    # the Greek catalogue damage from #14664 (dots dropped from the names)
+    assert _errors(
+        "value '{name}' has type '{current.__name__}',"
+        " defaults to '{default.__name__}'.",
+        "τιμή '{name}' έχει τύπο '{current__name__}',"
+        " αρχικοποίηση σε '{default__name__}'.",
+    ) == [
+        "placeholder 'current__name__' in translation does not appear in the msgid",
+        "placeholder 'default__name__' in translation does not appear in the msgid",
+    ]
+
+
+def test_placeholder_from_sibling_message_is_an_error() -> None:
+    # the Persian catalogue damage from #14664: {permitted} belongs to the
+    # other config warning, not this one
+    assert _errors(
+        "value '{name}' has type '{current.__name__}',"
+        " default is '{default.__name__}'.",
+        "مقدار '{name}' دارای نوع '{current.__name__}' است،"
+        ' حالت پیش‌فرض {permitted} است.',
+    ) == ["placeholder 'permitted' in translation does not appear in the msgid"]
+
+
+def test_damaged_msgid_is_not_a_translation_error() -> None:
+    assert _errors('{broken', 'translation {ok}') == []
+    assert _errors('{x!z} and {y}', 'translation {y}') == []
+
+
+def test_percent_placeholders_are_checked() -> None:
+    # percent validation is delegated to babel's own checker
+    assert _errors('bad value %(name)r', 'valeur incorrecte %(nom)r') == [
+        "unknown named placeholder 'nom'"
+    ]
+
+
+def test_unflagged_placeholder_additions_are_not_errors() -> None:
+    # the brace check covers messages flagged python-brace-format,
+    # which babel derives from the msgid; a placeholder-free msgid
+    # cannot produce the flag
+    assert _errors('bad value', 'valeur incorrecte {nom}') == []
+
+
+def test_invalid_conversion_is_an_error() -> None:
+    # str.format() rejects unknown conversions at runtime
+    assert _errors('bad value {name}', 'mauvaise valeur {name!x}') == [
+        'invalid brace-format syntax in translation'
+    ]
+
+
+def test_valid_conversions_pass() -> None:
+    assert _errors('bad value {name!s}', 'mauvaise valeur {name!s}') == []
+    assert _errors('bad value {name!a}', 'mauvaise valeur {name!a}') == []
+
+
+def test_nested_placeholder_is_an_error() -> None:
+    # a placeholder the translation introduces inside a format
+    # specification is as fatal as any other
+    assert _errors('value {amount}', 'valeur {amount:{width}}') == [
+        "placeholder 'width' in translation does not appear in the msgid"
+    ]
+
+
+def test_matching_nested_placeholders_pass() -> None:
+    assert _errors('value {amount:{width}}', 'valeur {amount:{width}}') == []
+
+
+def test_positional_reordering_passes() -> None:
+    # translators may reorder the arguments of automatically numbered
+    # fields by switching to explicit positional indices
+    assert (
+        _errors(
+            'File {} was created by user {}.',
+            'Użytkownik {1} utworzył plik {0}.',
+        )
+        == []
+    )
+
+
+def test_automatic_and_explicit_numbering_are_interchangeable() -> None:
+    assert _errors('{} files', '{0} fichiers') == []
+    assert _errors('{0} files', '{} fichiers') == []
+
+
+def test_repeated_positional_index_passes() -> None:
+    assert _errors('{0} and {1}', '{0} und {0}') == []
+    assert _errors('{} and {}', '{0} und {0}') == []
+
+
+def test_mixed_numbering_in_translation_is_an_error() -> None:
+    # str.format() itself refuses to mix the numberings
+    assert _errors('{} of {}', '{} of {0}') == [
+        'cannot mix automatic and manual field numbering in translation'
+    ]
+    assert _errors('{0} of {1}', '{0} of {}') == [
+        'cannot mix automatic and manual field numbering in translation'
+    ]
+
+
+def test_out_of_range_positional_index_is_an_error() -> None:
+    assert _errors('{} of {}', '{2} fichiers') == [
+        'positional field 2 in translation is out of range for the msgid'
+    ]
+    assert _errors('{0} and {1}', '{0} and {2}') == [
+        'positional field 2 in translation is out of range for the msgid'
+    ]
+
+
+def test_extra_automatic_fields_are_an_error() -> None:
+    # '{} and {}' needs two arguments, but the msgid passes only one
+    assert _errors('{} file', '{} and {}') == [
+        'translation uses more positional fields than the msgid has arguments'
+    ]
+
+
+def test_positional_fields_of_a_named_msgid_are_an_error() -> None:
+    # the msgid is formatted with keyword arguments only
+    assert _errors('value {name}', 'valeur {0}') == [
+        'positional field 0 in translation is out of range for the msgid'
+    ]
+
+
+def test_plural_forms_share_the_msgid_argument_list() -> None:
+    # every plural form is formatted with the same arguments, so the
+    # argument count of one msgid form binds every translation form
+    msgid = '{0} file', '{0} files'
+    msgstr = 'un fichier', '{1} fichiers'
+    assert _errors(msgid, msgstr) == [
+        'positional field 1 in translation is out of range for the msgid'
+    ]
+
+
+def test_nested_spec_beyond_the_runtime_limit_is_an_error() -> None:
+    # str.format() raises 'ValueError: Max string recursion exceeded'
+    # for a specification nested inside a specification
+    assert _errors('{a}', 'wartość {a:{b:{c}}}') == [
+        'format specifications in translation are nested deeper than str.format() allows'
+    ]
+
+
+def test_nested_spec_at_the_runtime_limit_passes() -> None:
+    # one level of nesting is exactly what str.format() still formats
+    assert _errors('{a:{b}}', 'wartość {a:{b}}') == []
+
+
+def test_nested_literal_spec_inside_a_spec_passes() -> None:
+    # str.format() expands only specifications that hold a replacement
+    # field, so its recursion limit does not bind a literal
+    # specification inside a specification: "{a:{b:>5}}" and
+    # "{a:{a:1}}" format at runtime, while "{a:{b:{c}}}" does not
+    assert _errors('{a:{b:>5}}', 'wartość {a:{b:>5}}') == []
+    assert _errors('{a:{a:1}}', 'wartość {a:{a:1}}') == []
+
+
+def test_each_plural_form_is_checked() -> None:
+    msgid = '{name} files', '{name} files'
+    msgstr = 'fichiers {nom}', '{name} fichiers'
+    assert _errors(msgid, msgstr) == [
+        "placeholder 'nom' in translation does not appear in the msgid"
+    ]
+
+
+def _missing(msgid: str | tuple[str, str], msgstr: str | tuple[str, ...]) -> list[str]:
+    return babel_runner._missing_placeholders(Message(msgid, msgstr))
+
+
+def test_missing_placeholder_is_a_warning() -> None:
+    assert _missing('bad value {name!r}', 'valeur incorrecte') == [
+        "placeholder 'name' from the msgid is missing in translation"
+    ]
+
+
+def test_missing_percent_placeholder_is_a_warning() -> None:
+    assert _missing('bad value %(name)r', 'valeur incorrecte') == [
+        "placeholder 'name' from the msgid is missing in translation"
+    ]
+
+
+def test_complete_translation_has_no_missing_placeholders() -> None:
+    assert _missing('bad value {name!r}', 'mauvaise valeur {name!r}') == []
+
+
+def test_reordered_placeholders_are_not_missing() -> None:
+    assert _missing('{name} in {path}', 'dans {path}: {name}') == []
+
+
+def test_plural_placeholder_needs_only_one_form() -> None:
+    # the singular form may legitimately omit the count
+    msgid = 'one file in {path}', '{n} files in {path}'
+    msgstr = 'un fichier dans {path}', '{n} fichiers dans {path}'
+    assert _missing(msgid, msgstr) == []
+    assert _missing(msgid, ('un fichier', '{n} fichiers')) == [
+        "placeholder 'path' from the msgid is missing in translation"
+    ]
+
+
+def test_positional_placeholders_are_not_compared() -> None:
+    assert _missing('bad value {}', 'valeur incorrecte') == []
+
+
+def test_renumbered_positional_fields_are_not_missing() -> None:
+    # '{}' and '{0}' address the same argument, whichever way the msgid
+    # numbers it; dropping one of several arguments still loses
+    # information and stays a warning
+    assert _missing('{0} and {1}', '{} and {}') == []
+    assert _missing('{0} and {1}', '{1} and {0}') == []
+    assert _missing('{0} and {1}', '{0} and {0}') == [
+        'placeholder 1 from the msgid is missing in translation'
+    ]
+
+
+def test_damaged_syntax_is_not_also_reported_missing() -> None:
+    assert _missing('bad value {name}', 'valeur incorrecte {name]') == []
+
+
+def test_run_check_reports_and_excludes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    locale_dir = tmp_path / 'sphinx' / 'locale'
+    damaged = dedent(
+        """\
+        msgid "value '{name}'"
+        msgstr "valeur '{nom}'"
+        """
+    )
+    clean = dedent(
+        """\
+        msgid "value '{name}'"
+        msgstr "valeur '{name}'"
+        """
+    )
+    for locale, content in (('fr', clean), ('el', damaged)):
+        d = locale_dir / locale / 'LC_MESSAGES'
+        d.mkdir(parents=True)
+        (d / 'sphinx.po').write_text(content, encoding='utf-8')
+
+    reverted = []
+
+    def fake_git(*args: Any, **kwargs: Any) -> Any:
+        argv = args[0]
+        if argv[1] == 'ls-files':
+            path = Path(argv[3])
+            assert path.parent.parent.name == 'el'
+            return SimpleNamespace(returncode=0, stdout=f'{path}\n')
+        assert argv[:3] == ('git', 'checkout', '--')
+        assert kwargs.get('check') is True
+        reverted.append(argv[3])
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(babel_runner, 'ROOT', tmp_path)
+    monkeypatch.setattr(babel_runner.subprocess, 'run', fake_git)
+    monkeypatch.setattr(babel_runner, '_write_pr_body_line', lambda m: None)
+
+    # plain mode: reports the damaged catalogue and exits non-zero
+    with caplog.at_level('WARNING', logger='babel'), pytest.raises(SystemExit) as exc:
+        babel_runner.run_check()
+    assert exc.value.code == 1
+    assert any('el' in record.getMessage() for record in caplog.records)
+    # the renamed placeholder is an error only, not also a missing one
+    assert not [r for r in caplog.records if r.levelname == 'WARNING']
+
+    # exclusion mode: reverts the damaged catalogue and exits cleanly
+    babel_runner.run_check(exclude_failing=True)
+    assert len(reverted) == 1
+    assert Path(reverted[0]).name == 'sphinx.po'
+    assert Path(reverted[0]).parent.parent.name == 'el'
+
+
+def test_run_check_removes_untracked_catalogue(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    # a newly pulled language has no committed version to revert to;
+    # its invalid catalogue must be removed without aborting the sync
+    locale_dir = tmp_path / 'sphinx' / 'locale'
+    damaged = dedent(
+        """\
+        msgid "value '{name}'"
+        msgstr "valeur '{nom}'"
+        """
+    )
+    clean = dedent(
+        """\
+        msgid "value '{name}'"
+        msgstr "valeur '{name}'"
+        """
+    )
+    for locale in ('fr', 'el'):  # fr is newly pulled, el is tracked
+        d = locale_dir / locale / 'LC_MESSAGES'
+        d.mkdir(parents=True)
+        (d / 'sphinx.po').write_text(damaged, encoding='utf-8')
+
+    def fake_git(*args: Any, **kwargs: Any) -> Any:
+        argv = args[0]
+        if argv[1] == 'ls-files':
+            path = Path(argv[3])
+            if path.parent.parent.name == 'fr':
+                return SimpleNamespace(returncode=0, stdout='')
+            return SimpleNamespace(returncode=0, stdout=f'{path}\n')
+        assert argv[:3] == ('git', 'checkout', '--')
+        assert kwargs.get('check') is True
+        assert Path(argv[3]).parent.parent.name == 'el'
+        Path(argv[3]).write_text(clean, encoding='utf-8')
+        return SimpleNamespace(returncode=0)
+
+    body: list[str] = []
+    monkeypatch.setattr(babel_runner, 'ROOT', tmp_path)
+    monkeypatch.setattr(babel_runner.subprocess, 'run', fake_git)
+    monkeypatch.setattr(babel_runner, '_write_pr_body_line', body.append)
+
+    # the sync continues, restoring the tracked catalogue and removing
+    # the untracked one, and lists both as excluded
+    with caplog.at_level('INFO', logger='babel'):
+        babel_runner.run_check(exclude_failing=True)
+    el_po = locale_dir / 'el' / 'LC_MESSAGES' / 'sphinx.po'
+    fr_po = locale_dir / 'fr' / 'LC_MESSAGES' / 'sphinx.po'
+    assert el_po.read_text(encoding='utf-8') == clean
+    assert not fr_po.exists()
+    assert any('removing' in r.getMessage() for r in caplog.records)
+    assert '## Catalogues excluded from this update' in body
+    assert '* fr' in body
+    assert '* el' in body
+
+
+def test_run_check_warns_without_excluding(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    d = tmp_path / 'sphinx' / 'locale' / 'el' / 'LC_MESSAGES'
+    d.mkdir(parents=True)
+    (d / 'sphinx.po').write_text(
+        dedent(
+            """\
+            msgid "value '{name}'"
+            msgstr "valeur"
+            """
+        ),
+        encoding='utf-8',
+    )
+
+    def fake_git(*_args: Any, **_kwargs: Any) -> int:
+        pytest.fail('a catalogue with only missing placeholders was reverted')
+
+    body: list[str] = []
+    monkeypatch.setattr(babel_runner, 'ROOT', tmp_path)
+    monkeypatch.setattr(babel_runner.subprocess, 'run', fake_git)
+    monkeypatch.setattr(babel_runner, '_write_pr_body_line', body.append)
+
+    # neither mode fails or excludes the catalogue
+    with caplog.at_level('WARNING', logger='babel'):
+        babel_runner.run_check()
+        babel_runner.run_check(exclude_failing=True)
+    warnings = [r for r in caplog.records if r.levelname == 'WARNING']
+    assert len(warnings) == 2
+    assert "'name'" in warnings[0].getMessage()
+    assert '* el: 1 placeholder' in body
+    assert '## Catalogues excluded from this update' not in body
+
+
+def test_run_check_runs_git_from_the_checkout_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    # the runner may be invoked from outside the checkout (the Transifex
+    # sync does so); git must then still operate on the checkout itself,
+    # or ls-files fails and a tracked catalogue looks untracked
+    checkout = tmp_path / 'sphinx-checkout'
+    locale_dir = checkout / 'sphinx' / 'locale'
+    damaged = dedent(
+        """\
+        msgid "value '{name}'"
+        msgstr "valeur '{nom}'"
+        """
+    )
+    clean = dedent(
+        """\
+        msgid "value '{name}'"
+        msgstr "valeur '{name}'"
+        """
+    )
+    d = locale_dir / 'el' / 'LC_MESSAGES'
+    d.mkdir(parents=True)
+    (d / 'sphinx.po').write_text(damaged, encoding='utf-8')
+
+    reverted = []
+
+    def fake_git(*args: Any, **kwargs: Any) -> Any:
+        # both git invocations run in the checkout, whatever the caller's
+        # working directory is
+        assert kwargs.get('cwd') == checkout
+        argv = args[0]
+        if argv[1] == 'ls-files':
+            return SimpleNamespace(returncode=0, stdout=f'{argv[3]}\n')
+        assert argv[:3] == ('git', 'checkout', '--')
+        assert kwargs.get('check') is True
+        reverted.append(argv[3])
+        Path(argv[3]).write_text(clean, encoding='utf-8')
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(babel_runner, 'ROOT', checkout)
+    monkeypatch.chdir(tmp_path)  # outside the checkout
+    monkeypatch.setattr(babel_runner.subprocess, 'run', fake_git)
+    monkeypatch.setattr(babel_runner, '_write_pr_body_line', lambda m: None)
+
+    # the tracked catalogue is reverted, not removed
+    with caplog.at_level('INFO', logger='babel'):
+        babel_runner.run_check(exclude_failing=True)
+    assert len(reverted) == 1
+    assert (d / 'sphinx.po').read_text(encoding='utf-8') == clean
+    assert not [r for r in caplog.records if 'removing' in r.getMessage()]
+
+
+def test_run_check_does_not_remove_catalogue_when_ls_files_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # when git cannot say whether a catalogue is tracked (it exits 128
+    # outside a repository), the empty output must not be read as
+    # "untracked": nothing is reverted or removed
+    d = tmp_path / 'sphinx' / 'locale' / 'el' / 'LC_MESSAGES'
+    d.mkdir(parents=True)
+    (d / 'sphinx.po').write_text(
+        dedent(
+            """\
+            msgid "value '{name}'"
+            msgstr "valeur '{nom}'"
+            """
+        ),
+        encoding='utf-8',
+    )
+
+    def fake_git(*args: Any, **kwargs: Any) -> Any:
+        assert args[0][1] == 'ls-files'
+        return SimpleNamespace(
+            returncode=128, stdout='', stderr='fatal: not a git repository'
+        )
+
+    monkeypatch.setattr(babel_runner, 'ROOT', tmp_path)
+    monkeypatch.setattr(babel_runner.subprocess, 'run', fake_git)
+    monkeypatch.setattr(babel_runner, '_write_pr_body_line', lambda m: None)
+
+    with pytest.raises(SystemExit, match='git ls-files failed'):
+        babel_runner.run_check(exclude_failing=True)
+    assert (d / 'sphinx.po').exists()
