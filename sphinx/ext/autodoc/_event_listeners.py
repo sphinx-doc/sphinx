@@ -7,10 +7,19 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from contextlib import AbstractContextManager
     from typing import Any, Protocol
 
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc._property_types import _AutodocObjType
+
+    class _AutodocTypeHintsContextListener(Protocol):  # ruff: ignore[unused-private-protocol]
+        def __call__(
+            self,
+            app: Sphinx,
+            obj: Any,
+            /,
+        ) -> AbstractContextManager[None] | None: ...
 
     class _AutodocProcessDocstringListener(Protocol):
         # parameter names are non-normative

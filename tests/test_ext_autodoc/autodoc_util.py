@@ -24,6 +24,7 @@ class FakeEvents(EventManager):
         super().__init__(SimpleNamespace(pdb=False))  # type: ignore[arg-type]
 
         self.add('autodoc-before-process-signature')
+        self.add('autodoc-type-hints-context')
         self.add('autodoc-process-docstring')
         self.add('autodoc-process-signature')
         self.add('autodoc-skip-member')

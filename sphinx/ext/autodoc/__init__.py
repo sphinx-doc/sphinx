@@ -197,6 +197,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     )
 
     app.add_event('autodoc-before-process-signature')
+    app.add_event('autodoc-type-hints-context')
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')

@@ -34,10 +34,11 @@ from sphinx.ext.autodoc._sentinels import (
     UNINITIALIZED_ATTR,
 )
 from sphinx.ext.autodoc._shared import LOGGER, _get_render_mode
+from sphinx.ext.autodoc._type_hints import _get_type_hints
 from sphinx.locale import __
 from sphinx.util import inspect
 from sphinx.util.inspect import safe_getattr
-from sphinx.util.typing import get_type_hints, restify, stringify_annotation
+from sphinx.util.typing import restify, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, MutableSet, Sequence
@@ -80,6 +81,7 @@ def _load_object_by_name(
 
     # Import the module and get the object to document
     im = _import_object(
+        events=events,
         module_name=module_name,
         obj_path=parts,
         mock_imports=config.autodoc_mock_imports,
@@ -364,7 +366,8 @@ def _make_props_from_imported_object(
             _ensure_annotations_from_type_comments(parent)
 
         # obtain annotation
-        annotations = get_type_hints(
+        annotations = _get_type_hints(
+            events,
             parent,
             None,
             config.autodoc_type_aliases,
@@ -416,7 +419,8 @@ def _make_props_from_imported_object(
             _ensure_annotations_from_type_comments(parent)
 
         # obtain annotation
-        annotations = get_type_hints(
+        annotations = _get_type_hints(
+            events,
             parent,
             None,
             config.autodoc_type_aliases,

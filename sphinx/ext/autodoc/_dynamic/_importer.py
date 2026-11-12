@@ -18,10 +18,10 @@ from sphinx.errors import PycodeError
 from sphinx.ext.autodoc._dynamic._mock import ismock, mock, undecorate
 from sphinx.ext.autodoc._sentinels import RUNTIME_INSTANCE_ATTRIBUTE, UNINITIALIZED_ATTR
 from sphinx.ext.autodoc._shared import LOGGER
+from sphinx.ext.autodoc._type_hints import _get_type_hints
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect
 from sphinx.util.inspect import isclass, safe_getattr
-from sphinx.util.typing import get_type_hints
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from types import ModuleType
     from typing import Any, Protocol
 
+    from sphinx.events import EventManager
     from sphinx.ext.autodoc._property_types import _AutodocObjType
 
     class _AttrGetter(Protocol):
@@ -70,6 +71,7 @@ class _ImportedObject:
 
 def _import_object(
     *,
+    events: EventManager,
     get_attr: _AttrGetter = safe_getattr,
     mock_imports: Sequence[str],
     module_name: str,
@@ -86,6 +88,7 @@ def _import_object(
     except ImportError as exc:
         if obj_type == 'data':
             im_ = _import_data_declaration(
+                events=events,
                 module_name=module_name,
                 obj_path=obj_path,
                 mock_imports=mock_imports,
@@ -95,6 +98,7 @@ def _import_object(
                 return im_
         elif obj_type == 'attribute':
             im_ = _import_attribute_declaration(
+                events=events,
                 module_name=module_name,
                 obj_path=obj_path,
                 mock_imports=mock_imports,
@@ -310,6 +314,7 @@ def _mangle_name(subject: Any, name: str) -> str:
 
 def _import_data_declaration(
     *,
+    events: EventManager,
     module_name: str,
     obj_path: Sequence[str],
     mock_imports: Sequence[str],
@@ -319,7 +324,9 @@ def _import_data_declaration(
     try:
         with mock(mock_imports):
             parent = _import_module(module_name)
-        annotations = get_type_hints(parent, None, type_aliases, include_extras=True)
+        annotations = _get_type_hints(
+            events, parent, None, type_aliases, include_extras=True
+        )
         if obj_path[-1] in annotations:
             im = _ImportedObject(
                 parent=parent,
@@ -333,6 +340,7 @@ def _import_data_declaration(
 
 def _import_attribute_declaration(
     *,
+    events: EventManager,
     module_name: str,
     obj_path: Sequence[str],
     mock_imports: Sequence[str],
@@ -362,7 +370,7 @@ def _import_attribute_declaration(
             )
             return im
         elif _is_uninitialized_instance_attribute(
-            parent=parent, obj_path=obj_path, type_aliases=type_aliases
+            parent=parent, obj_path=obj_path, type_aliases=type_aliases, events=events
         ):
             im = _ImportedObject(
                 parent=parent,
@@ -426,8 +434,14 @@ def _get_attribute_comment(
 
 
 def _is_uninitialized_instance_attribute(
-    *, parent: Any, obj_path: Sequence[str], type_aliases: Mapping[str, str] | None
+    *,
+    parent: Any,
+    obj_path: Sequence[str],
+    type_aliases: Mapping[str, str] | None,
+    events: EventManager,
 ) -> bool:
     """Check the subject is an annotation only attribute."""
-    annotations = get_type_hints(parent, None, type_aliases, include_extras=True)
+    annotations = _get_type_hints(
+        events, parent, None, type_aliases, include_extras=True
+    )
     return obj_path[-1] in annotations

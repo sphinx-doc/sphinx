@@ -58,6 +58,7 @@ if TYPE_CHECKING:
         _AutodocProcessDocstringListener,
         _AutodocProcessSignatureListener,
         _AutodocSkipMemberListener,
+        _AutodocTypeHintsContextListener,
     )
     from sphinx.ext.autodoc._legacy_class_based._documenters import Documenter
     from sphinx.ext.todo import todo_node
@@ -710,6 +711,14 @@ class Sphinx:
     ) -> int: ...
 
     # ---- Events from first-party extensions --------------------------------
+
+    @overload
+    def connect(
+        self,
+        event: Literal['autodoc-type-hints-context'],
+        callback: _AutodocTypeHintsContextListener,
+        priority: int = 500,
+    ) -> int: ...
 
     @overload
     def connect(

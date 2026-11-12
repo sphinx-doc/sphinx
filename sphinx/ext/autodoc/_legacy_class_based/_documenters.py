@@ -30,6 +30,7 @@ from sphinx.ext.autodoc._legacy_class_based._sentinels import (
     UNINITIALIZED_ATTR,
 )
 from sphinx.ext.autodoc._shared import LOGGER
+from sphinx.ext.autodoc._type_hints import _get_type_hints
 from sphinx.ext.autodoc.importer import (  # type: ignore[attr-defined]
     get_class_members,
     import_module,
@@ -46,7 +47,7 @@ from sphinx.util.inspect import (
     safe_getattr,
     stringify_signature,
 )
-from sphinx.util.typing import get_type_hints, restify, stringify_annotation
+from sphinx.util.typing import restify, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
@@ -1944,6 +1945,7 @@ class ExceptionDocumenter(ClassDocumenter):
 
 class DataDocumenterMixinBase:
     # define types of instance variables
+    _events: EventManager
     config: Config
     env: BuildEnvironment
     modname: str
@@ -1999,7 +2001,8 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
             try:
                 with mock(self.config.autodoc_mock_imports):
                     parent = import_module(self.modname)
-                    annotations = get_type_hints(
+                    annotations = _get_type_hints(
+                        self._events,
                         parent,
                         None,
                         self.config.autodoc_type_aliases,
@@ -2095,7 +2098,8 @@ class DataDocumenter(
         else:
             if self.config.autodoc_typehints != 'none':
                 # obtain annotation for this data
-                annotations = get_type_hints(
+                annotations = _get_type_hints(
+                    self._events,
                     self.parent,
                     None,
                     self.config.autodoc_type_aliases,
@@ -2600,8 +2604,12 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
 
     def is_uninitialized_instance_attribute(self, parent: Any) -> bool:
         """Check the subject is an annotation only attribute."""
-        annotations = get_type_hints(
-            parent, None, self.config.autodoc_type_aliases, include_extras=True
+        annotations = _get_type_hints(
+            self._events,
+            parent,
+            None,
+            self.config.autodoc_type_aliases,
+            include_extras=True,
         )
         return self.objpath[-1] in annotations
 
@@ -2747,7 +2755,8 @@ class AttributeDocumenter(  # type: ignore[misc]
         else:
             if self.config.autodoc_typehints != 'none':
                 # obtain type annotation for this attribute
-                annotations = get_type_hints(
+                annotations = _get_type_hints(
+                    self._events,
                     self.parent,
                     None,
                     self.config.autodoc_type_aliases,

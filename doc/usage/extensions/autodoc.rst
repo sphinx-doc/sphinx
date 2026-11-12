@@ -1396,6 +1396,16 @@ Docstring preprocessing
 
 autodoc provides the following additional events:
 
+.. event:: autodoc-type-hints-context (app, obj)
+
+   Emitted before autodoc evaluates the type hints of *obj*.
+   A handler may return a context manager that supplies names needed to evaluate
+   annotations. Autodoc enters all returned contexts in handler priority order,
+   evaluates the hints, and then exits the contexts. Return ``None`` when no
+   context is needed.
+
+   .. versionadded:: 9.3
+
 .. event:: autodoc-process-docstring (app, obj_type, name, obj, options, lines)
 
    .. versionadded:: 0.4
