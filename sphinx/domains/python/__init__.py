@@ -13,7 +13,7 @@ from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.domains import Domain, Index, IndexEntry, ObjType
-from sphinx.domains.python._annotations import _parse_annotation
+from sphinx.domains.python._annotations import _parse_annotation, _parse_type_list
 from sphinx.domains.python._object import PyObject
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
@@ -55,6 +55,22 @@ from sphinx.domains.python._object import (  # ruff: ignore[unused-import]
 _TYPING_ALL = frozenset(typing.__all__)
 
 logger = logging.getLogger(__name__)
+
+
+def parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
+    """Parse a Python annotation fragment into signature nodes."""
+    return _parse_annotation(annotation, env)
+
+
+def parse_type_parameter_list(
+    text: str,
+    env: BuildEnvironment,
+    *,
+    multi_line_parameter_list: bool = False,
+    trailing_comma: bool = True,
+) -> addnodes.desc_type_parameter_list:
+    """Parse a PEP 695 type parameter list into a signature node."""
+    return _parse_type_list(text, env, multi_line_parameter_list, trailing_comma)
 
 
 class ObjectEntry(NamedTuple):

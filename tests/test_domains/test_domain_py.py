@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from tokenize import TokenError
 from unittest.mock import Mock
 
 import docutils.utils
@@ -31,7 +32,12 @@ from sphinx.addnodes import (
     pending_xref,
 )
 from sphinx.domains import IndexEntry
-from sphinx.domains.python import PythonDomain, PythonModuleIndex
+from sphinx.domains.python import (
+    PythonDomain,
+    PythonModuleIndex,
+    parse_annotation,
+    parse_type_parameter_list,
+)
 from sphinx.domains.python._annotations import _parse_annotation, _pseudo_parse_arglist
 from sphinx.domains.python._object import py_sig_re
 from sphinx.testing import restructuredtext
@@ -557,6 +563,104 @@ def test_parse_annotation_suppress(app):
     assert_node(
         doctree[0], pending_xref, refdomain='py', reftype='obj', reftarget='typing.Dict'
     )
+
+
+@pytest.mark.parametrize(
+    ('text', 'expected'),
+    [
+        pytest.param(
+            '(int, str)',
+            (
+                [pending_xref, 'int'],
+                [desc_sig_punctuation, ','],
+                desc_sig_space,
+                [pending_xref, 'str'],
+            ),
+            id='tuple',
+        ),
+        pytest.param(
+            'int\nstr', ([pending_xref, 'int'], [pending_xref, 'str']), id='multiline'
+        ),
+    ],
+)
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_public_parse_annotation(app, text, expected):
+    assert_node(parse_annotation(text, app.env), expected)
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_public_parse_type_parameter_list(app):
+    text = 'T: int,\nU = str'
+    parsed = parse_type_parameter_list(text, app.env)
+    assert parsed.rawsource == text
+    assert parsed['multi_line_parameter_list'] is False
+    assert parsed['multi_line_trailing_comma'] is True
+    assert_node(
+        parsed,
+        desc_type_parameter_list,
+        (
+            [
+                desc_type_parameter,
+                (
+                    [desc_sig_name, 'T'],
+                    [desc_sig_punctuation, ':'],
+                    desc_sig_space,
+                    [desc_sig_name, ([pending_xref, 'int'])],
+                ),
+            ],
+            [
+                desc_type_parameter,
+                (
+                    [desc_sig_name, 'U'],
+                    desc_sig_space,
+                    [desc_sig_operator, '='],
+                    desc_sig_space,
+                    [nodes.inline, 'str'],
+                ),
+            ],
+        ),
+    )
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_public_parse_empty_type_parameter_list(app):
+    parsed = parse_type_parameter_list('', app.env)
+    assert parsed.rawsource == ''
+    assert parsed['multi_line_parameter_list'] is False
+    assert parsed['multi_line_trailing_comma'] is True
+    assert_node(parsed, desc_type_parameter_list, ())
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_public_parse_type_parameter_list_formatting(app):
+    parsed = parse_type_parameter_list(
+        'T: int', app.env, multi_line_parameter_list=True, trailing_comma=False
+    )
+    assert (
+        parsed['multi_line_parameter_list'],
+        parsed['multi_line_trailing_comma'],
+    ) == (True, False)
+
+
+@pytest.mark.parametrize(
+    ('text', 'error', 'message'),
+    [
+        pytest.param(
+            '*Ts: int',
+            SyntaxError,
+            'variadic positional',
+            id='variadic-positional-bound',
+        ),
+        pytest.param(
+            '**P: int', SyntaxError, 'variadic keyword', id='variadic-keyword-bound'
+        ),
+        pytest.param('T: (', TokenError, 'unexpected EOF', id='unclosed-bound'),
+    ],
+)
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_public_parse_type_parameter_list_errors(app, text, error, message):
+    with pytest.raises(error, match=message):
+        parse_type_parameter_list(text, app.env)
 
 
 @pytest.mark.sphinx('html', testroot='_blank')

@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* Python domain: Expose annotation and type parameter fragment parsers for
+  extensions that write signature nodes.
+
 Bugs fixed
 ----------
 
