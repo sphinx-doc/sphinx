@@ -295,9 +295,12 @@ def _get_logger() -> logging.Logger:
 
 _VALID_CONVERSIONS = frozenset('sra')
 
-# str.format() still formats a specification nested inside one other
-# specification (as in "{0:{width}}") but raises
-# "ValueError: Max string recursion exceeded" for anything deeper
+# str.format() expands a format specification only when it contains a
+# replacement field, and allows one such expansion inside another
+# ("{a:{b}}"); a second one ("{a:{b:{c}}}") raises
+# "ValueError: Max string recursion exceeded".  A specification without
+# a replacement field never expands, so it may nest freely
+# ("{a:{b:>5}}" still formats).
 _MAX_SPEC_DEPTH = 1
 
 
@@ -318,6 +321,19 @@ class _BraceFormat(NamedTuple):
     auto: int
     manual: set[int]
     named: set[str]
+
+
+def _spec_has_field(spec: str) -> bool:
+    """Return whether the format specification holds a replacement field.
+
+    Only such a specification is expanded at formatting time, so only
+    expanding one inside another can exceed str.format()'s recursion
+    limit; a literal specification never expands.
+    """
+    return any(
+        field_name is not None
+        for _literal, field_name, _spec, _conversion in string.Formatter().parse(spec)
+    )
 
 
 def _brace_format_info(text: str, depth: int = 0) -> _BraceFormat:
@@ -344,7 +360,10 @@ def _brace_format_info(text: str, depth: int = 0) -> _BraceFormat:
             msg = f'unknown conversion {conversion!r}'
             raise ValueError(msg)
         if spec:
-            if depth >= _MAX_SPEC_DEPTH:
+            # a specification at the depth limit is fatal only when it
+            # holds a replacement field, since only then does
+            # str.format() recurse into it
+            if depth >= _MAX_SPEC_DEPTH and _spec_has_field(spec):
                 msg = 'max string recursion exceeded'
                 raise _SpecDepthError(msg)
             nested = _brace_format_info(spec, depth + 1)
@@ -361,23 +380,6 @@ def _positional_arg_count(info: _BraceFormat) -> int:
     if info.manual:
         return max(info.manual) + 1
     return 0
-
-
-def _brace_format_fields(text: str) -> set[str]:
-    """Return the set of brace-format placeholder names in *text*.
-
-    Placeholders nested inside format specifications are included.
-    Automatic fields are reported as the empty string and explicit
-    positional indices as their number, so that msgid and translation
-    can be compared name by name.
-
-    Raises ``ValueError`` for invalid brace-format syntax.
-    """
-    info = _brace_format_info(text)
-    fields = set(info.named) | {str(index) for index in info.manual}
-    if info.auto:
-        fields.add('')
-    return fields
 
 
 _PERCENT_FIELD_RE = re.compile(r'%\((\w+)\)')

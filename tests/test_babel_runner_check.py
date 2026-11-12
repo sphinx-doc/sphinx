@@ -209,6 +209,15 @@ def test_nested_spec_at_the_runtime_limit_passes() -> None:
     assert _errors('{a:{b}}', 'wartość {a:{b}}') == []
 
 
+def test_nested_literal_spec_inside_a_spec_passes() -> None:
+    # str.format() expands only specifications that hold a replacement
+    # field, so its recursion limit does not bind a literal
+    # specification inside a specification: "{a:{b:>5}}" and
+    # "{a:{a:1}}" format at runtime, while "{a:{b:{c}}}" does not
+    assert _errors('{a:{b:>5}}', 'wartość {a:{b:>5}}') == []
+    assert _errors('{a:{a:1}}', 'wartość {a:{a:1}}') == []
+
+
 def test_each_plural_form_is_checked() -> None:
     msgid = '{name} files', '{name} files'
     msgstr = 'fichiers {nom}', '{name} fichiers'
