@@ -85,7 +85,7 @@ var Stemmer = function () {
 };
 """
 
-    _word_re = re.compile(r'\w+')
+    _word_re = re.compile(r'\w+(?:\.\w+)*')
 
     def __init__(self, options: dict[str, str]) -> None:
         """Initialize the class with the options the user has given."""
@@ -95,8 +95,16 @@ var Stemmer = function () {
         """This method splits a sentence into words.  Default splitter splits input
         at white spaces, which should be enough for most languages except CJK
         languages.
+        Terms with dot are now added with and without dot.
+        For *example.com* this return three words : example, com and example.com
         """
-        return self._word_re.findall(input)
+        words = []
+
+        for match in self._word_re.findall(input):
+            words.append(match)
+            if '.' in match:
+                words.extend(match.split('.'))
+        return words
 
     def stem(self, word: str) -> str:
         """This method implements stemming algorithm of the Python version.
@@ -114,7 +122,7 @@ var Stemmer = function () {
         """Return true if the target word should be registered in the search index.
         This method is called after stemming.
         """
-        return not word.isdigit() and word not in self.stopwords
+        return word not in self.stopwords
 
 
 # SearchEnglish imported after SearchLanguage is defined due to circular import

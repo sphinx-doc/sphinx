@@ -180,15 +180,30 @@ const _orderResultsByScoreThenName = (a, b) => {
  * Default splitQuery function. Can be overridden in ``sphinx.search`` with a
  * custom function per language.
  *
- * The regular expression works by splitting the string on consecutive characters
- * that are not Unicode letters, numbers, underscores, or emoji characters.
- * This is the same as ``\W+`` in Python, preserving the surrogate pair area.
+ * Keep complete dotted terms and also index their individual components.
+ * Trailing punctuation is automatically ignored.
  */
 if (typeof splitQuery === "undefined") {
-  var splitQuery = (query) =>
-    query
-      .split(/[^\p{Letter}\p{Number}_\p{Emoji_Presentation}]+/gu)
-      .filter((term) => term); // remove remaining empty strings
+  var splitQuery = (query) => {
+    const pattern =
+      /[\p{Letter}\p{Number}_\p{Emoji_Presentation}]+(?:\.[\p{Letter}\p{Number}_\p{Emoji_Presentation}]+)*/gu;
+
+    const terms = [];
+
+    for (const match of query.matchAll(pattern)) {
+      const term = match[0];
+
+      // Keep the complete term.
+      terms.push(term);
+
+      // Add individual components of dotted terms.
+      if (term.includes(".")) {
+        terms.push(...term.split("."));
+      }
+    }
+
+    return terms;
+  };
 }
 
 /**
@@ -311,7 +326,7 @@ const Search = {
 
       // maybe skip this "word"
       // stopwords set is from language_data.js
-      if (stopwords.has(queryTermLower) || queryTerm.match(/^\d+$/)) return;
+      if (stopwords.has(queryTermLower)) return;
 
       // stem the word
       let word = stemmer.stemWord(queryTermLower);
