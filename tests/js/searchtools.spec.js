@@ -311,3 +311,65 @@ describe("splitQuery regression tests", () => {
     expect(parts).toEqual(["Löschen", "Prüfung", "Abändern", "ærlig", "spørsmål"])
   });
 });
+
+
+// Regression tests for https://github.com/sphinx-doc/sphinx/issues/776
+describe("splitQuery regression tests for dotted terms", () => {
+  it("can split dotted file names and keep their components", () => {
+    const parts = splitQuery("foo.py foo.pyc archive.tar.gz");
+    expect(parts).toEqual([
+      "foo.py", "foo", "py",
+      "foo.pyc", "foo", "pyc",
+      "archive.tar.gz", "archive", "tar", "gz",
+    ]);
+  });
+
+  it("can split dotted identifiers and keep their components", () => {
+    const parts = splitQuery("re.match os.path.join");
+    expect(parts).toEqual([
+      "re.match", "re", "match",
+      "os.path.join", "os", "path", "join",
+    ]);
+  });
+
+  it("can split IP addresses and keep their numeric components", () => {
+    const parts = splitQuery("192.168.1.10 127.0.0.1");
+    expect(parts).toEqual([
+      "192.168.1.10", "192", "168", "1", "10",
+      "127.0.0.1", "127", "0", "0", "1",
+    ]);
+  });
+
+  it("can split version numbers and keep their numeric components", () => {
+    const parts = splitQuery("Python 3.12 version 1.2.3");
+    expect(parts).toEqual([
+      "Python",
+      "3.12", "3", "12",
+      "version",
+      "1.2.3", "1", "2", "3",
+    ]);
+  });
+
+  it("can ignore trailing punctuation", () => {
+    const parts = splitQuery("This is a sentence. foo.py. 192.168.1.10.");
+    expect(parts).toEqual([
+      "This", "is", "a", "sentence",
+      "foo.py", "foo", "py",
+      "192.168.1.10", "192", "168", "1", "10",
+    ]);
+  });
+
+  it("can handle consecutive dots without creating empty terms", () => {
+    const parts = splitQuery("foo..py example.com...");
+    expect(parts).toEqual([
+      "foo", "py",
+      "example.com", "example", "com",
+    ]);
+  });
+
+  it("can keep standalone numeric terms", () => {
+    const parts = splitQuery("1234 2026 42");
+    expect(parts).toEqual(["1234", "2026", "42"]);
+  });
+});
+

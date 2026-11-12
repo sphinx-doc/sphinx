@@ -18,6 +18,7 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #776: Fix searching number or terms with dot (ex: example.com)
 
 Testing
 -------

@@ -10,7 +10,7 @@ import pytest
 from docutils import frontend, utils
 from docutils.parsers import rst
 
-from sphinx.search import IndexBuilder
+from sphinx.search import IndexBuilder, SearchLanguage
 
 from tests.utils import TESTS_ROOT
 
@@ -514,3 +514,32 @@ def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
         f'Search index fixture {existing_searchindex} does not match regenerated copy.'
     )
     assert fresh_searchindex.read_bytes() == existing_searchindex.read_bytes(), msg
+
+
+@pytest.mark.parametrize(
+    ('text', 'expected'),
+    [
+        ('foo.py', ['foo.py', 'foo', 'py']),
+        ('re.match', ['re.match', 're', 'match']),
+        (
+            '192.168.1.10',
+            ['192.168.1.10', '192', '168', '1', '10'],
+        ),
+        ('Python 3.12', ['Python', '3.12', '3', '12']),
+        ('simple word', ['simple', 'word']),
+    ],
+)
+def test_split_dotted_words(text: str, expected: list[str]) -> None:
+    """Check that dotted words and their components are extracted."""
+    language = SearchLanguage({})
+    assert language.split(text) == expected
+
+
+@pytest.mark.parametrize(
+    'word',
+    ['1234', '192', '168', '1', '10'],
+)
+def test_numeric_words_are_not_filtered(word: str) -> None:
+    """Check that numeric terms are accepted by the word filter."""
+    language = SearchLanguage({})
+    assert language.word_filter(word)
