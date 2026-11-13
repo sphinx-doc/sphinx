@@ -41,9 +41,9 @@ class SerialTasks:
         result_func: Callable[[Any], Any] | None = None,
     ) -> None:
         if arg is not None:
-            res = task_func(arg)  # type: ignore[call-arg]
+            res = task_func(arg)  # type: ignore[call-arg]  # ty: ignore[too-many-positional-arguments]
         else:
-            res = task_func()  # type: ignore[call-arg]
+            res = task_func()  # type: ignore[call-arg]  # ty: ignore[missing-argument]
         if result_func:
             result_func(res)
 
@@ -78,9 +78,9 @@ class ParallelTasks:
             collector = logging.LogCollector()
             with collector.collect():
                 if arg is None:
-                    ret = func()  # type: ignore[call-arg]
+                    ret = func()  # type: ignore[call-arg]  # ty: ignore[missing-argument]
                 else:
-                    ret = func(arg)  # type: ignore[call-arg]
+                    ret = func(arg)  # type: ignore[call-arg]  # ty: ignore[too-many-positional-arguments]
             failed = False
         except BaseException as err:
             failed = True
@@ -101,7 +101,7 @@ class ParallelTasks:
         self._args[tid] = arg
         precv, psend = multiprocessing.Pipe(False)
         context: Any = multiprocessing.get_context('fork')
-        proc = context.Process(target=self._process, args=(psend, task_func, arg))  # ty: ignore[unresolved-attribute]
+        proc = context.Process(target=self._process, args=(psend, task_func, arg))
         self._procs[tid] = proc
         self._precvs_waiting[tid] = precv
         try:

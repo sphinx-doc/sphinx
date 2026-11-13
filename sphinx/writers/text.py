@@ -9,6 +9,7 @@ import textwrap
 from itertools import chain, groupby, pairwise
 from typing import TYPE_CHECKING, cast
 
+import docutils
 from docutils import nodes, writers
 from docutils.utils import column_width
 
@@ -241,7 +242,7 @@ class Table:
                 for colno, cell in enumerate(line):
                     if cell.col != colno:
                         continue
-                    if lineno != cell.row:  # NoQA: SIM114
+                    if lineno != cell.row:  # ruff: ignore[if-with-same-arms]
                         physical_text = ''
                     elif physical_line >= len(cell.wrapped):
                         physical_text = ''
@@ -562,7 +563,7 @@ class TextTranslator(SphinxTranslator):
         else:
             char = '^'
         text = ''
-        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore[misc]
+        text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore[misc]  # ty: ignore[no-matching-overload]
         if self.add_secnumbers:
             text = self.get_section_number_string(node) + text
         self.stateindent.pop()
@@ -904,7 +905,12 @@ class TextTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_colspec(self, node: Element) -> None:
-        self.table.colwidth.append(node['colwidth'])
+        if docutils.__version_info__[:2] >= (1, 0):
+            # breaking change in Docutils 1.0
+            # https://sourceforge.net/p/docutils/code/10397
+            self.table.colwidth.append(int(node['colwidth']))
+        else:
+            self.table.colwidth.append(node['colwidth'])
         raise nodes.SkipNode
 
     def visit_tgroup(self, node: Element) -> None:

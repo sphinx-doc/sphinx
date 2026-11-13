@@ -6,8 +6,6 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from sphinx.testing.util import SphinxTestApp
-
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 

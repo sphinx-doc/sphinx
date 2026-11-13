@@ -87,7 +87,7 @@ def _publish_msgstr(
         config.rst_prolog = rst_prolog
 
     try:
-        return doc[0]  # type: ignore[return-value]
+        return doc[0]  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
     except IndexError:  # empty node
         return doc
 
@@ -417,10 +417,11 @@ class Locale(SphinxTransform):
             return
 
         catalogues = [getattr(catalog, '_catalog', None)]
-        while (catalog := catalog._fallback) is not None:  # type: ignore[attr-defined]
+        while (catalog := catalog._fallback) is not None:  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             catalogues.append(getattr(catalog, '_catalog', None))
         merged: dict[str, str] = {}
-        for catalogue in filter(None, reversed(catalogues)):  # type: dict[str, str]
+        catalogue: dict[str, str]
+        for catalogue in filter(None, reversed(catalogues)):
             merged |= catalogue
 
         # phase1: replace reference ids with translated names

@@ -1,4 +1,4 @@
-# ruff: NoQA: PIE796
+# ruff: file-ignore[non-unique-enums]
 import enum
 from typing import final
 

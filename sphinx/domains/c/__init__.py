@@ -48,7 +48,7 @@ if TYPE_CHECKING:
 
 # re-export objects for backwards compatibility
 # See: https://github.com/sphinx-doc/sphinx/issues/12295
-from sphinx.domains.c._ast import (  # NoQA: F401
+from sphinx.domains.c._ast import (  # ruff: ignore[unused-import]
     ASTAlignofExpr,
     ASTArray,
     ASTAssignmentExpr,
@@ -150,7 +150,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
         if s is not None:
             # something is already declared with that name
             return
-        decl_clone = symbol.declaration.clone()
+        decl_clone = symbol.declaration.clone()  # ty: ignore[unresolved-attribute]
         decl_clone.enumeratorScopedSymbol = symbol
         Symbol(
             parent=target_symbol,
@@ -175,7 +175,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
         newest_id = ids[0]
         assert newest_id  # shouldn't be None
 
-        name = ast.symbol.get_full_nested_name().get_display_string().lstrip('.')
+        name = ast.symbol.get_full_nested_name().get_display_string().lstrip('.')  # ty: ignore[unresolved-attribute]
         if newest_id not in self.state.document.ids:
             # always add the newest id
             assert newest_id
@@ -554,7 +554,7 @@ class AliasTransform(SphinxTransform):
         if not skip_this:
             signode = addnodes.desc_signature('', '')
             nodes.append(signode)
-            s.declaration.describe_signature(
+            s.declaration.describe_signature(  # ty: ignore[unresolved-attribute]
                 signode, 'markName', self.env, render_options
             )
 
@@ -952,7 +952,7 @@ class CDomain(Domain):
                 env, fromdocname, builder, 'any', target, node, contnode
             )
         if retnode:
-            return [('c:' + self.role_for_objtype(objtype), retnode)]
+            return [('c:' + self.role_for_objtype(objtype), retnode)]  # ty: ignore[unsupported-operator]
         return []
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:

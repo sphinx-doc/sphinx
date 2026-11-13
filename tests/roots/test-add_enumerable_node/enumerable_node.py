@@ -37,7 +37,7 @@ def visit_numbered_text(self, node):
     raise nodes.SkipNode
 
 
-def get_title(node):  # NoQA: FURB118
+def get_title(node):  # ruff: ignore[reimplemented-operator]
     return node['title']
 
 

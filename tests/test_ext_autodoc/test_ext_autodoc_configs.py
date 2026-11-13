@@ -858,10 +858,7 @@ def test_autodoc_type_aliases() -> None:
 
 
 def test_autodoc_default_options() -> None:
-    if sys.version_info[:3] >= (3, 12, 1):
-        list_of_weak_references = '      list of weak references to the object'
-    else:
-        list_of_weak_references = '      list of weak references to the object (if defined)'  # fmt: skip
+    list_of_weak_references = '      list of weak references to the object'
 
     # no settings
     actual = do_autodoc('class', 'target.enums.EnumCls')
@@ -935,10 +932,7 @@ def test_autodoc_default_options() -> None:
 
 
 def test_autodoc_default_options_with_values() -> None:
-    if sys.version_info[:3] >= (3, 12, 1):
-        list_of_weak_references = '      list of weak references to the object'
-    else:
-        list_of_weak_references = '      list of weak references to the object (if defined)'  # fmt: skip
+    list_of_weak_references = '      list of weak references to the object'
 
     # with :members:
     config = _AutodocConfig(autodoc_default_options={'members': 'val1,val2'})

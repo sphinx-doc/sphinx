@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
 
-class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):  # NoQA: PYI024
+class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):  # ruff: ignore[collections-named-tuple]
     """Sample namedtuple subclass
 
     Attributes
@@ -1261,7 +1261,7 @@ Methods:
 
    
    description
-"""  # NoQA: W293
+"""  # ruff: ignore[blank-line-with-whitespace]
         config = Config()
         actual = GoogleDocstring(
             docstring,

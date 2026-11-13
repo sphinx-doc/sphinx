@@ -19,7 +19,7 @@ from urllib.parse import urlparse
 from docutils import nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Generator
     from http.server import HTTPServer
     from socketserver import BaseRequestHandler
     from typing import Final
@@ -77,7 +77,7 @@ def http_server(
     *,
     tls_enabled: bool = False,
     port: int = 0,
-) -> Iterator[HTTPServer]:
+) -> Generator[HTTPServer]:
     server_cls = HttpsServerThread if tls_enabled else HttpServerThread
     server_thread = server_cls(handler, port=port)
     server_thread.start()
@@ -91,7 +91,7 @@ def http_server(
 
 
 @contextmanager
-def rewrite_hyperlinks(app: Sphinx, server: HTTPServer) -> Iterator[None]:
+def rewrite_hyperlinks(app: Sphinx, server: HTTPServer) -> Generator[None]:
     """Rewrite hyperlinks that refer to network location 'localhost:7777',
     allowing that location to vary dynamically with the arbitrary test HTTP
     server port assigned during unit testing.
@@ -111,8 +111,10 @@ def rewrite_hyperlinks(app: Sphinx, server: HTTPServer) -> Iterator[None]:
         return parsed_uri._replace(netloc=replacement_netloc).geturl()
 
     listener_id = app.connect('linkcheck-process-uri', rewrite_hyperlink)
-    yield
-    app.disconnect(listener_id)
+    try:
+        yield
+    finally:
+        app.disconnect(listener_id)
 
 
 @contextmanager
@@ -122,7 +124,7 @@ def serve_application(
     *,
     tls_enabled: bool = False,
     port: int = 0,
-) -> Iterator[str]:
+) -> Generator[str]:
     """Prepare a temporary server to handle HTTP requests related to the links
     found in a Sphinx application project.
 

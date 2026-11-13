@@ -150,8 +150,8 @@ class DefinitionParser(BaseParser):
 
         # character-literal
         if self.match(char_literal_re):
-            prefix = self.last_match.group(1)  # may be None when no prefix
-            data = self.last_match.group(2)
+            prefix = self.last_match.group(1)  # ty: ignore[unresolved-attribute]  # may be None when no prefix
+            data = self.last_match.group(2)  # ty: ignore[unresolved-attribute]
             try:
                 return ASTCharLiteral(prefix, data)
             except UnicodeDecodeError as e:
@@ -404,7 +404,7 @@ class DefinitionParser(BaseParser):
                         self.pos = pos
                 if not one_more:
                     break
-            return ASTBinOpExpr(exprs, ops)  # type: ignore[return-value]
+            return ASTBinOpExpr(exprs, ops)  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
         return _parse_bin_op_expr(self, 0)
 
@@ -508,7 +508,7 @@ class DefinitionParser(BaseParser):
         rooted = False
         if self.skip_string('.'):
             rooted = True
-        while 1:
+        while True:
             self.skip_ws()
             if not self.match(identifier_re):
                 self.fail('Expected identifier in nested name.')
@@ -586,7 +586,7 @@ class DefinitionParser(BaseParser):
         args = []
         self.skip_ws()
         if not self.skip_string(')'):
-            while 1:
+            while True:
                 self.skip_ws()
                 if self.skip_string('...'):
                     args.append(ASTFunctionParameter(None, True))
@@ -623,7 +623,7 @@ class DefinitionParser(BaseParser):
         volatile = None
         const = None
         attrs = []
-        while 1:  # accept any permutation of a subset of some decl-specs
+        while True:  # accept any permutation of a subset of some decl-specs
             self.skip_ws()
             if not storage:
                 if outer == 'member':
@@ -722,7 +722,7 @@ class DefinitionParser(BaseParser):
         else:
             decl_id = None
         array_ops = []
-        while 1:
+        while True:
             self.skip_ws()
             if typed and self.skip_string('['):
                 self.skip_ws()
@@ -789,7 +789,7 @@ class DefinitionParser(BaseParser):
             volatile = False
             const = False
             attrs = []
-            while 1:
+            while True:
                 if not restrict:
                     restrict = self.skip_word_and_ws('restrict')
                     if restrict:
@@ -865,7 +865,7 @@ class DefinitionParser(BaseParser):
         self, outer: str | None = None, allow_fallback: bool = True
     ) -> ASTInitializer | None:
         self.skip_ws()
-        if outer == 'member' and False:  # NoQA: SIM223,TD005  # TODO
+        if outer == 'member' and False:  # ruff: ignore[expr-and-false, missing-todo-description]  # TODO
             braced_init = self._parse_braced_init_list()
             if braced_init is not None:
                 return ASTInitializer(braced_init, hasAssign=False)
@@ -972,7 +972,7 @@ class DefinitionParser(BaseParser):
         if self.skip_string(')'):
             return ASTMacro(ident, [])
         args = []
-        while 1:
+        while True:
             self.skip_ws()
             if self.skip_string('...'):
                 args.append(ASTMacroParameter(None, True))

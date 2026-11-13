@@ -20,14 +20,14 @@ if TYPE_CHECKING:
     from typing import Any
 
 try:
-    import MeCab  # type: ignore[import-not-found]
+    import MeCab  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
     native_module = True
 except ImportError:
     native_module = False
 
 try:
-    import janome.tokenizer  # type: ignore[import-not-found]
+    import janome.tokenizer  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
     janome_module = True
 except ImportError:

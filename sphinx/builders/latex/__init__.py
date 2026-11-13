@@ -7,7 +7,7 @@ import os.path
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import sphinx.builders.latex.nodes  # NoQA: F401  # Workaround: import this before writer to avoid ImportError
+import sphinx.builders.latex.nodes  # ruff: ignore[unused-import]  # Workaround: import this before writer to avoid ImportError
 from sphinx import addnodes, highlighting, package_dir
 from sphinx._cli.util.colour import darkgreen
 from sphinx.builders import Builder

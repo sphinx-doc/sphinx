@@ -10,7 +10,7 @@ class _Descriptor:
     def __init__(self, name):
         self.__doc__ = f'This is {name}'
 
-    def __get__(self):  # NoQA: PLE0302
+    def __get__(self):  # ruff: ignore[unexpected-special-method-signature]
         pass
 
 

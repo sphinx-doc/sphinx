@@ -15,11 +15,12 @@ from sphinx.testing.util import assert_node
 from tests.utils import extract_node
 
 if TYPE_CHECKING:
+    from sphinx.application import Sphinx
     from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_toctree(app):
+def test_toctree(app: SphinxTestApp) -> None:
     text = '.. toctree::\n\n   foo\n   bar/index\n   baz\n'
 
     app.env.find_files(app.config, app.builder)
@@ -33,7 +34,7 @@ def test_toctree(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_relative_toctree(app):
+def test_relative_toctree(app: SphinxTestApp) -> None:
     text = '.. toctree::\n\n   bar_1\n   bar_2\n   bar_3\n   ../quux\n'
 
     app.env.find_files(app.config, app.builder)
@@ -52,7 +53,7 @@ def test_relative_toctree(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_toctree_urls_and_titles(app):
+def test_toctree_urls_and_titles(app: SphinxTestApp) -> None:
     text = (
         '.. toctree::\n'
         '\n'
@@ -76,7 +77,7 @@ def test_toctree_urls_and_titles(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_toctree_glob(app):
+def test_toctree_glob(app: SphinxTestApp) -> None:
     text = '.. toctree::\n   :glob:\n\n   *\n'
 
     app.env.find_files(app.config, app.builder)
@@ -114,7 +115,7 @@ def test_toctree_glob(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_toctree_glob_and_url(app):
+def test_toctree_glob_and_url(app: SphinxTestApp) -> None:
     text = '.. toctree::\n   :glob:\n\n   https://example.com/?q=sphinx\n'
 
     app.env.find_files(app.config, app.builder)
@@ -128,7 +129,7 @@ def test_toctree_glob_and_url(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_reversed_toctree(app):
+def test_reversed_toctree(app: SphinxTestApp) -> None:
     text = '.. toctree::\n   :reversed:\n\n   foo\n   bar/index\n   baz\n'
 
     app.env.find_files(app.config, app.builder)
@@ -142,7 +143,7 @@ def test_reversed_toctree(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_toctree_class(app):
+def test_toctree_class(app: SphinxTestApp) -> None:
     text = '.. toctree::\n   :class: custom-toc\n\n   foo\n'
     app.env.find_files(app.config, app.builder)
     doctree = restructuredtext.parse(app, text, 'index')
@@ -152,7 +153,7 @@ def test_toctree_class(app):
 
 
 @pytest.mark.sphinx('html', testroot='toctree-glob')
-def test_toctree_twice(app):
+def test_toctree_twice(app: SphinxTestApp) -> None:
     text = '.. toctree::\n\n   foo\n   foo\n'
 
     app.env.find_files(app.config, app.builder)
@@ -169,7 +170,9 @@ def test_toctree_twice(app):
 def test_include_include_read_event(app: SphinxTestApp) -> None:
     sources_reported = []
 
-    def source_read_handler(_app, relative_path, parent_docname, source):
+    def source_read_handler(
+        _app: Sphinx, relative_path: Path, parent_docname: str, source: list[str]
+    ) -> None:
         sources_reported.append((relative_path, parent_docname, source[0]))
 
     app.connect('include-read', source_read_handler)
@@ -199,8 +202,10 @@ def test_include_include_read_event(app: SphinxTestApp) -> None:
 
 
 @pytest.mark.sphinx('html', testroot='directive-include')
-def test_include_include_read_event_nested_includes(app):
-    def source_read_handler(_app, _relative_path, _parent_docname, source):
+def test_include_include_read_event_nested_includes(app: SphinxTestApp) -> None:
+    def source_read_handler(
+        _app: Sphinx, _relative_path: Path, _parent_docname: str, source: list[str]
+    ) -> None:
         text = source[0].replace('#magical', 'amazing')
         source[0] = text
 
@@ -208,7 +213,7 @@ def test_include_include_read_event_nested_includes(app):
     text = '.. include:: baz/baz.rst\n'
     app.env.find_files(app.config, app.builder)
     doctree = restructuredtext.parse(app, text, 'index')
-    assert_node(doctree, addnodes.document)
+    assert_node(doctree, nodes.document)
     assert len(doctree.children) == 3
     assert isinstance(doctree.children[1], nodes.paragraph)
     assert doctree.children[1].rawsource == 'The amazing foo.'

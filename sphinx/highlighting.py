@@ -6,7 +6,6 @@ from functools import partial
 from importlib import import_module
 from typing import TYPE_CHECKING
 
-import pygments
 from pygments import highlight
 from pygments.filters import ErrorToken
 from pygments.formatters import HtmlFormatter, LatexFormatter
@@ -32,11 +31,6 @@ if TYPE_CHECKING:
     from pygments.formatter import Formatter
     from pygments.lexer import Lexer
     from pygments.style import Style
-
-if tuple(map(int, pygments.__version__.split('.')[:2])) < (2, 18):
-    from pygments.formatter import Formatter
-
-    Formatter.__class_getitem__ = classmethod(lambda cls, name: cls)  # type: ignore[attr-defined]
 
 logger = logging.getLogger(__name__)
 

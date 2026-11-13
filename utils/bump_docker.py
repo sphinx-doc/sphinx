@@ -42,7 +42,7 @@ for file in DOCKERFILE_BASE, DOCKERFILE_LATEXPDF:
 
 def git(*args: str) -> None:
     subprocess.run(
-        ('git', *args),
+        ('git', *args),  # ruff: ignore[start-process-with-partial-path]
         cwd=DOCKER_ROOT,
         check=True,
         text=True,

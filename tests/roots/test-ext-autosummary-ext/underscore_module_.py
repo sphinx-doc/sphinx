@@ -4,7 +4,7 @@
 class class_:
     """Class"""
 
-    def method_(_arg):  # NoQA: N805
+    def method_(_arg):  # ruff: ignore[invalid-first-argument-name-for-method]
         """Method"""
         pass
 

@@ -210,7 +210,7 @@ def _add_directive_lines(
         autodoc_typehints=config.autodoc_typehints,
         directive_name=(
             'py:attribute'
-            if props.obj_type in {'class', 'exception'} and props.doc_as_attr  # type: ignore[attr-defined]
+            if props.obj_type in {'class', 'exception'} and props.doc_as_attr  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             else f'py:{props.obj_type}'
         ),
         is_final=is_final,
@@ -267,7 +267,7 @@ def _document_members(
     *self.options.members*.
     """
     has_members = props.obj_type == 'module' or (
-        props.obj_type in {'class', 'exception'} and not props.doc_as_attr  # type: ignore[attr-defined]
+        props.obj_type in {'class', 'exception'} and not props.doc_as_attr  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     )
     if not has_members:
         return
@@ -294,7 +294,7 @@ def _document_members(
     members_check_module = bool(
         props.obj_type == 'module'
         and want_all
-        and (options.ignore_module_all or props.all is None)  # type: ignore[attr-defined]
+        and (options.ignore_module_all or props.all is None)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     )
     for member_props, is_attr, member_indent in member_documenters:
         assert member_props.module_name

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from inspect import Parameter, Signature
-from typing import List, Union  # NoQA: UP035
+from typing import List, Union  # ruff: ignore[deprecated-import]
 
 
 class Foo:
@@ -30,7 +30,7 @@ class Qux:
         pass
 
 
-class Quux(List[Union[int, float]]):  # NoQA: UP006,UP007
+class Quux(List[Union[int, float]]):  # ruff: ignore[non-pep585-annotation, non-pep604-annotation-union]
     """A subclass of List[Union[int, float]]"""
 
     pass

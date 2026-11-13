@@ -28,7 +28,6 @@ from sphinx.builders.linkcheck import (
     compile_linkcheck_allowed_redirects,
 )
 from sphinx.errors import ConfigError
-from sphinx.testing.util import SphinxTestApp
 from sphinx.util import requests
 from sphinx.util._pathlib import _StrPath
 
@@ -96,7 +95,7 @@ class ConnectionMeasurement:
 
     def _collect_connections(self) -> Callable[[PoolManager, str], HTTPConnectionPool]:
         def connection_collector(obj: PoolManager, url: str) -> HTTPConnectionPool:
-            connection = self.urllib3_connection_from_url(obj, url)  # type: ignore[no-untyped-call]
+            connection = self.urllib3_connection_from_url(obj, url)
             self.connections.add(connection)
             return connection
 
@@ -1347,7 +1346,7 @@ def test_connection_contention(
     get_adapter: mock.Mock, app: SphinxTestApp, capsys: pytest.CaptureFixture[str]
 ) -> None:
     # Create a shared, but limited-size, connection pool
-    import requests
+    import requests.adapters
 
     get_adapter.return_value = requests.adapters.HTTPAdapter(pool_maxsize=1)
 

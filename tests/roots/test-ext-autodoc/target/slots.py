@@ -21,4 +21,4 @@ class Bar:
 class Baz:
     """docstring"""
 
-    __slots__ = 'attr'  # NoQA: PLC0205
+    __slots__ = 'attr'  # ruff: ignore[single-string-slots]

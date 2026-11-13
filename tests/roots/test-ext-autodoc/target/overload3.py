@@ -2,7 +2,7 @@ import typing
 from typing import TYPE_CHECKING, overload
 
 import typing_extensions
-from typing_extensions import overload as over_ext  # noqa: UP035
+from typing_extensions import overload as over_ext  # ruff: ignore[deprecated-import]
 
 
 @overload

@@ -5,7 +5,7 @@ from typing import Union
 
 
 class Foo:
-    class Bar:  # NoQA: D106
+    class Bar:  # ruff: ignore[undocumented-public-nested-class]
         pass
 
     def __init__(self):

@@ -2,7 +2,7 @@
 
 
 class A:
-    class B:  # NoQA: D106
+    class B:  # ruff: ignore[undocumented-public-nested-class]
         pass
 
 

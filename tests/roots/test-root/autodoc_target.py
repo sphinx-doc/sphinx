@@ -121,15 +121,15 @@ class Class(Base):
         """a documented instance attribute"""
         self._private_inst_attr = None  #: a private instance attribute
 
-    def __special1__(self):  # NoQA: PLW3201
+    def __special1__(self):  # ruff: ignore[bad-dunder-method-name]
         """documented special method"""
 
-    def __special2__(self):  # NoQA: PLW3201
+    def __special2__(self):  # ruff: ignore[bad-dunder-method-name]
         # undocumented special method
         pass
 
 
-class CustomDict(dict):  # NoQA: FURB189
+class CustomDict(dict):  # ruff: ignore[subclass-builtin]
     """Docstring."""
 
 
@@ -181,7 +181,7 @@ class DocstringSig:
         return 456
 
 
-class StrRepr(str):  # NoQA: FURB189,SLOT000
+class StrRepr(str):  # ruff: ignore[subclass-builtin, no-slots-in-str-subclass]
     def __repr__(self):
         return self
 

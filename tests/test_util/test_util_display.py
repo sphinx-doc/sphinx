@@ -44,6 +44,8 @@ def test_status_iterator_length_0(app: SphinxTestApp) -> None:
 def test_status_iterator_verbosity_0(
     app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    monkeypatch.delenv('NO_COLOR', raising=False)
+    monkeypatch.delenv('NO_COLOUR', raising=False)
     monkeypatch.setenv('FORCE_COLOR', '1')
     logging.setup(app, app.status, app.warning)
 
@@ -64,6 +66,8 @@ def test_status_iterator_verbosity_0(
 def test_status_iterator_verbosity_1(
     app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    monkeypatch.delenv('NO_COLOR', raising=False)
+    monkeypatch.delenv('NO_COLOUR', raising=False)
     monkeypatch.setenv('FORCE_COLOR', '1')
     logging.setup(app, app.status, app.warning)
 
@@ -94,7 +98,7 @@ def test_progress_message(app: SphinxTestApp) -> None:
 
     # skipping case
     with progress_message('testing'):
-        raise SkipProgressMessage('Reason: %s', 'error')  # NoQA: EM101,TRY003
+        raise SkipProgressMessage('Reason: %s', 'error')  # ruff: ignore[raw-string-in-exception, raise-vanilla-args]
 
     output = strip_escape_sequences(app.status.getvalue())
     assert 'testing... skipped\nReason: error\n' in output
@@ -102,7 +106,7 @@ def test_progress_message(app: SphinxTestApp) -> None:
     # error case
     try:
         with progress_message('testing'):
-            raise RuntimeError  # NoQA: TRY301
+            raise RuntimeError  # ruff: ignore[raise-within-try]
     except Exception:
         pass
 

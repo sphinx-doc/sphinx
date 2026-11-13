@@ -24,13 +24,13 @@ type Pep695Alias = Foo
 
 type Pep695AliasUndocumented = Foo
 
-TypeAliasTypeExplicit = TypeAliasType('TypeAliasTypeExplicit', Foo)  # NoQA: UP040
+TypeAliasTypeExplicit = TypeAliasType('TypeAliasTypeExplicit', Foo)  # ruff: ignore[non-pep695-type-alias]
 """This is an explicitly constructed typing.TypeAlias."""
 
-HandlerTypeAliasType = TypeAliasType('HandlerTypeAliasType', type[Exception])  # NoQA: UP040
+HandlerTypeAliasType = TypeAliasType('HandlerTypeAliasType', type[Exception])  # ruff: ignore[non-pep695-type-alias]
 """This is an explicitly constructed generic alias typing.TypeAlias."""
 
-TypeAliasTypeExtension = typing_extensions.TypeAliasType('TypeAliasTypeExtension', Foo)  # NoQA: UP040
+TypeAliasTypeExtension = typing_extensions.TypeAliasType('TypeAliasTypeExtension', Foo)  # ruff: ignore[non-pep695-type-alias]
 """This is an explicitly constructed typing_extensions.TypeAlias."""
 
 #: This is PEP695 complex type alias with doc comment.

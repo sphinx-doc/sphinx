@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.util.typing import _RestifyMode
 
-    class _AttrGetter(Protocol):  # NoQA: PYI046
+    class _AttrGetter(Protocol):  # ruff: ignore[unused-private-protocol]
         def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
 
 

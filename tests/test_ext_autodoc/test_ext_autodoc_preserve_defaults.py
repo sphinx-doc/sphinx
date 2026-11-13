@@ -130,8 +130,10 @@ def test_preserve_defaults_special_constructs() -> None:
         '.. py:module:: target.preserve_defaults_special_constructs',
         '',
         '',
-        '.. py:class:: DataClass('
-        'a: int, b: object = <object object>, c: list[int] = <factory>)',
+        (
+            '.. py:class:: DataClass('
+            'a: int, b: object = <object object>, c: list[int] = <factory>)'
+        ),
         '   :module: target.preserve_defaults_special_constructs',
         '',
         '   docstring',
@@ -143,8 +145,10 @@ def test_preserve_defaults_special_constructs() -> None:
         '   docstring',
         '',
         '',
-        '.. py:class:: MyNamedTuple1('
-        'a: int, b: object = <object object>, c: list[int] = [1, 2, 3])',
+        (
+            '.. py:class:: MyNamedTuple1('
+            'a: int, b: object = <object object>, c: list[int] = [1, 2, 3])'
+        ),
         '   :module: target.preserve_defaults_special_constructs',
         '',
         '   docstring',

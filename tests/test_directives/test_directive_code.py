@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import pygments
 import pytest
 from docutils import nodes
 
@@ -409,11 +408,6 @@ def test_literal_include_block_start_with_comment_or_brank(app: SphinxTestApp) -
 
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_literal_include_linenos(app: SphinxTestApp) -> None:
-    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
-        sp = '<span class="w"> </span>'
-    else:
-        sp = ' '
-
     app.build(filenames=[app.srcdir / 'linenos.rst'])
     html = (app.outdir / 'linenos.html').read_text(encoding='utf8')
 
@@ -431,7 +425,7 @@ def test_literal_include_linenos(app: SphinxTestApp) -> None:
 
     # :lines: 5-9
     assert (
-        f'<span class="linenos">5</span><span class="k">class</span>{sp}'
+        '<span class="linenos">5</span><span class="k">class</span><span class="w"> </span>'
         '<span class="nc">Foo</span><span class="p">:</span>'
     ) in html
 
@@ -576,17 +570,12 @@ def test_code_block_highlighted(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_linenothreshold(app: SphinxTestApp) -> None:
-    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
-        sp = '<span class="w"> </span>'
-    else:
-        sp = ' '
-
     app.build(filenames=[app.srcdir / 'linenothreshold.rst'])
     html = (app.outdir / 'linenothreshold.html').read_text(encoding='utf8')
 
     # code-block using linenothreshold
     assert (
-        f'<span class="linenos">1</span><span class="k">class</span>{sp}'
+        '<span class="linenos">1</span><span class="k">class</span><span class="w"> </span>'
         '<span class="nc">Foo</span><span class="p">:</span>'
     ) in html
 

@@ -92,7 +92,7 @@ def test_get_docstring_lines():
     def f():
         """
         Docstring
-        """  # NoQA: D212
+        """  # ruff: ignore[multi-line-summary-first-line]
 
     assert get_docstring_lines('function', f) == ('Docstring',)
 
@@ -162,7 +162,7 @@ def test_new_documenter():
     ]
 
 
-getattr_spy = []
+getattr_spy: list[tuple[object, str]] = []
 
 
 def test_attrgetter_using():
@@ -720,9 +720,8 @@ def test_autodoc_special_members() -> None:
         'members': None,
         'undoc-members': None,
         'special-members': None,
+        'exclude-members': '__static_attributes__,__firstlineno__',
     }
-    if sys.version_info >= (3, 13, 0, 'alpha', 5):
-        options['exclude-members'] = '__static_attributes__,__firstlineno__'
     if sys.version_info >= (3, 14, 0, 'alpha', 7):
         ann_attrs: tuple[str, ...] = (
             '   .. py:attribute:: Class.__annotate_func__',
@@ -1412,18 +1411,13 @@ class _EnumFormatter:
                 )
             else:
                 return '(*values)'
-        if sys.version_info[:2] >= (3, 13) or sys.version_info[:3] >= (3, 12, 3):
-            if functional_constructor:
-                return (
-                    '(new_class_name, /, names, *, module=None, '
-                    'qualname=None, type=None, start=1, boundary=None)'
-                )
-            else:
-                return '(*values)'
-        return (
-            '(value, names=None, *values, module=None, '
-            'qualname=None, type=None, start=1, boundary=None)'
-        )
+        if functional_constructor:
+            return (
+                '(new_class_name, /, names, *, module=None, '
+                'qualname=None, type=None, start=1, boundary=None)'
+            )
+        else:
+            return '(*values)'
 
     def method(
         self,
@@ -2190,8 +2184,10 @@ def test_autodoc_GenericAlias() -> None:
         '',
         '   A list of Class',
         '',
-        '   alias of :py:class:`~typing.List`\\ '
-        '[:py:class:`~target.genericalias.Class`]',
+        (
+            '   alias of :py:class:`~typing.List`\\ '
+            '[:py:class:`~target.genericalias.Class`]'
+        ),
         '',
         '',
         '.. py:data:: T',
@@ -2450,8 +2446,10 @@ def test_autodoc_Annotated() -> None:
         '',
         '   Type alias for a validated string.',
         '',
-        '   alias of :py:class:`~typing.Annotated`\\ [:py:class:`str`, '
-        ':py:class:`~target.annotated.FuncValidator`\\ (func=\\ :py:class:`~target.annotated.validate`)]',
+        (
+            '   alias of :py:class:`~typing.Annotated`\\ [:py:class:`str`, '
+            ':py:class:`~target.annotated.FuncValidator`\\ (func=\\ :py:class:`~target.annotated.validate`)]'
+        ),
         '',
         '',
         ".. py:function:: hello(name: ~typing.Annotated[str, 'attribute']) -> None",
@@ -2640,8 +2638,8 @@ def test_singledispatchmethod_classmethod_automethod() -> None:
 
 
 @pytest.mark.skipif(
-    sys.version_info[:2] >= (3, 13),
-    reason='Cython does not support Python 3.13 yet.',
+    sys.version_info[:2] >= (3, 16),
+    reason='Cython does not support Python 3.16 yet.',
 )
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
 def test_cython() -> None:

@@ -85,7 +85,7 @@ def container_wrapper(
     node = parsed[0]
     if isinstance(node, nodes.system_message):
         msg = __('Invalid caption: %s') % node.astext()
-        raise ValueError(msg)  # NoQA: TRY004
+        raise ValueError(msg)  # ruff: ignore[type-check-without-type-error]
     if isinstance(node, nodes.Element):
         caption_node = nodes.caption(node.rawsource, '', *node.children)
         caption_node.source = literal_node.source

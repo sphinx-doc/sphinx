@@ -111,7 +111,7 @@ def test_quickstart_defaults(tmp_path: Path) -> None:
     conffile = tmp_path / 'conf.py'
     assert conffile.is_file()
     ns: dict[str, Any] = {}
-    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
+    exec(conffile.read_text(encoding='utf8'), ns)  # ruff: ignore[exec-builtin]
     assert ns['extensions'] == []
     assert ns['templates_path'] == ['_templates']
     assert ns['project'] == 'Sphinx Test'
@@ -161,7 +161,7 @@ def test_quickstart_all_answers(tmp_path: Path) -> None:
     conffile = tmp_path / 'source' / 'conf.py'
     assert conffile.is_file()
     ns: dict[str, Any] = {}
-    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
+    exec(conffile.read_text(encoding='utf8'), ns)  # ruff: ignore[exec-builtin]
     assert ns['extensions'] == [
         'sphinx.ext.autodoc',
         'sphinx.ext.doctest',
@@ -239,7 +239,7 @@ def test_default_filename(tmp_path: Path) -> None:
     conffile = tmp_path / 'conf.py'
     assert conffile.is_file()
     ns: dict[str, Any] = {}
-    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
+    exec(conffile.read_text(encoding='utf8'), ns)  # ruff: ignore[exec-builtin]
 
 
 def test_extensions(tmp_path: Path) -> None:
@@ -257,7 +257,7 @@ def test_extensions(tmp_path: Path) -> None:
     conffile = tmp_path / 'conf.py'
     assert conffile.is_file()
     ns: dict[str, Any] = {}
-    exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
+    exec(conffile.read_text(encoding='utf8'), ns)  # ruff: ignore[exec-builtin]
     assert ns['extensions'] == ['foo', 'bar', 'baz']
 
 

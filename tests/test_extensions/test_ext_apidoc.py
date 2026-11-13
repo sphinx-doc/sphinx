@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
     from sphinx.testing.util import SphinxTestApp
 
-_apidoc = namedtuple('_apidoc', 'coderoot,outdir')  # NoQA: PYI024
+_apidoc = namedtuple('_apidoc', 'coderoot,outdir')  # ruff: ignore[collections-named-tuple]
 
 
 @pytest.fixture

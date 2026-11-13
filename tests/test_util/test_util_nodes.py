@@ -31,9 +31,7 @@ def _transform(doctree: nodes.document) -> None:
 
 
 def create_new_document() -> document:
-    # TODO: TYPING: Upstream docutils should accept both instances and subclasses
-    #       of SettingsSpec here.
-    settings = frontend.get_default_settings(rst.Parser)  # type: ignore[arg-type]
+    settings = frontend.get_default_settings(rst.Parser)
     settings.id_prefix = 'id'
     document = new_document('dummy.txt', settings)
     return document
@@ -182,7 +180,7 @@ def test_extract_messages_without_rawsource() -> None:
     document.append(p)
     _transform(document)
     assert_node_count(extract_messages(document), nodes.TextElement, 1)
-    assert next(m for n, m in extract_messages(document)), 'text sentence'
+    assert next(m for n, m in extract_messages(document)) == 'testsentence'
 
 
 def test_clean_astext() -> None:

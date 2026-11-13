@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Generator, Sequence
     from typing import Literal
 
 
@@ -76,7 +76,14 @@ def parse_version(version: str) -> VersionInfo:
     # - "X.Y.ZrcN" -> (X, Y, Z, 'candidate', N)
     if matched := re.fullmatch(r'(\d+)\.(\d+)\.(\d+)(a|b|rc)(\d+)', version):
         major, minor, micro, level, serial = matched.groups()
-        return VersionInfo(int(major), int(minor), int(micro), level, int(serial))  # type: ignore[arg-type]
+        match level:
+            case 'a' | 'b' | 'rc':
+                return VersionInfo(
+                    int(major), int(minor), int(micro), level, int(serial)
+                )
+            case _:
+                msg = f'Unknown release level: {level}'
+                raise RuntimeError(msg)
 
     msg = f'Unknown version: {version}'
     raise RuntimeError(msg)
@@ -164,7 +171,7 @@ class Skip(Exception):
 
 
 @contextmanager
-def processing(message: str) -> Iterator[None]:
+def processing(message: str) -> Generator[None]:
     try:
         print(message + ' ... ', end='')
         yield
