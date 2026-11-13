@@ -93,6 +93,13 @@ The ``toctree`` directive is the central element.
    The second line above will link to the ``strings`` document, but will use the
    title "All about strings" instead of the title of the ``strings`` document.
 
+   .. versionchanged:: 9.3
+
+      An explicit title also allows linking to a document without section headings.
+      For example, ``Landing page <landing>`` links to ``landing.rst`` even if it
+      contains only paragraphs. The title supplied here is used for the link;
+      it does not add a heading to the referenced document.
+
    You can also add external links, by giving an HTTP URL instead of a document
    name.
 

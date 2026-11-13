@@ -13,6 +13,10 @@ Deprecated
 Features added
 --------------
 
+* #8356: Support explicit toctree titles for sectionless documents and use
+  the documentation title alone for untitled pages in the basic HTML layout.
+  Patch by Georgia Preda.
+
 Bugs fixed
 ----------
 

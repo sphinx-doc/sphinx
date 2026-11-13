@@ -14,6 +14,7 @@ from sphinx.addnodes import compact_paragraph, only
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.toctree import (
     _toctree_copy,
+    _toctree_standard_entry,
     document_toc,
     global_toctree_for_doc,
 )
@@ -1102,3 +1103,19 @@ def test_toctree_copy_only():
     assert isinstance(extract_node(toc, 0, 0, 0), nodes.reference)
     assert isinstance(extract_node(toc, 0, 0, 0, 0), nodes.literal)
     assert extract_node(toc, 0, 0, 0, 0, 0) == nodes.Text('lobster!')
+
+
+@pytest.mark.parametrize('prune', [False, True])
+def test_explicit_title_for_empty_toc(prune: bool) -> None:
+    original = nodes.bullet_list()
+    for text in ('First title', 'Another title'):
+        toc, docname = _toctree_standard_entry(
+            text, 'landing', 0, original, {'landing'}, prune, False, Tags()
+        )
+        assert docname == 'landing'
+        assert_node(toc, [bullet_list, list_item, compact_paragraph, reference, text])
+        ref = next(toc.findall(nodes.reference))
+        assert ref['internal']
+        assert ref['refuri'] == 'landing'
+        assert ref['anchorname'] == ''
+        assert not original.children

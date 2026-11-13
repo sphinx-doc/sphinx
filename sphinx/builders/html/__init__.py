@@ -605,7 +605,11 @@ class StandaloneHTMLBuilder(Builder):
 
         # title rendered as HTML
         title_node = self.env.longtitles.get(docname)
-        title = self.render_partial(title_node)['title'] if title_node else ''
+        title = (
+            self.render_partial(title_node)['title']
+            if title_node is not None and not title_node.get('missing_title')
+            else ''
+        )
 
         # Suffix for the document
         source_suffix = str(self.env.doc2path(docname, False))[len(docname) :]

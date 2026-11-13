@@ -98,7 +98,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {{- metatags }}
     {%- block htmltitle %}
-    <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
+    <title>{% if title %}{{ title|striptags|e }}{{ titlesuffix }}{% else %}{{ docstitle|e }}{% endif %}</title>
     {%- endblock %}
     {%- block css %}
     {{- css() }}

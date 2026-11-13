@@ -105,3 +105,57 @@ def test_toctree_multiple_parents(
         )
         etree = cached_etree_parse(app.outdir / 'charlie.html')
         check_xpath(etree, 'charlie.html', xpath=xpath_delta_children, check='Charlie')
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='_blank',
+    srcdir='titleless-pages',
+    confoverrides={'html_title': 'Project & docs', 'html_theme': 'basic'},
+)
+def test_titleless_pages(app: SphinxTestApp) -> None:
+    (app.srcdir / 'index.rst').write_text(
+        'Home\n====\n\n.. toctree::\n\n'
+        '   Landing page <landing>\n'
+        '   Named page <named>\n',
+        encoding='utf-8',
+    )
+    (app.srcdir / 'landing.rst').write_text('Landing content.\n', encoding='utf-8')
+    (app.srcdir / 'named.rst').write_text(
+        '.. title:: Custom & title\n\nNamed content.\n', encoding='utf-8'
+    )
+    app.build()
+    assert app.warning.getvalue() == ''
+    index = (app.outdir / 'index.html').read_text(encoding='utf-8')
+    assert 'href="landing.html">Landing page</a>' in index
+    assert 'href="named.html">Named page</a>' in index
+    landing = (app.outdir / 'landing.html').read_text(encoding='utf-8')
+    assert '<title>Project &amp; docs</title>' in landing
+    assert '<h1' not in landing
+    named = (app.outdir / 'named.html').read_text(encoding='utf-8')
+    assert '<title>Custom &amp; title &#8212; Project &amp; docs</title>' in named
+    assert '<h1' not in named
+    assert '<title>Home &#8212; Project &amp; docs</title>' in index
+    assert not app.env.tocs['landing'].children
+    assert app.env.titles['landing'].astext() == '<no title>'
+
+    # A newly added heading replaces the fallback on an incremental build.
+    (app.srcdir / 'landing.rst').write_text(
+        'New heading\n===========\n\nLanding content.\n', encoding='utf-8'
+    )
+    app.env.all_docs['landing'] = 0
+    app.build()
+    landing = (app.outdir / 'landing.html').read_text(encoding='utf-8')
+    assert '<title>New heading &#8212; Project &amp; docs</title>' in landing
+    assert 'missing_title' not in app.env.longtitles['landing']
+    assert app.warning.getvalue() == ''
+
+
+@pytest.mark.sphinx('html', testroot='_blank', srcdir='titleless-no-label')
+def test_titleless_page_without_explicit_toctree_title(app: SphinxTestApp) -> None:
+    (app.srcdir / 'index.rst').write_text(
+        'Home\n====\n\n.. toctree::\n\n   landing\n', encoding='utf-8'
+    )
+    (app.srcdir / 'landing.rst').write_text('Landing content.\n', encoding='utf-8')
+    app.build()
+    assert "doesn't have a title: no link will be generated" in app.warning.getvalue()

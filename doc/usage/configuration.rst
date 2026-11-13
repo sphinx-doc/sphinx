@@ -1560,6 +1560,12 @@ and also make use of these options.
    This is appended to the ``<title>`` tag of individual pages,
    and used in the navigation bar as the "topmost" element.
 
+   .. versionchanged:: 9.3
+
+      In themes using Sphinx's basic layout, pages without a section heading or
+      an explicit ``.. title::`` directive use this value alone as their HTML
+      title, without a ``<no title>`` prefix.
+
 .. confval:: html_short_title
    :type: :code-py:`str`
    :default: The value of **html_title**
