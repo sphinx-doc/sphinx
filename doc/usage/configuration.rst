@@ -2213,7 +2213,7 @@ and also make use of these options.
    scale option (*scale*, *width*, or *height*)
    to their original full-resolution image.
    This will not overwrite any link given by the *target* option
-   on the the :dudir:`image` directive, if present.
+   on the :dudir:`image` directive, if present.
 
    .. tip::
 
@@ -2377,7 +2377,7 @@ so the HTML options also apply where appropriate.
    ``'query'`` with the text entered by the user in the search box,
    and ``'lang'`` with the user's system language.
 
-   Set this to to :code-py:`None` to disable remote search.
+   Set this to :code-py:`None` to disable remote search.
 
 .. confval:: applehelp_remote_url
    :type: :code-py:`str`
@@ -2393,7 +2393,7 @@ so the HTML options also apply where appropriate.
    an English speaking customer,
    it will look at ``https://example.com/help/Foo/en.lproj/index.html``.
 
-   Set this to to :code-py:`None` for no remote content.
+   Set this to :code-py:`None` for no remote content.
 
 .. confval:: applehelp_index_anchors
    :type: :code-py:`bool`
