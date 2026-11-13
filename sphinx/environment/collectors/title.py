@@ -55,6 +55,8 @@ class TitleCollector(EnvironmentCollector):
         else:
             # document has no title
             titlenode += nodes.Text(doctree.get('title', '<no title>'))
+            if 'title' not in doctree:
+                titlenode['missing_title'] = True
         app.env.titles[app.env.current_document.docname] = titlenode
         app.env.longtitles[app.env.current_document.docname] = longtitlenode
 
@@ -64,6 +66,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     return {
         'version': 'builtin',
+        'env_version': 1,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

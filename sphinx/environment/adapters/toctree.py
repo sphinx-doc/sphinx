@@ -444,7 +444,13 @@ def _toctree_standard_entry(
     else:
         toc = _toctree_copy(toc, 2, maxdepth, collapse, tags)
 
-    if title and toc.children and len(toc.children) == 1:
+    if title and not toc.children:
+        reference = nodes.reference(
+            '', '', nodes.Text(title), internal=True, refuri=ref, anchorname=''
+        )
+        para = addnodes.compact_paragraph('', '', reference)
+        toc += nodes.list_item('', para)
+    elif title and len(toc.children) == 1:
         child = toc.children[0]
         for refnode in child.findall(nodes.reference):
             if refnode['refuri'] == ref and not refnode['anchorname']:
