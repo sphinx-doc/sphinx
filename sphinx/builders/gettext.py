@@ -46,15 +46,20 @@ logger = logging.getLogger(__name__)
 class Message:
     """An entry of translatable message."""
 
-    __slots__ = 'text', 'locations', 'uuids'
+    __slots__ = 'text', 'locations', 'uuids', 'context'
 
     text: str
     locations: list[tuple[str, int]]
     uuids: list[str]
 
     def __init__(
-        self, text: str, locations: list[tuple[str, int]], uuids: list[str]
+        self,
+        text: str,
+        locations: list[tuple[str, int]],
+        uuids: list[str],
+        context: str | None = None,
     ) -> None:
+        self.context = context
         self.text = text
         self.locations = locations
         self.uuids = uuids
@@ -73,27 +78,34 @@ class Catalog:
     __slots__ = ('metadata',)
 
     def __init__(self) -> None:
-        # msgid -> file, line, uid
-        self.metadata: dict[str, list[tuple[str, int, str]]] = {}
+        # (context, msgid) -> file, line, uid
+        self.metadata: dict[tuple[str | None, str], list[tuple[str, int, str]]] = {}
 
     def add(self, msg: str, origin: Element | MsgOrigin) -> None:
         if not hasattr(origin, 'uid'):
             # Nodes that are replicated like todo don't have a uid,
             # however translation is also unnecessary.
             return
-        msg_metadata = self.metadata.setdefault(msg, [])
+        context = (
+            origin.get('translation_context')
+            if isinstance(origin, nodes.Element)
+            else None
+        )
+        msg_metadata = self.metadata.setdefault((context, msg), [])
         line = line if (line := origin.line) is not None else -1
         msg_metadata.append((origin.source or '', line, origin.uid))
 
     def __iter__(self) -> Iterator[Message]:
-        for message, msg_metadata in self.metadata.items():
+        for (context, message), msg_metadata in self.metadata.items():
             positions = sorted(set(map(operator.itemgetter(0, 1), msg_metadata)))
             uuids = list(map(operator.itemgetter(2), msg_metadata))
-            yield Message(text=message, locations=positions, uuids=uuids)
+            yield Message(
+                text=message, locations=positions, uuids=uuids, context=context
+            )
 
     @property
     def messages(self) -> list[str]:
-        return list(self.metadata)
+        return [message for _context, message in self.metadata]
 
 
 class MsgOrigin:

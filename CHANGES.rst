@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #8251: Add the ``translation-context`` directive to distinguish translations
+  of identical source messages with gettext contexts.
+
 Bugs fixed
 ----------
 

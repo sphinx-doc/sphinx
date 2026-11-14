@@ -1,0 +1,19 @@
+msgid ""
+msgstr ""
+"Language: de\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Plugins"
+msgstr "Erweiterungen"
+
+msgctxt "menu"
+msgid "Plugins"
+msgstr "Zusatzmodule"
+
+msgctxt "description"
+msgid "Plugins"
+msgstr "Erweiterungsmodule"
+
+msgctxt "menu \"advanced\" \\tools"
+msgid "Plugins"
+msgstr "Werkzeuge"

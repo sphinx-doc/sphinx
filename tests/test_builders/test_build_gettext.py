@@ -11,6 +11,8 @@ from subprocess import CalledProcessError
 from typing import TYPE_CHECKING
 
 import pytest
+from babel.messages.pofile import read_po
+from docutils import nodes
 
 from sphinx.builders.gettext import Catalog, MsgOrigin
 
@@ -350,3 +352,35 @@ def test_gettext_trailing_backslashes(app: SphinxTestApp) -> None:
         'footnote with backslashes and done 2',
         'directive with backslashes',
     ]
+
+
+@pytest.mark.sphinx('gettext', testroot='gettext-context', freshenv=True)
+def test_gettext_context_extraction(app: SphinxTestApp) -> None:
+    app.build()
+    with (app.outdir / 'index.pot').open('rb') as stream:
+        catalog = read_po(stream)
+    assert catalog.get('Plugins').context is None
+    assert catalog.get('Plugins', context='menu').context == 'menu'
+    assert catalog.get('Plugins', context='description').context == 'description'
+    assert catalog.get('Plugins', context='untranslated').context == 'untranslated'
+    assert catalog.get('Plugins', context=r'menu "advanced" \tools') is not None
+    assert len(catalog.get('Plugins', context='menu').locations) == 3
+    assert not app.warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='gettext-context', freshenv=True)
+def test_gettext_context_translation(app: SphinxTestApp) -> None:
+    app.build()
+    doctree = app.env.get_doctree('index')
+    assert [node.astext() for node in doctree.findall(nodes.paragraph)] == [
+        'Erweiterungen',
+        'Zusatzmodule',
+        'Erweiterungsmodule',
+        'Zusatzmodule',
+        'Plugins',
+        'Erweiterungen',
+        'Werkzeuge',
+    ]
+    index = (app.outdir / 'genindex.html').read_text(encoding='utf-8')
+    assert 'Zusatzmodule' in index
+    assert not app.warning.getvalue()

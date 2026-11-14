@@ -416,7 +416,31 @@ class Include(BaseInclude, SphinxDirective):
         return super().run()
 
 
+class TranslationContext(SphinxDirective):
+    """Set the gettext context for the enclosed messages."""
+
+    has_content = True
+    required_arguments = 1
+    final_argument_whitespace = True
+
+    def run(self) -> list[Node]:
+        self.assert_has_content()
+        context = self.arguments[0]
+        if '\x04' in context:
+            msg = 'Translation contexts must not contain U+0004.'
+            raise self.error(msg)
+        container = nodes.container()
+        self.set_source_info(container)
+        self.state.nested_parse(self.content, self.content_offset, container)
+        # Store the context on each node so it survives copying into the TOC
+        # and replacing nodes during translation. Inner contexts take precedence.
+        for node in container.findall(nodes.Element):
+            node.setdefault('translation_context', context)
+        return list(container.children)
+
+
 def setup(app: Sphinx) -> ExtensionMetadata:
+    directives.register_directive('translation-context', TranslationContext)
     directives.register_directive('toctree', TocTree)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)

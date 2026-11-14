@@ -28,6 +28,9 @@ msgstr ""
 {% endfor -%}
 {% endif -%}
 
+{% if message.context is not none -%}
+msgctxt "{{ message.context|e }}"
+{% endif -%}
 msgid "{{ message.text|e }}"
 msgstr ""
 {% endfor -%}

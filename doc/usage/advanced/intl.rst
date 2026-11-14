@@ -419,3 +419,34 @@ percentage of nodes that have been translated on a per-document basis.
 .. _`Transifex Client documentation`: https://developers.transifex.com/docs/using-the-client
 .. _`Transifex API token`: https://app.transifex.com/user/settings/api/
 .. _`sphinx-intl update-txconfig-resources documentation`: https://sphinx-intl.readthedocs.io/en/master/refs.html#sphinx-intl-update-txconfig-resources
+
+Translation contexts
+--------------------
+
+.. rst:directive:: translation-context:: context
+
+   .. versionadded:: 9.3
+
+   Assign a gettext context to the messages in the directive's content.
+   This allows identical source text to have different translations, even in
+   the same message catalog. For example::
+
+      .. translation-context:: menu
+
+         Plugins
+
+      .. translation-context:: description
+
+         Plugins
+
+   The gettext builder emits separate entries with ``msgctxt "menu"`` and
+   ``msgctxt "description"``. Translators can translate each entry independently.
+   Content outside the directive continues to use messages without a context.
+   Nested ``translation-context`` directives override the enclosing context. If a contextual translation
+   is missing, the original text is retained; a translation without a context
+   is not used as a fallback.
+
+   The context is an arbitrary string (which may contain spaces), except that
+   the gettext separator character U+0004 is not allowed. Contexts apply to
+   messages extracted from the enclosed content, including index entries when
+   enabled by :confval:`gettext_additional_targets`.

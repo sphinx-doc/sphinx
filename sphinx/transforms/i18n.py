@@ -396,6 +396,11 @@ class _NodeUpdater:
         self.node.children = self.patch.children
 
 
+def _message_key(node: nodes.Element, message: str) -> str:
+    context = node.get('translation_context')
+    return message if context is None else f'{context}\x04{message}'
+
+
 class Locale(SphinxTransform):
     """Replace translatable nodes with their translated doctree."""
 
@@ -426,7 +431,7 @@ class Locale(SphinxTransform):
 
         # phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
-            msgstr = merged.get(msg, '')
+            msgstr = merged.get(_message_key(node, msg), '')
 
             # There is no point in having noqa on literal blocks because
             # they cannot contain references.  Recognizing it would just
@@ -510,7 +515,7 @@ class Locale(SphinxTransform):
             if node.setdefault('translated', False):  # to avoid double translation
                 continue  # skip if the node is already translated by phase1
 
-            msgstr = merged.get(msg, '')
+            msgstr = merged.get(_message_key(node, msg), '')
             noqa = False
 
             # See above.
@@ -611,7 +616,7 @@ class Locale(SphinxTransform):
                     msg_parts = split_index_msg(entry_type, value)
                     msgstr_parts = []
                     for part in msg_parts:
-                        msgstr = merged.get(part, '')
+                        msgstr = merged.get(_message_key(node, part), '')
                         if not msgstr:
                             msgstr = part
                         msgstr_parts.append(msgstr)
