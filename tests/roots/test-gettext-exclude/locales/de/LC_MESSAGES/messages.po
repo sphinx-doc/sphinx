@@ -1,0 +1,16 @@
+msgid ""
+msgstr ""
+"Language: de\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Exclusions"
+msgstr "Ausschlüsse"
+
+msgid "Translate me."
+msgstr "Übersetze mich."
+
+msgid "Specification"
+msgstr "Spezifikation"
+
+msgid "untranslated index"
+msgstr "UNEXPECTED INDEX TRANSLATION"

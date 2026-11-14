@@ -228,6 +228,9 @@ IGNORED_NODES = (
 
 
 def is_translatable(node: Node) -> bool:
+    if isinstance(node, nodes.Element) and node.get('gettext_excluded'):
+        return False
+
     if isinstance(node, addnodes.translatable):
         return True
 
@@ -393,6 +396,8 @@ def traverse_translatable_index(
     """Traverse translatable index node from a document tree."""
     matcher = NodeMatcher(addnodes.index, inline=False)
     for node in matcher.findall(doctree):
+        if node.get('gettext_excluded'):
+            continue
         if 'raw_entries' in node:
             entries = node['raw_entries']
         else:

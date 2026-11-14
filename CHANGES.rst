@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #11787: Add ``gettext_exclude_patterns`` and the ``no-translate`` directive
+  to exclude documents and blocks from translation and translation progress.
+
 Bugs fixed
 ----------
 

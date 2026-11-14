@@ -350,3 +350,54 @@ def test_gettext_trailing_backslashes(app: SphinxTestApp) -> None:
         'footnote with backslashes and done 2',
         'directive with backslashes',
     ]
+
+
+@pytest.mark.sphinx('gettext', testroot='gettext-exclude', freshenv=True)
+def test_gettext_exclude_compact(app: SphinxTestApp) -> None:
+    app.build()
+    messages = get_msgids((app.outdir / 'messages.pot').read_text(encoding='utf-8'))
+    assert messages == ['Exclusions', 'Translate me.', '|translation progress|']
+    assert not app.warning.getvalue()
+
+
+@pytest.mark.sphinx(
+    'gettext',
+    testroot='gettext-exclude',
+    freshenv=True,
+    confoverrides={'gettext_compact': False},
+)
+def test_gettext_exclude_document(app: SphinxTestApp) -> None:
+    app.build()
+    assert (app.outdir / 'index.pot').is_file()
+    assert not (app.outdir / 'reference' / 'spec.pot').exists()
+    assert not app.warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='gettext-exclude', freshenv=True)
+def test_gettext_exclude_translation_and_progress(app: SphinxTestApp) -> None:
+    from docutils import nodes
+
+    app.build()
+    doctree = app.env.get_doctree('index')
+    paragraphs = [node.astext() for node in doctree.findall(nodes.paragraph)]
+    assert paragraphs == [
+        'Übersetze mich.',
+        'Translate me.',
+        'Leave this note alone.',
+        '66.67%',
+    ]
+    assert doctree['translation_progress'] == {'total': 3, 'translated': 2}
+    excluded = [
+        node for node in doctree.findall(nodes.Element) if node.get('gettext_excluded')
+    ]
+    assert excluded
+    assert all('translated' not in node for node in excluded)
+    spec = app.env.get_doctree('reference/spec')
+    assert spec['translation_progress'] == {'total': 0, 'translated': 0}
+    assert next(spec.findall(nodes.title)).astext() == 'Specification'
+    assert next(spec.findall(nodes.paragraph)).astext() == 'Translate me.'
+    assert (app.outdir / 'reference' / 'spec.html').is_file()
+    index = (app.outdir / 'genindex.html').read_text(encoding='utf-8')
+    assert 'untranslated index' in index
+    assert 'UNEXPECTED INDEX TRANSLATION' not in index
+    assert not app.warning.getvalue()

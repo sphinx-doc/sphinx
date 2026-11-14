@@ -20,6 +20,7 @@ from sphinx.util import get_filetype, logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import docname_to_domain
 from sphinx.util.index_entries import split_index_msg
+from sphinx.util.matching import Matcher
 from sphinx.util.nodes import (
     IMAGE_TYPE_NODES,
     LITERAL_TYPE_NODES,
@@ -98,6 +99,19 @@ def parse_noqa(source: str) -> tuple[str, bool]:
         return m.group(1), True
     else:
         return source, False
+
+
+class ExcludeTranslatableMessages(SphinxTransform):
+    """Exclude configured documents before collecting or translating messages."""
+
+    default_priority = 9
+
+    def apply(self, **kwargs: Any) -> None:
+        source = self.env.doc2path(self.env.current_document.docname, base=False)
+        if Matcher(self.config.gettext_exclude_patterns)(source.as_posix()):
+            # Mark descendants as well: TOC entries are copied out of the document.
+            for node in self.document.findall(nodes.Element):
+                node['gettext_excluded'] = True
 
 
 class PreserveTranslatableMessages(SphinxTransform):
@@ -708,6 +722,7 @@ class RemoveTranslatableInline(SphinxTransform):
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
+    app.add_transform(ExcludeTranslatableMessages)
     app.add_transform(PreserveTranslatableMessages)
     app.add_transform(Locale)
     app.add_transform(TranslationProgressTotaliser)
