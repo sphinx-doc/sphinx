@@ -416,7 +416,22 @@ class Include(BaseInclude, SphinxDirective):
         return super().run()
 
 
+class NoTranslate(SphinxDirective):
+    """Keep enclosed content out of translation catalogs."""
+
+    has_content = True
+
+    def run(self) -> list[Node]:
+        self.assert_has_content()
+        container = nodes.container()
+        self.state.nested_parse(self.content, self.content_offset, container)
+        for node in container.findall(nodes.Element):
+            node['gettext_excluded'] = True
+        return list(container.children)
+
+
 def setup(app: Sphinx) -> ExtensionMetadata:
+    directives.register_directive('no-translate', NoTranslate)
     directives.register_directive('toctree', TocTree)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)

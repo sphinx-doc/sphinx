@@ -419,3 +419,33 @@ percentage of nodes that have been translated on a per-document basis.
 .. _`Transifex Client documentation`: https://developers.transifex.com/docs/using-the-client
 .. _`Transifex API token`: https://app.transifex.com/user/settings/api/
 .. _`sphinx-intl update-txconfig-resources documentation`: https://sphinx-intl.readthedocs.io/en/master/refs.html#sphinx-intl-update-txconfig-resources
+
+
+Excluding content from translation
+----------------------------------
+
+Use :confval:`gettext_exclude_patterns` to keep selected documents out of
+translation catalogs while still building them normally.
+
+.. rst:directive:: no-translate
+
+   .. versionadded:: 9.3
+
+   Keep the directive's content in its original language. For example::
+
+      This paragraph can be translated.
+
+      .. no-translate::
+
+         This paragraph remains in the source language.
+
+   Messages in the content are not extracted by the gettext builder and are
+   not translated, even if the same message is translated elsewhere. This
+   includes index entries and additional targets enabled by
+   :confval:`gettext_additional_targets`. Excluded content does not count
+   toward ``|translation progress|`` and receives no translation-progress
+   CSS classes. The directive does not hide content from any output builder.
+
+   The :rst:dir:`only` directive continues to have its usual behavior: gettext
+   extracts messages from all of its branches so that builder-specific content
+   can be translated.

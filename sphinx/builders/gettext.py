@@ -177,6 +177,9 @@ class I18nBuilder(Builder):
         return
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
+        if doctree.get('gettext_excluded'):
+            return
+
         catalog = self.catalogs[docname_to_domain(docname, self.config.gettext_compact)]
 
         for toctree in self.env.tocs[docname].findall(addnodes.toctree):
@@ -331,6 +334,9 @@ class MessageCatalogBuilder(I18nBuilder):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(MessageCatalogBuilder)
+    app.add_config_value(
+        'gettext_exclude_patterns', [], 'env', types=frozenset({list, tuple})
+    )
 
     app.add_config_value(
         'gettext_compact', True, 'gettext', types=frozenset({bool, str})

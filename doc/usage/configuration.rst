@@ -626,6 +626,29 @@ See the documentation on :ref:`intl` for details.
    .. versionchanged:: 3.3
       Allow string values.
 
+.. confval:: gettext_exclude_patterns
+   :type: list[str]
+   :default: ``[]``
+
+   .. versionadded:: 9.3
+
+   Patterns for source documents to exclude from translation. Patterns match
+   source paths relative to the source directory, including the file extension,
+   using the same glob syntax as :confval:`exclude_patterns`. For example::
+
+      gettext_exclude_patterns = ['reference/**', 'legal.rst']
+
+   Unlike :confval:`exclude_patterns`, this keeps the documents in the build.
+   Their text is not extracted into message catalogs or translated, even if
+   translations already exist. Excluded text does not count toward
+   ``|translation progress|`` and receives no translation-progress CSS classes.
+   This also works when :confval:`gettext_compact` combines documents into one
+   catalog. Remove obsolete POT files from previous builds when changing these
+   patterns; Sphinx does not delete old catalog files.
+
+   The patterns select whole documents, not included source fragments. To
+   exclude a block within a document, use :rst:dir:`no-translate`.
+
 .. confval:: gettext_uuid
    :type: :code-py:`bool`
    :default: :code-py:`False`
