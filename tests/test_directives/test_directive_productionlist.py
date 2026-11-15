@@ -151,3 +151,29 @@ def test_productionlist_continuation_lines(
                     | &quot;*&quot; <a class="reference internal" href="#grammar-token-python-grammar-target"><code class="xref docutils literal notranslate"><span class="pre">target</span></code></a>
 """
     assert content == expected
+
+
+@pytest.mark.parametrize(
+    'text',
+    [
+        # First rule without a colon: no production definitions are found.
+        """
+.. productionlist:: g
+   a `b` | "c"
+   b: d
+""",
+        # Only a group name, no rules at all.
+        """
+.. productionlist:: g
+""",
+    ],
+)
+def test_productionlist_no_productions_warns(
+    make_app: Callable[..., SphinxTestApp], tmp_path: Path, text: str
+) -> None:
+    (tmp_path / 'conf.py').touch()
+    (tmp_path / 'index.rst').write_text(text, encoding='utf-8')
+
+    app = make_app(buildername='text', srcdir=tmp_path)
+    app.build(force_all=True)
+    assert 'productionlist has no productions' in app.warning.getvalue()
