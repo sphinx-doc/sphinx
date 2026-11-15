@@ -463,6 +463,18 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
     """Reformat a function signature to a more compact form."""
     s = _cleanup_signature(sig)
 
+    # The compact ``[optional, ...]`` notation cannot express ``/``, ``*``,
+    # ``**`` or keyword-only parameters, so signatures using them are kept
+    # intact instead of dropping everything after the first default.
+    try:
+        parameters = list(signature_from_str(s).parameters.values())
+    except Exception:
+        parameters = []
+    if any(p.kind is not Parameter.POSITIONAL_OR_KEYWORD for p in parameters):
+        return (
+            '(' + limited_join(', ', s[1:-1].split(', '), max_chars=max_chars - 2) + ')'
+        )
+
     # Strip return type annotation
     s = re.sub(r'\)\s*->\s.*$', ')', s)
 

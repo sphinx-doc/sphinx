@@ -73,6 +73,10 @@ def test_mangle_signature() -> None:
     (a=1, b=<SomeClass: a, b, c>, c=3) :: ([a, b, c])
     (a=1, b=T(a=1, b=2), c=3) :: ([a, b, c])
     (a: Tuple[int, str], b: int) -> str :: (a, b)
+    (a, b=None, *, c) :: (a, b=None, *, c)
+    (a, *, c) :: (a, *, c)
+    (a, b=None, *args, **kwargs) :: (a, b=None, *args, **kwargs)
+    (a, /, b=None) :: (a, /, b=None)
     """
 
     TEST = [
