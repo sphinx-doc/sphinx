@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #14825: C++ domain: a bit-field declarator in a function parameter (e.g. the
+  ``std:size_t`` typo for ``std::size_t``) no longer crashes the build with
+  ``NotImplementedError``; the declaration now produces a parse warning.
+  Patch by xh123637
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
