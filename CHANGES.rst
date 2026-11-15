@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #14789: Fix ``autosummary`` dropping every parameter of overloaded
+  functions and methods from the summary table.
+  Patch by Prince Maurya.
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 

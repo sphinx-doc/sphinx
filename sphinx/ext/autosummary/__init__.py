@@ -369,11 +369,14 @@ class Autosummary(SphinxDirective):
                 sig = None
             elif not props.signatures:
                 sig = ''
-            elif signatures_option == 'short':
+            elif signatures_option == 'short' or len(props.signatures) > 1:
+                # Overloads give one signature each, and a single table cell
+                # cannot show them all; ``mangle_signature()`` would mangle the
+                # joined string into nonsense, dropping every parameter.
                 sig = '()' if props.signatures == ('()',) else '(…)'
             else:  # signatures_option == 'long'
                 max_chars = max(10, max_item_chars - len(display_name))
-                sig = mangle_signature('\n'.join(props.signatures), max_chars=max_chars)
+                sig = mangle_signature(props.signatures[0], max_chars=max_chars)
 
             # -- Grab the summary
 
