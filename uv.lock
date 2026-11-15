@@ -1659,7 +1659,7 @@ requires-dist = [
     { name = "sphinxcontrib-applehelp", specifier = ">=1.0.7" },
     { name = "sphinxcontrib-devhelp", specifier = ">=1.0.6" },
     { name = "sphinxcontrib-htmlhelp", specifier = ">=2.0.6" },
-    { name = "sphinxcontrib-jsmath", specifier = ">=1.0.1" },
+    { name = "sphinxcontrib-jsmath", specifier = ">=2.0.0" },
     { name = "sphinxcontrib-qthelp", specifier = ">=1.0.6" },
     { name = "sphinxcontrib-serializinghtml", specifier = ">=1.1.9" },
 ]
