@@ -21,7 +21,7 @@ from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.display import status_iterator
-from sphinx.util.i18n import docname_to_domain
+from sphinx.util.i18n import docname_to_domain, node_source_docname
 from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import canon_path, ensuredir, relpath
@@ -176,6 +176,21 @@ class I18nBuilder(Builder):
     def compile_catalogs(self, catalogs: set[CatalogInfo], message: str) -> None:
         return
 
+    def _catalog_for(self, node: Element, docname: str, catalog: Catalog) -> Catalog:
+        """Return the catalog a message collected from *node* belongs to.
+
+        Text pulled in by the ``include`` directive is attributed to the included
+        document, so that it is not repeated in the catalog of every document that
+        includes it. The message is only moved when the included file is a document
+        of its own, otherwise the message would be lost.
+        """
+        included = node_source_docname(node, self.env)
+        if included is not None and included != docname:
+            return self.catalogs[
+                docname_to_domain(included, self.config.gettext_compact)
+            ]
+        return catalog
+
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         catalog = self.catalogs[docname_to_domain(docname, self.config.gettext_compact)]
 
@@ -187,7 +202,7 @@ class I18nBuilder(Builder):
         for node, msg in extract_messages(doctree):
             # Do not extract messages from within substitution definitions.
             if not _is_node_in_substitution_definition(node):
-                catalog.add(msg, node)
+                self._catalog_for(node, docname, catalog).add(msg, node)
 
         if 'index' in self.config.gettext_additional_targets:
             # Extract translatable messages from index entries.

@@ -18,7 +18,7 @@ from sphinx.locale import init as init_locale
 from sphinx.transforms import SphinxTransform
 from sphinx.util import get_filetype, logging
 from sphinx.util.docutils import LoggingReporter
-from sphinx.util.i18n import docname_to_domain
+from sphinx.util.i18n import docname_to_domain, node_source_docname
 from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import (
     IMAGE_TYPE_NODES,
@@ -412,21 +412,55 @@ class Locale(SphinxTransform):
         # fetch translations
         srcdir = self.env.srcdir
         dirs = [srcdir / directory for directory in self.config.locale_dirs]
-        catalog, has_catalog = init_locale(dirs, self.config.language, textdomain)
-        if not has_catalog:
+        if not any(
+            (directory / self.config.language / 'LC_MESSAGES').is_dir()
+            for directory in dirs
+        ):
+            # There is no message catalogue for the build language at all, so there is
+            # nothing to translate in any document.
             return
+        loaded: dict[str, dict[str, str] | None] = {}
 
-        catalogues = [getattr(catalog, '_catalog', None)]
-        while (catalog := catalog._fallback) is not None:  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
-            catalogues.append(getattr(catalog, '_catalog', None))
-        merged: dict[str, str] = {}
-        catalogue: dict[str, str]
-        for catalogue in filter(None, reversed(catalogues)):
-            merged |= catalogue
+        def load_catalog(domain: str) -> dict[str, str] | None:
+            """Merge the catalog for *domain* with its fallbacks, if there is one."""
+            if domain not in loaded:
+                catalog, has_catalog = init_locale(dirs, self.config.language, domain)
+                merged: dict[str, str] | None = None
+                if has_catalog:
+                    merged = {}
+                    catalogues = [getattr(catalog, '_catalog', None)]
+                    while (catalog := catalog._fallback) is not None:  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+                        catalogues.append(getattr(catalog, '_catalog', None))
+                    catalogue: dict[str, str]
+                    for catalogue in filter(None, reversed(catalogues)):
+                        merged |= catalogue
+                loaded[domain] = merged
+            return loaded[domain]
+
+        # A document without a catalog of its own can still have translated text included
+        # from another document, so an empty catalog is used rather than skipping the
+        # transform.
+        merged = load_catalog(textdomain) or {}
+
+        def catalog_for(node: nodes.Node) -> dict[str, str]:
+            """Return the catalog a message of *node* is translated from.
+
+            Text pulled in by the ``include`` directive is attributed to the included
+            document by the gettext builder, so it is translated from that document's
+            catalog.
+            """
+            docname = node_source_docname(node, self.env)
+            if docname is not None and docname != self.env.current_document.docname:
+                other = load_catalog(
+                    docname_to_domain(docname, self.config.gettext_compact)
+                )
+                if other is not None:
+                    return other
+            return merged
 
         # phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
-            msgstr = merged.get(msg, '')
+            msgstr = catalog_for(node).get(msg, '')
 
             # There is no point in having noqa on literal blocks because
             # they cannot contain references.  Recognizing it would just
@@ -510,7 +544,7 @@ class Locale(SphinxTransform):
             if node.setdefault('translated', False):  # to avoid double translation
                 continue  # skip if the node is already translated by phase1
 
-            msgstr = merged.get(msg, '')
+            msgstr = catalog_for(node).get(msg, '')
             noqa = False
 
             # See above.

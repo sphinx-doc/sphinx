@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #12749: i18n: Attribute the messages of an included document to that
+  document's message catalog instead of repeating them in the catalog of
+  every document that includes it, and translate them from that catalog.
+  Patch by Prince Maurya.
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 

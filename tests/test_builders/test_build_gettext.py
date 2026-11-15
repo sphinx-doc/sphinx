@@ -350,3 +350,33 @@ def test_gettext_trailing_backslashes(app: SphinxTestApp) -> None:
         'footnote with backslashes and done 2',
         'directive with backslashes',
     ]
+
+
+@pytest.mark.sphinx('gettext', testroot='gettext-include', srcdir='gettext-include-pot')
+def test_include_message_is_not_duplicated(app: SphinxTestApp) -> None:
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/12749
+    app.build(force_all=True)
+
+    shared = 'This paragraph is shared through ``include``.'
+    # Text from an included document is attributed to that document, so that every document
+    # including it does not carry a second copy of the same message.
+    assert shared in (app.outdir / 'part.pot').read_text(encoding='utf8')
+    for docname in ('index', 'other'):
+        assert shared not in (app.outdir / f'{docname}.pot').read_text(encoding='utf8')
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='gettext-include',
+    srcdir='gettext-include-translation',
+    confoverrides={'language': 'xx'},
+)
+def test_include_message_is_translated(app: SphinxTestApp) -> None:
+    # regression test for https://github.com/sphinx-doc/sphinx/issues/12749
+    app.build(force_all=True)
+
+    translated = 'This paragraph is translated from the included document.'
+    # The translation lives in the catalog of the included document only, but has to be applied
+    # in every document that includes it.
+    for docname in ('index', 'other', 'part'):
+        assert translated in (app.outdir / f'{docname}.html').read_text(encoding='utf8')

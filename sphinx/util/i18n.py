@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from typing import Protocol
 
     from babel.core import Locale
+    from docutils import nodes
 
     from sphinx.environment import BuildEnvironment
 
@@ -171,6 +172,20 @@ def docname_to_domain(docname: str, compaction: bool | str) -> str:
         return docname.partition(SEP)[0]
     else:
         return docname
+
+
+def node_source_docname(node: nodes.Node, env: BuildEnvironment) -> str | None:
+    """Return the docname of the document a node was parsed from, if any.
+
+    Nodes pulled in by the ``include`` directive keep the source of the included file,
+    which is relative to the current working directory rather than to the source
+    directory, and which may not be normalised. Files that are not documents of the
+    build, or that live outside the source directory, have no docname.
+    """
+    if (source := node.source) is None:
+        return None
+    docname = env.path2doc(os.path.abspath(source))
+    return docname if docname in env.found_docs else None
 
 
 # date_format mappings: ustrftime() to babel.dates.format_datetime()
