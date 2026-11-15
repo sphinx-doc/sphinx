@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #14841: Fix ``RemovedInSphinx11Warning`` from Napoleon when autodoc passes
+  its options object. Patch by BlueX888
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
