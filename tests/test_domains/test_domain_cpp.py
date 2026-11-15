@@ -937,6 +937,24 @@ def test_domain_cpp_ast_function_definitions() -> None:
     check('function', 'void f(void (*p)(int) = &foo)', {2: '1fPFviE'})
 
 
+def test_domain_cpp_ast_bit_field_in_parameter() -> None:
+    # Bit-fields are only valid for members, not for function parameters.
+    # A ':' in a parameter (e.g. the 'std:size_t' typo for 'std::size_t')
+    # must be a parse error, not an ASTDeclaratorNameBitField that later
+    # crashes ID generation with NotImplementedError.
+    # https://github.com/sphinx-doc/sphinx/issues/14825
+    for declaration in [
+        'void f(std:size_t)',
+        'void f(int:3)',
+        'void f(char *, std:size_t)',
+        'auto f(int:2) -> int',
+        'template<typename T> void f(T:1)',
+        'operator"" _x(const char *, std:size_t)',
+    ]:
+        with pytest.raises(DefinitionError):
+            parse('function', declaration)
+
+
 def test_domain_cpp_ast_operators() -> None:
     check('function', 'void operator new()', {1: 'new-operator', 2: 'nwv'})
     check('function', 'void operator new[]()', {1: 'new-array-operator', 2: 'nav'})

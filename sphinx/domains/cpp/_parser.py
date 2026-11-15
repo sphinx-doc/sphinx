@@ -1427,8 +1427,9 @@ class DefinitionParser(BaseParser):
             break
         param_qual = self._parse_parameters_and_qualifiers(param_mode)
         if param_qual is None and len(array_ops) == 0:
-            # perhaps a bit-field
-            if named and param_mode == 'type' and typed:
+            # perhaps a bit-field, which can only be a (named) member,
+            # not e.g. a function or template parameter (named='single'/'maybe')
+            if named is True and param_mode == 'type' and typed:
                 self.skip_ws()
                 if self.skip_string(':'):
                     size = self._parse_constant_expression(in_template=False)
