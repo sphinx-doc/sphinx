@@ -18,6 +18,10 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #14826: Fix a crash when a ``productionlist`` directive contains no
+  production definitions (for example, when the first rule has no ``:``).
+  A warning is now emitted instead.
+  Patch by xh123637
 
 Testing
 -------
