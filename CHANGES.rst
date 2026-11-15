@@ -19,6 +19,8 @@ Bugs fixed
 * #14786: Fix ``autosummary`` dropping keyword-only parameters when an
   earlier positional argument has a default.
   Patch by Prince Maurya.
+* #14797: Add missing hyphen to CVE and CWE role formats.
+  Patch by Hugo van Kemenade
 
 Testing
 -------
