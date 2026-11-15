@@ -524,6 +524,33 @@ def test_autodoc_typehints_description_with_documented_init(app: SphinxTestApp) 
 
 
 @pytest.mark.sphinx('text', testroot='ext-autodoc', copy_test_root=True)
+def test_autodoc_typehints_description_starred_parameter(
+    app: SphinxTestApp,
+) -> None:
+    app.config.autodoc_typehints = 'description'
+
+    with overwrite_file(
+        app.srcdir / 'index.rst',
+        '.. autofunction:: target.typehints_starred.starred_parameter\n',
+    ):
+        app.build()
+    context = (app.outdir / 'index.txt').read_text(encoding='utf8')
+    assert context == (
+        'target.typehints_starred.starred_parameter(*args, a)\n'
+        '\n'
+        '   Starred parameter.\n'
+        '\n'
+        '   Parameters:\n'
+        '      * ***args** (*str*) -- Star values\n'
+        '\n'
+        '      * **a** (*int*) -- A value\n'
+        '\n'
+        '   Return type:\n'
+        '      None\n'
+    )
+
+
+@pytest.mark.sphinx('text', testroot='ext-autodoc', copy_test_root=True)
 def test_autodoc_typehints_description_with_documented_init_no_undoc(
     app: SphinxTestApp,
 ) -> None:

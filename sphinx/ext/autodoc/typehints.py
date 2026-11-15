@@ -130,10 +130,10 @@ def modify_field_list(
 
         if '*' + name in arguments:
             name = '*' + name
-            arguments.get(name)
+            arg = arguments.get(name, {})
         elif '**' + name in arguments:
             name = '**' + name
-            arguments.get(name)
+            arg = arguments.get(name, {})
         else:
             arg = arguments.get(name, {})
 
