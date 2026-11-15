@@ -4,6 +4,10 @@ Release 9.3.0 (in development)
 Dependencies
 ------------
 
+* #13442: Require sphinxcontrib-jsmath 2.0.0 or later, so that ``jsmath.js``
+  is no longer added to pages without equations.
+  Patch by Jared Dillard
+
 Incompatible changes
 --------------------
 
