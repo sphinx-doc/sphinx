@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import warnings
 import zlib
 from collections import namedtuple
 from inspect import cleandoc
@@ -14,6 +15,8 @@ from unittest import mock
 
 import pytest
 
+from sphinx.deprecation import RemovedInSphinx11Warning
+from sphinx.ext.autodoc._directive_options import _AutoDocumenterOptions
 from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import (
@@ -1271,6 +1274,17 @@ Methods:
             options=SimpleNamespace(no_index=True),
         )
         assert str(actual) == expected
+
+    @pytest.mark.parametrize('docstring_class', [GoogleDocstring, NumpyDocstring])
+    @pytest.mark.parametrize('no_index', [None, True])
+    def test_autodoc_options_do_not_use_the_deprecated_mapping_api(
+        self, docstring_class, no_index
+    ):
+        options = _AutoDocumenterOptions(no_index=no_index)
+        with warnings.catch_warnings():
+            warnings.simplefilter('error', RemovedInSphinx11Warning)
+            parsed = docstring_class('Summary.', Config(), options=options)
+        assert parsed._no_index is no_index
 
     def test_keywords_with_types(self):
         docstring = """\
