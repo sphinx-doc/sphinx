@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import itertools
 import logging
-import pathlib
 import sys
 from typing import TYPE_CHECKING
 from warnings import catch_warnings
@@ -2200,6 +2199,79 @@ def test_autodoc_GenericAlias() -> None:
     ]
 
 
+def test_autodoc_pep604_union_alias() -> None:
+    """PEP 604 unions are type aliases, same as typing.Union.
+
+    ``X = str | int`` is a :class:`types.UnionType`. ``X = Union[str, int]``
+    is a generic alias on Python 3.13 and a ``types.UnionType`` on 3.14+.
+    """
+    alias = '   alias of :py:class:`str` | :py:class:`int`'
+    options = {'members': None}
+    actual = do_autodoc('module', 'target.pep604_alias', options=options)
+    assert actual == [
+        '',
+        '.. py:module:: target.pep604_alias',
+        '',
+        '',
+        '.. py:data:: V1',
+        '   :module: target.pep604_alias',
+        '',
+        '   v1',
+        '',
+        alias,
+        '',
+        '',
+        '.. py:data:: V2',
+        '   :module: target.pep604_alias',
+        '',
+        '   v2',
+        '',
+        alias,
+        '',
+    ]
+
+    assert do_autodoc('data', 'target.pep604_alias.V1') == [
+        '',
+        '.. py:data:: V1',
+        '   :module: target.pep604_alias',
+        '',
+        '   v1',
+        '',
+        alias,
+        '',
+    ]
+    assert do_autodoc('data', 'target.pep604_alias.V2') == [
+        '',
+        '.. py:data:: V2',
+        '   :module: target.pep604_alias',
+        '',
+        '   v2',
+        '',
+        alias,
+        '',
+    ]
+    assert do_autodoc('attribute', 'target.pep604_alias.Container.V1') == [
+        '',
+        '.. py:attribute:: Container.V1',
+        '   :module: target.pep604_alias',
+        '',
+        '   class-level pep 604',
+        '',
+        alias,
+        '',
+    ]
+    assert do_autodoc('attribute', 'target.pep604_alias.Container.V2') == [
+        '',
+        '.. py:attribute:: Container.V2',
+        '   :module: target.pep604_alias',
+        '',
+        '   class-level typing.Union',
+        '',
+        alias,
+        '',
+    ]
+
+
 def test_autodoc_pep695_type_alias() -> None:
     config = _AutodocConfig(
         autodoc_type_aliases={
@@ -2305,16 +2377,21 @@ def test_autodoc_pep695_type_alias() -> None:
         '',
         '.. py:data:: buffer_like',
         '   :module: target.pep695',
-        '   :value: bytes | bytearray | memoryview',
         '',
         '   Some buffer-like object',
+        '',
+        (
+            '   alias of :py:class:`bytes` | :py:class:`bytearray`'
+            ' | :py:class:`memoryview`'
+        ),
         '',
         '',
         '.. py:data:: pathlike',
         '   :module: target.pep695',
-        f'   :value: str | {pathlib.Path.__module__}.Path',
         '',
         '   Any type of path',
+        '',
+        '   alias of :py:class:`str` | :py:class:`~pathlib.Path`',
         '',
         '',
         '.. py:function:: process_error(handler: Handler, other: ~target.pep695.HandlerTypeAliasType) -> str',
