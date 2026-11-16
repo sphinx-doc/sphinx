@@ -151,3 +151,11 @@ def test_productionlist_continuation_lines(
                     | &quot;*&quot; <a class="reference internal" href="#grammar-token-python-grammar-target"><code class="xref docutils literal notranslate"><span class="pre">target</span></code></a>
 """
     assert content == expected
+
+
+@pytest.mark.sphinx('html', testroot='root')
+def test_productionlist_without_a_colon_warns(app: SphinxTestApp) -> None:
+    """A production line without a colon is reported, not a crash."""
+    text = '.. productionlist:: python\n   no colon here\n'
+    restructuredtext.parse(app, text, 'index')
+    assert 'no production definitions found' in app.warning.getvalue()

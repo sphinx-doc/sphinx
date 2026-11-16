@@ -612,6 +612,15 @@ class ProductionList(SphinxDirective):
         # Must be before extracting production definition triples.
         production_group = self.production_group(lines=lines, options=self.options)
         production_lines = list(self.production_definitions(lines))
+        if not production_lines:
+            logger.warning(
+                __(
+                    'no production definitions found: each production must be '
+                    "written as 'name: tokens'"
+                ),
+                location=self.get_location(),
+            )
+            return []
         max_name_len = max(map(len, map(name_getter, production_lines)))
         node_location = self.get_location()
 
