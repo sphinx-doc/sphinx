@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #14826: Report a warning instead of raising ``ValueError`` when a
+  ``productionlist`` directive contains no valid production definitions.
+  Patch by Duo-ee
+
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
