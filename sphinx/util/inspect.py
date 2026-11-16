@@ -445,8 +445,17 @@ def isproperty(obj: Any) -> TypeIs[property | cached_property[Any]]:
 
 
 def isgenericalias(obj: Any) -> TypeIs[types.GenericAlias]:
-    """Check if the object is a generic alias."""
-    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+    """Check if the object is a generic alias or a PEP 604 union.
+
+    ``X | Y`` is a :class:`types.UnionType`, not a :class:`types.GenericAlias`.
+    On Python 3.14 and later, ``typing.Union[X, Y]`` is a
+    :class:`types.UnionType` as well. Autodoc documents both as type aliases,
+    matching ``typing.Union`` subscriptions on older Python versions.
+    """
+    return isinstance(
+        obj,
+        (types.GenericAlias, types.UnionType, typing._BaseGenericAlias),  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+    )
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:

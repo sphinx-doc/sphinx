@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #14849: autodoc: Treat PEP 604 unions (``X | Y``) as type aliases.
+  Patch by MaxWang007
+
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 

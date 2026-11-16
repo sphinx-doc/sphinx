@@ -944,6 +944,10 @@ def test_isgenericalias() -> None:
     assert inspect.isgenericalias(T)
     assert inspect.isgenericalias(List)  # ruff: ignore[non-pep585-annotation]
     assert inspect.isgenericalias(S)
+    # PEP 604 unions are types.UnionType. typing.Union[] is a generic alias
+    # before 3.14 and a types.UnionType afterwards; both are aliases.
+    assert inspect.isgenericalias(str | int)
+    assert inspect.isgenericalias(Union[str, int])  # ruff: ignore[non-pep604-annotation-union]
     assert not inspect.isgenericalias(list)
     assert not inspect.isgenericalias([])
     assert not inspect.isgenericalias(object())
