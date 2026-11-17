@@ -26,4 +26,4 @@ See also the guide by ReadTheDocs_ on how to get started with Sphinx.
 There is a translation team in Transifex_ of this documentation,
 thanks to the Sphinx document translators.
 
-.. _Transifex: https://www.transifex.com/sphinx-doc/sphinx-doc/dashboard/
+.. _Transifex: https://explore.transifex.com/sphinx-doc/sphinx-doc/

@@ -134,7 +134,7 @@ learn more, you can:
 - Browse the `GitLab User documentation`_ to understand the possibilities of
   the platform.
 
-.. _this tutorial: https://docs.gitlab.com/ee/gitlab-basics/start-using-git.html
+.. _this tutorial: https://docs.gitlab.com/topics/git/how_to_install_git/
 .. _GitLab User documentation: https://docs.gitlab.com/ee/user/index.html
 
 .. note::
