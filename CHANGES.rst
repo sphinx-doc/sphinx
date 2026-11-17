@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #14856: Render a callable with an ellipsis parameter list as
+  ``Callable[..., T]`` instead of the invalid ``Callable[[...], T]``.
+  Patch by inchang-ing
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
