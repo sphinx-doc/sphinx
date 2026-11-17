@@ -305,14 +305,14 @@ def test_restify_type_hints_Callable() -> None:
         ':py:class:`~typing.Callable`\\ [[:py:class:`str`], :py:class:`int`]'
     )
     assert restify(t.Callable[..., int]) == (
-        ':py:class:`~typing.Callable`\\ [[...], :py:class:`int`]'
+        ':py:class:`~typing.Callable`\\ [..., :py:class:`int`]'
     )
     assert restify(abc.Callable) == ':py:class:`collections.abc.Callable`'
     assert restify(abc.Callable[[str], int]) == (
         ':py:class:`collections.abc.Callable`\\ [[:py:class:`str`], :py:class:`int`]'
     )
     assert restify(abc.Callable[..., int]) == (
-        ':py:class:`collections.abc.Callable`\\ [[...], :py:class:`int`]'
+        ':py:class:`collections.abc.Callable`\\ [..., :py:class:`int`]'
     )
 
 
@@ -819,11 +819,11 @@ def test_stringify_type_hints_Callable() -> None:
     ann_str = stringify_annotation(
         t.Callable[..., int], 'fully-qualified-except-typing'
     )
-    assert ann_str == 'Callable[[...], int]'
+    assert ann_str == 'Callable[..., int]'
     ann_str = stringify_annotation(t.Callable[..., int], 'fully-qualified')
-    assert ann_str == 'typing.Callable[[...], int]'
+    assert ann_str == 'typing.Callable[..., int]'
     ann_str = stringify_annotation(t.Callable[..., int], 'smart')
-    assert ann_str == '~typing.Callable[[...], int]'
+    assert ann_str == '~typing.Callable[..., int]'
 
     ann_str = stringify_annotation(abc.Callable, 'fully-qualified-except-typing')
     assert ann_str == 'collections.abc.Callable'
@@ -843,11 +843,11 @@ def test_stringify_type_hints_Callable() -> None:
     ann_str = stringify_annotation(
         abc.Callable[..., int], 'fully-qualified-except-typing'
     )
-    assert ann_str == 'collections.abc.Callable[[...], int]'
+    assert ann_str == 'collections.abc.Callable[..., int]'
     ann_str = stringify_annotation(abc.Callable[..., int], 'fully-qualified')
-    assert ann_str == 'collections.abc.Callable[[...], int]'
+    assert ann_str == 'collections.abc.Callable[..., int]'
     ann_str = stringify_annotation(abc.Callable[..., int], 'smart')
-    assert ann_str == '~collections.abc.Callable[[...], int]'
+    assert ann_str == '~collections.abc.Callable[..., int]'
 
 
 def test_stringify_type_hints_Union() -> None:

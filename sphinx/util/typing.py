@@ -349,6 +349,11 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 (cls_module_is_typing and cls.__name__ == 'Callable')
                 or (cls.__module__ == 'collections.abc' and cls.__name__ == 'Callable')
             ):  # fmt: skip
+                if len(__args__) == 2 and __args__[0] is Ellipsis:
+                    # Callable[..., T] uses a bare Ellipsis as the parameter
+                    # list, not a single Ellipsis-typed parameter.
+                    returns = restify(__args__[-1], mode)
+                    return rf'{text}\ [..., {returns}]'
                 args = ', '.join(restify(a, mode) for a in __args__[:-1])
                 returns = restify(__args__[-1], mode)
                 return rf'{text}\ [[{args}], {returns}]'
@@ -552,6 +557,13 @@ def stringify_annotation(
                 for a in annotation_args
             )
         elif qualname == 'Callable':
+            if len(annotation_args) == 2 and annotation_args[0] is Ellipsis:
+                # Callable[..., T] uses a bare Ellipsis as the parameter list,
+                # not a single Ellipsis-typed parameter.
+                returns = stringify_annotation(
+                    annotation_args[-1], mode=mode, short_literals=short_literals
+                )
+                return f'{module_prefix}Callable[..., {returns}]'
             args = ', '.join(
                 stringify_annotation(a, mode=mode, short_literals=short_literals)
                 for a in annotation_args[:-1]
