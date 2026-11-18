@@ -50,8 +50,10 @@ const Documentation = {
 
   ngettext: (singular, plural, n) => {
     const translated = Documentation.TRANSLATIONS[singular];
-    if (typeof translated !== "undefined")
-      return translated[Documentation.PLURAL_EXPR(n)];
+    if (typeof translated !== "undefined") {
+      const message = translated[Documentation.PLURAL_EXPR(n)];
+      if (message) return message;
+    }
     return n === 1 ? singular : plural;
   },
 

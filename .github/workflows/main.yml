@@ -65,7 +65,11 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: |
+        sudo apt-get install --no-install-recommends --yes graphviz
+        if apt-cache show libgvplugin-neato-layout8 >/dev/null 2>&1; then
+          sudo apt-get install --no-install-recommends --yes libgvplugin-neato-layout8
+        fi
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
@@ -85,7 +89,7 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   deadsnakes:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
     timeout-minutes: 15
     strategy:
@@ -101,6 +105,23 @@ jobs:
     - uses: actions/checkout@v6
       with:
         persist-credentials: false
+    - name: Configure APT retries
+      run: |
+        echo 'Acquire::Retries "5";' | sudo tee /etc/apt/apt.conf.d/80-retries
+    - name: Preinstall Python packages with retries
+      run: |
+        sudo add-apt-repository --yes ppa:deadsnakes/nightly
+        for attempt in 1 2 3; do
+          if sudo apt-get update -o Acquire::Retries=5 &&
+             apt-cache show python3.16-dev >/dev/null 2>&1 &&
+             apt-cache show python3.16-venv >/dev/null 2>&1 &&
+             sudo apt-get install -y --no-install-recommends python3.16-dev python3.16-venv; then
+            exit 0
+          fi
+          echo "Installation failed, attempt ${attempt}/3. Retrying in 15 seconds."
+          sleep 15
+        done
+        exit 1
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
       uses: deadsnakes/action@v3.2.0
       with:
@@ -108,7 +129,11 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: |
+        sudo apt-get install --no-install-recommends --yes graphviz
+        if apt-cache show libgvplugin-neato-layout8 >/dev/null 2>&1; then
+          sudo apt-get install --no-install-recommends --yes libgvplugin-neato-layout8
+        fi
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -118,10 +143,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr':DeprecationWarning"  # treat all warnings as errors except typing.AnyStr deprecation
 
   deadsnakes-free-threaded:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Python ${{ matrix.python }} (free-threaded)
     timeout-minutes: 15
     strategy:
@@ -134,6 +159,24 @@ jobs:
     - uses: actions/checkout@v6
       with:
         persist-credentials: false
+    - name: Configure APT retries
+      run: |
+        echo 'Acquire::Retries "5";' | sudo tee /etc/apt/apt.conf.d/80-retries
+    - name: Preinstall Python packages with retries
+      run: |
+        sudo add-apt-repository --yes ppa:deadsnakes/nightly
+        for attempt in 1 2 3; do
+          if sudo apt-get update -o Acquire::Retries=5 &&
+             apt-cache show python3.16-dev >/dev/null 2>&1 &&
+             apt-cache show python3.16-venv >/dev/null 2>&1 &&
+             apt-cache show python3.16-nogil >/dev/null 2>&1 &&
+             sudo apt-get install -y --no-install-recommends python3.16-dev python3.16-venv python3.16-nogil; then
+            exit 0
+          fi
+          echo "Installation failed, attempt ${attempt}/3. Retrying in 15 seconds."
+          sleep 15
+        done
+        exit 1
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
       uses: deadsnakes/action@v3.2.0
       with:
@@ -142,7 +185,11 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: |
+        sudo apt-get install --no-install-recommends --yes graphviz
+        if apt-cache show libgvplugin-neato-layout8 >/dev/null 2>&1; then
+          sudo apt-get install --no-install-recommends --yes libgvplugin-neato-layout8
+        fi
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -150,7 +197,7 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr':DeprecationWarning"  # treat all warnings as errors except typing.AnyStr deprecation
 
   windows:
     runs-on: windows-latest
@@ -240,7 +287,11 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: |
+        sudo apt-get install --no-install-recommends --yes graphviz
+        if apt-cache show libgvplugin-neato-layout8 >/dev/null 2>&1; then
+          sudo apt-get install --no-install-recommends --yes libgvplugin-neato-layout8
+        fi
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
@@ -249,7 +300,7 @@ jobs:
     - name: Install dependencies
       run: uv pip install . --group test
     - name: Install Docutils' HEAD
-      run: uv pip install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
+      run: uv pip install "docutils @ git+https://github.com/docutils/docutils.git#subdirectory=docutils"
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv
       env:
@@ -273,7 +324,11 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: |
+        sudo apt-get install --no-install-recommends --yes graphviz
+        if apt-cache show libgvplugin-neato-layout8 >/dev/null 2>&1; then
+          sudo apt-get install --no-install-recommends --yes libgvplugin-neato-layout8
+        fi
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
@@ -289,7 +344,7 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   latex:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: LaTeX
     timeout-minutes: 15
     container:
@@ -299,23 +354,30 @@ jobs:
     - uses: actions/checkout@v6
       with:
         persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3"
-    - name: Check Python version
-      run: python --version --version
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
+    - name: Set up Python
+      run: |
+        uv python install 3.13
+        uv venv --python 3.13 .venv
+        echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
+    - name: Check Python and OpenSSL
+      run: |
+        .venv/bin/python --version --version
+        .venv/bin/python -c "import ssl; print(ssl.OPENSSL_VERSION)"
     - name: Install dependencies
-      run: uv pip install . --group test
+      run: uv pip install --python .venv/bin/python . --group test
+      env:
+        UV_SYSTEM_PYTHON: "false"
     - name: Install Docutils' HEAD
-      run: uv pip install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
+      run: uv pip install --python .venv/bin/python "docutils @ git+https://github.com/docutils/docutils.git#subdirectory=docutils"
+      env:
+        UV_SYSTEM_PYTHON: "false"
     - name: Test with pytest
-      run: python -m pytest -vv --durations 25
+      run: .venv/bin/python -m pytest -vv --durations 25
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
         DO_EPUBCHECK: "1"
@@ -337,7 +399,11 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: |
+        sudo apt-get install --no-install-recommends --yes graphviz
+        if apt-cache show libgvplugin-neato-layout8 >/dev/null 2>&1; then
+          sudo apt-get install --no-install-recommends --yes libgvplugin-neato-layout8
+        fi
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:

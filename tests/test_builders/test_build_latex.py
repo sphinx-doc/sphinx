@@ -2284,7 +2284,7 @@ def test_one_parameter_per_line_without_trailing_comma(app: SphinxTestApp) -> No
     assert r'\sphinxparam{\DUrole{n}{f}}}}' in result
 
 
-@pytest.mark.sphinx('latex', testroot='markup-rubric')
+@pytest.mark.sphinx('latex', testroot='markup-rubric', srcdir='markup-rubric-latex')
 def test_latex_rubric(app: SphinxTestApp) -> None:
     app.build()
     content = (app.outdir / 'test.tex').read_text(encoding='utf8')
