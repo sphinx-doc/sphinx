@@ -1,6 +1,7 @@
 describe("Documentation.ngettext", () => {
   const singular = "Search finished, found one page matching the search query.";
-  const plural = "Search finished, found ${resultCount} pages matching the search query.";
+  const plural =
+    "Search finished, found ${resultCount} pages matching the search query.";
 
   afterEach(() => {
     Documentation.TRANSLATIONS = {};
@@ -10,7 +11,8 @@ describe("Documentation.ngettext", () => {
   it("falls back to the original message when the selected translation is empty", () => {
     Documentation.addTranslations({
       locale: "ru",
-      plural_expr: "(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14) ? 2 : 3)",
+      plural_expr:
+        "(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14) ? 2 : 3)",
       messages: {
         [singular]: ["", "", "", ""],
       },
