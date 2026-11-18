@@ -18,6 +18,9 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #14860: Fix a crash when unparsing a dictionary with ``**`` unpacking,
+  such as in a decorator argument.
+  Patch by BlueX888
 
 Testing
 -------
