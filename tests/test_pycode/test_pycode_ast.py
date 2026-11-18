@@ -25,6 +25,8 @@ from sphinx.pycode.ast import unparse as ast_unparse
         ('1234', '1234'),                          # Constant, Num
         ("{'key1': 'value1', 'key2': 'value2'}",
          "{'key1': 'value1', 'key2': 'value2'}"),  # Dict
+        ("{**base, 'key2': 'value2'}",
+         "{**base, 'key2': 'value2'}"),            # Dict with unpacking
         ('a / b', 'a / b'),                        # Div
         ('...', '...'),                            # Ellipsis
         ('a // b', 'a // b'),                      # FloorDiv
