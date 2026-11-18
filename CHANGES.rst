@@ -18,6 +18,9 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #13303: viewcode: Apply :confval:`highlight_options` when highlighting
+  module source code.
+  Patch by Sudeep Gowda
 
 Testing
 -------

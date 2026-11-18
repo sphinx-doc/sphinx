@@ -5,9 +5,12 @@ from __future__ import annotations
 import re
 import shutil
 from typing import TYPE_CHECKING
+from unittest.mock import ANY, patch
 
 import pygments
 import pytest
+
+from sphinx.builders.html import StandaloneHTMLBuilder
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -84,6 +87,25 @@ def test_viewcode(app: SphinxTestApp) -> None:
 
     result = check_viewcode_output(app)
     assert 'class="linenos">' not in result
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='ext-viewcode',
+    freshenv=True,
+    confoverrides={'highlight_options': {'default': {'stripall': True}}},
+)
+@pytest.mark.usefixtures('rollback_sysmodules')
+def test_viewcode_highlight_options(app: SphinxTestApp) -> None:
+    shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
+    assert isinstance(app.builder, StandaloneHTMLBuilder)  # type-checking
+    highlighter = app.builder.highlighter
+    with patch.object(
+        highlighter, 'highlight_block', wraps=highlighter.highlight_block
+    ) as highlight:
+        app.build(force_all=True)
+
+    highlight.assert_any_call(ANY, 'default', opts={'stripall': True}, linenos='')
 
 
 @pytest.mark.sphinx('epub', testroot='ext-viewcode')
