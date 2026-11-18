@@ -105,3 +105,29 @@ def test_rubric(app: SphinxTestApp) -> None:
     app.build()
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
     assert 'This is a rubric\n' in content
+
+
+@pytest.mark.sphinx('man', testroot='manpage-references')
+def test_references(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    content = (app.outdir / 'refs.1').read_text(encoding='utf8')
+
+    # internal references render as their (italic) text only
+    assert r'A \fI\%ref\fP\&. A \fI\%doc\fP\&.' in content
+    assert '#\\:other-ref' not in content
+    assert r'\%<>' not in content
+
+    # external references keep the OSC 8 hyperlink
+    assert r"\X'tty: link https://example.org/'\fI\%external link\fP" in content
+
+
+@pytest.mark.sphinx(
+    'man', testroot='manpage-references', confoverrides={'man_show_urls': True}
+)
+def test_references_show_urls(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    content = (app.outdir / 'refs.1').read_text(encoding='utf8')
+
+    assert r'\fI\%external link\fP <\fBhttps://example.org/\fP>' in content
+    # internal references never show a URL
+    assert r'\fI\%ref\fP\&.' in content

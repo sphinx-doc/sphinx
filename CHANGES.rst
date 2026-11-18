@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #14427: Man page: Fix rendering of internal references (such as :rst:role:`ref`
+  and :rst:role:`doc`) with Docutils 0.22 and later.
+  Patch by Syogo Suganoya
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 

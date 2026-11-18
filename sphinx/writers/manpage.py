@@ -79,6 +79,16 @@ class ManualPageTranslator(SphinxTranslator, manpage.Translator):
     def __init__(self, document: nodes.document, builder: Builder) -> None:
         super().__init__(document, builder)
 
+        # Docutils 0.22+ assigns ``visit_reference`` and ``depart_reference``
+        # as instance attributes in ``Translator.__init__``, which shadows the
+        # methods defined on this class (and on any subclass).
+        # Remove them so that normal method lookup applies again.
+        for name in ('visit_reference', 'depart_reference'):
+            self.__dict__.pop(name, None)
+        # Docutils 0.22 also dropped the 'reference' entry from ``defs``;
+        # restore the markup used by Docutils 0.21 (italic, no hyphenation).
+        self.defs.setdefault('reference', (r'\fI\%', r'\fP'))
+
         # first title is the manpage title
         self.section_level = -1
 
