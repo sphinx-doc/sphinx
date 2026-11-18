@@ -18,6 +18,9 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #13339: Report the original error when a result callback of a parallel
+  task fails, rather than a ``KeyError`` from ``ParallelTasks.terminate()``.
+  Patch by Sudeep Gowda
 
 Testing
 -------

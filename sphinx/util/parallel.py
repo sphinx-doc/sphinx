@@ -123,7 +123,7 @@ class ParallelTasks:
     def terminate(self) -> None:
         for tid in list(self._precvs):
             self._procs[tid].terminate()
-            self._result_funcs.pop(tid)
+            self._result_funcs.pop(tid, None)
             self._procs.pop(tid)
             self._precvs.pop(tid)
             self._pworking -= 1
