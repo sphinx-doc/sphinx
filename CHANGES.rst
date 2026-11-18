@@ -19,6 +19,9 @@ Bugs fixed
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
+* #14167: Fall back to the original search message when the selected plural
+  translation is empty.
+
 Testing
 -------
 
