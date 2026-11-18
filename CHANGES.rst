@@ -18,6 +18,9 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #13078: graphviz: Fix fragment-only links in SVG output, which pointed
+  to the document's directory rather than to the document.
+  Patch by Sudeep Gowda
 
 Testing
 -------

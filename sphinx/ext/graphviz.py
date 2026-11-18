@@ -260,7 +260,12 @@ def fix_svg_relative_paths(
             continue
         doc_dir = self.builder.outdir.joinpath(docname).resolve().parent
 
-        old_path = doc_dir / rel_uri
+        if rel_uri:
+            old_path = doc_dir / rel_uri
+        else:
+            # a fragment-only link points into the document embedding the graph
+            target_uri = self.builder.get_target_uri(docname)
+            old_path = self.builder.outdir.resolve() / target_uri
         img_path = doc_dir / self.builder.imgpath
         new_path = os.path.relpath(old_path, start=img_path)
         modified_url = urlunsplit((scheme, hostname, new_path, query, fragment))
