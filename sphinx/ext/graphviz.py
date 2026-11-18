@@ -345,6 +345,16 @@ def render_dot(
             % (ret.stderr, ret.stdout)
         )
 
+    if stderr := ret.stderr.decode(errors='replace').strip():
+        logger.warning(
+            __('dot command %r emitted warnings:\n%s'),
+            graphviz_dot,
+            stderr,
+            location=docname,
+            type='graphviz',
+            subtype='dot',
+        )
+
     if format == 'svg':
         fix_svg_relative_paths(self, outfn)
 
