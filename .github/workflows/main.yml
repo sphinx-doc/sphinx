@@ -108,11 +108,14 @@ jobs:
       run: |
         sudo add-apt-repository --yes ppa:deadsnakes/nightly
         for attempt in 1 2 3; do
-          if sudo apt-get install -y --no-install-recommends python3.16-dev python3.16-venv; then
+          if sudo apt-get update -o Acquire::Retries=5 &&
+             apt-cache show python3.16-dev >/dev/null 2>&1 &&
+             apt-cache show python3.16-venv >/dev/null 2>&1 &&
+             sudo apt-get install -y --no-install-recommends python3.16-dev python3.16-venv; then
             exit 0
           fi
-          echo "Installation failed, attempt ${attempt}/3. Retrying in 10 seconds."
-          sleep 10
+          echo "Installation failed, attempt ${attempt}/3. Retrying in 15 seconds."
+          sleep 15
         done
         exit 1
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
@@ -155,11 +158,15 @@ jobs:
       run: |
         sudo add-apt-repository --yes ppa:deadsnakes/nightly
         for attempt in 1 2 3; do
-          if sudo apt-get install -y --no-install-recommends python3.16-dev python3.16-venv python3.16-nogil; then
+          if sudo apt-get update -o Acquire::Retries=5 &&
+             apt-cache show python3.16-dev >/dev/null 2>&1 &&
+             apt-cache show python3.16-venv >/dev/null 2>&1 &&
+             apt-cache show python3.16-nogil >/dev/null 2>&1 &&
+             sudo apt-get install -y --no-install-recommends python3.16-dev python3.16-venv python3.16-nogil; then
             exit 0
           fi
-          echo "Installation failed, attempt ${attempt}/3. Retrying in 10 seconds."
-          sleep 10
+          echo "Installation failed, attempt ${attempt}/3. Retrying in 15 seconds."
+          sleep 15
         done
         exit 1
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
