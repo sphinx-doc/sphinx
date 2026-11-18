@@ -82,7 +82,7 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error"  # treat all warnings as errors except typing.AnyStr deprecation
 
   deadsnakes:
     runs-on: ubuntu-latest
@@ -118,7 +118,7 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr':DeprecationWarning"  # treat all warnings as errors except typing.AnyStr deprecation
 
   deadsnakes-free-threaded:
     runs-on: ubuntu-latest
@@ -150,7 +150,7 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr':DeprecationWarning"  # treat all warnings as errors except typing.AnyStr deprecation
 
   windows:
     runs-on: windows-latest
@@ -187,7 +187,7 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error"  # treat all warnings as errors except typing.AnyStr deprecation
 
   macos:
     runs-on: macos-latest
@@ -216,7 +216,7 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error"  # treat all warnings as errors except typing.AnyStr deprecation
 
   docutils-latest:
     runs-on: ubuntu-latest
@@ -249,11 +249,11 @@ jobs:
     - name: Install dependencies
       run: uv pip install . --group test
     - name: Install Docutils' HEAD
-      run: uv pip install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
+      run: uv pip install "docutils @ git+https://github.com/docutils/docutils.git#subdirectory=docutils"
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error"  # treat all warnings as errors except typing.AnyStr deprecation
         DO_EPUBCHECK: "1"
         EPUBCHECK_PATH: "/tmp/epubcheck/epubcheck-5.1.0/epubcheck.jar"
 
@@ -286,7 +286,7 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error"  # treat all warnings as errors except typing.AnyStr deprecation
 
   latex:
     runs-on: ubuntu-latest
@@ -302,7 +302,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v6
       with:
-        python-version: "3"
+        python-version: "3.12"
     - name: Check Python version
       run: python --version --version
     - name: Install uv
@@ -313,11 +313,11 @@ jobs:
     - name: Install dependencies
       run: uv pip install . --group test
     - name: Install Docutils' HEAD
-      run: uv pip install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
+      run: uv pip install "docutils @ git+https://github.com/docutils/docutils.git#subdirectory=docutils"
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error"  # treat all warnings as errors except typing.AnyStr deprecation
         DO_EPUBCHECK: "1"
 
   coverage:
