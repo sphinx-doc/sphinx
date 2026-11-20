@@ -41,7 +41,7 @@ digraph build {
 
     "Builder.build_all" -> "Builder.build";
     "Builder.build_specific" -> "Builder.build";
-    "Builder.build_update":p1 -> "Builder.build";
+    "Builder.build_update" -> "Builder.build";
 
     "Builder.read" [color=darkorange];
     "Builder.write" [color=darkorange];
@@ -61,13 +61,13 @@ digraph build {
     "Builder.copy_assets" [color=darkblue];
     "Builder.write_documents" [color=darkblue];
 
-    "Builder.write":p1 -> "Builder.prepare_writing";
-    "Builder.write":p1 -> "Builder.copy_assets";
+    "Builder.write" -> "Builder.prepare_writing";
+    "Builder.write" -> "Builder.copy_assets";
     "Builder.write_documents" [
         shape=record
         label = "<p1> Builder.write_documents | Builder._write_serial | Builder._write_parallel"
     ];
-    "Builder.write":p1 -> "Builder.write_documents";
+    "Builder.write" -> "Builder.write_documents";
 
     "Builder.write_doc" [color=darkgreen];
     "Builder.get_relative_uri" [color=darkblue];

@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #14362: graphviz: Emit warnings written to standard error by :program:`dot`
+  instead of silently discarding them.
+  They can be suppressed with ``suppress_warnings = ['graphviz.dot']``.
+  Patch by Syogo Suganoya
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 

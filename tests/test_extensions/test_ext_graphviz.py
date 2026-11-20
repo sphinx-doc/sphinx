@@ -14,6 +14,18 @@ if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
 
 
+@pytest.mark.sphinx('html', testroot='ext-graphviz-warnings')
+@pytest.mark.usefixtures('if_graphviz_found')
+def test_graphviz_dot_stderr_emitted_as_warning(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    warnings = app.warning.getvalue()
+    assert "index.rst: WARNING: dot command 'dot' emitted warnings:" in warnings
+    assert 'unsupported style INVALID' in warnings
+    assert '[graphviz.dot]' in warnings
+    assert list(app.outdir.glob('_images/graphviz-*.png'))
+
+
 @pytest.mark.sphinx('html', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_graphviz_png_html(app: SphinxTestApp) -> None:
