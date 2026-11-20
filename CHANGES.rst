@@ -18,6 +18,11 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #10974: intersphinx: Resolve :rst:role:`py:class` references
+  (e.g. from type annotations) to objects documented as
+  :rst:dir:`py:data` or :rst:dir:`py:attribute`, such as type aliases
+  and type variables, mirroring local resolution.
+  Patch by Bhaskar Gurram.
 
 Testing
 -------
