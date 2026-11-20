@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sys
-from importlib.machinery import SourceFileLoader
+from importlib.machinery import ModuleSpec, SourceFileLoader
 from pathlib import Path
 
 import pytest
@@ -16,6 +16,7 @@ SPHINX_MODULE_PATH = Path(sphinx.__file__).resolve().with_suffix('.py')
 
 
 def test_ModuleAnalyzer_get_module_source() -> None:
+    assert isinstance(sphinx.__spec__, ModuleSpec)  # type checking
     assert isinstance(sphinx.__spec__.loader, SourceFileLoader)  # type checking
     assert ModuleAnalyzer.get_module_source('sphinx') == (
         Path(sphinx.__file__),

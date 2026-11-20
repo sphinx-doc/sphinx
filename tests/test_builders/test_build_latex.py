@@ -14,7 +14,6 @@ from types import NoneType
 from typing import TYPE_CHECKING
 
 import docutils
-import pygments
 import pytest
 
 from sphinx.builders.latex import default_latex_documents
@@ -49,7 +48,7 @@ STYLEFILES = [
 # only run latex if all needed packages are there
 def kpsetest(*filenames: str) -> bool:
     try:
-        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)  # NoQA: S607
+        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)  # ruff: ignore[start-process-with-partial-path]
         return True
     except (OSError, CalledProcessError):
         return False  # command not found or exit with non-zero
@@ -2107,16 +2106,11 @@ def test_latex_container(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx('latex', testroot='reST-code-role')
 def test_latex_code_role(app: SphinxTestApp) -> None:
-    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
-        sp = r'\PYG{+w}{ }'
-    else:
-        sp = ' '
-
     app.build()
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
     common_content = (
-        r'\PYG{k}{def}' + sp + r'\PYG{n+nf}{foo}'
+        r'\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{foo}'
         r'\PYG{p}{(}'
         r'\PYG{l+m+mi}{1} '
         r'\PYG{o}{+} '

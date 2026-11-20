@@ -16,9 +16,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Annotated, Any, Final, Literal, Protocol
-
-    from typing_extensions import TypeIs
+    from typing import Annotated, Any, Final, Literal, Protocol, TypeIs
 
     from sphinx.application import Sphinx
     from sphinx.util.inventory import _InventoryItem
@@ -183,7 +181,7 @@ class ExtensionMetadata(typing.TypedDict, total=False):
 
 
 if TYPE_CHECKING:
-    type _ExtensionSetupFunc = Callable[[Sphinx], ExtensionMetadata]  # NoQA: PYI047 (false positive)
+    type _ExtensionSetupFunc = Callable[[Sphinx], ExtensionMetadata]  # ruff: ignore[unused-private-type-alias] (false positive)
 
 
 def get_type_hints(
@@ -305,7 +303,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 rf'\ [{args}, {meta}]'
             )
         elif isinstance(cls, typing.NewType):
-            return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
+            return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
         elif isinstance(cls, types.UnionType) or (
             isgenericalias(cls)
             and cls_module_is_typing
@@ -543,7 +541,7 @@ def stringify_annotation(
             and all(getattr(a, '__origin__', ...) is typing.Literal for a in annotation_args)
         ):  # fmt: skip
             # special case to flatten a Union of Literals into a literal
-            flattened_args = typing.Literal[annotation_args].__args__  # type: ignore[attr-defined]
+            flattened_args = typing.Literal[annotation_args].__args__  # type: ignore[attr-defined]  # ty: ignore[invalid-type-form]
             args = ', '.join(
                 _format_literal_arg_stringify(a, mode=mode) for a in flattened_args
             )
@@ -586,12 +584,12 @@ def stringify_annotation(
                 elif dataclasses.is_dataclass(m):
                     # use stringify_annotation for the repr of field values rather than repr
                     d_fields = ', '.join([
-                        f'{f.name}={stringify_annotation(getattr(m, f.name), mode=mode, short_literals=short_literals)}'  # NoQA: E501
+                        f'{f.name}={stringify_annotation(getattr(m, f.name), mode=mode, short_literals=short_literals)}'  # ruff: ignore[line-too-long]
                         for f in dataclasses.fields(m)
                         if f.repr
                     ])
                     meta_args.append(
-                        f'{stringify_annotation(type(m), mode=mode, short_literals=short_literals)}({d_fields})'  # NoQA: E501
+                        f'{stringify_annotation(type(m), mode=mode, short_literals=short_literals)}({d_fields})'  # ruff: ignore[line-too-long]
                     )
                 else:
                     meta_args.append(repr(m))

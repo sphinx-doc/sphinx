@@ -272,7 +272,7 @@ nitpick_ignore = {
 
 # -- Extension interface -------------------------------------------------------
 
-from sphinx import addnodes  # NoQA: E402
+from sphinx import addnodes  # ruff: ignore[module-import-not-at-top-of-file]
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -328,7 +328,7 @@ REDIRECT_TEMPLATE = """
         <a href="{{rel_url}}">If not, click here to continue.</a>
     </body>
 </html>
-"""  # NoQA: E501
+"""  # ruff: ignore[line-too-long]
 
 
 def build_redirects(app: Sphinx, exception: Exception | None) -> None:

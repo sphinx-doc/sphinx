@@ -21,7 +21,7 @@ cleanup_called = 0
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest')
 def test_build(app: SphinxTestApp) -> None:
-    global cleanup_called  # NoQA: PLW0603
+    global cleanup_called  # ruff: ignore[global-statement]
     cleanup_called = 0
     app.build(force_all=True)
     assert app.statuscode == 0, f'failures in doctests:\n{app.status.getvalue()}'
@@ -75,7 +75,7 @@ def test_is_allowed_version() -> None:
 
 
 def cleanup_call() -> None:
-    global cleanup_called  # NoQA: PLW0603
+    global cleanup_called  # ruff: ignore[global-statement]
     cleanup_called += 1
 
 
@@ -93,7 +93,7 @@ def test_skipif(app: SphinxTestApp) -> None:
     in ``test_build`` above, and the assertion below would fail.
 
     """
-    global recorded_calls  # NoQA: PLW0603
+    global recorded_calls  # ruff: ignore[global-statement]
     recorded_calls = Counter()
     app.build(force_all=True)
     if app.statuscode != 0:

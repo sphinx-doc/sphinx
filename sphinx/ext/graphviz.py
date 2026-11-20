@@ -239,7 +239,7 @@ def fix_svg_relative_paths(
 ) -> None:
     """Change relative links in generated svg files to be relative to imgpath."""
     env = self.builder.env
-    tree = ET.parse(filepath)  # NoQA: S314
+    tree = ET.parse(filepath)  # ruff: ignore[suspicious-xml-element-tree-usage]
     root = tree.getroot()
     ns = {'svg': 'http://www.w3.org/2000/svg', 'xlink': 'http://www.w3.org/1999/xlink'}
     href_name = '{http://www.w3.org/1999/xlink}href'
@@ -332,7 +332,7 @@ def render_dot(
         )
         if not hasattr(self.builder, '_graphviz_warned_dot'):
             self.builder._graphviz_warned_dot = {}  # type: ignore[union-attr]
-        self.builder._graphviz_warned_dot[graphviz_dot] = True  # type: ignore[union-attr]
+        self.builder._graphviz_warned_dot[graphviz_dot] = True  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
         return None, None
     except CalledProcessError as exc:
         raise GraphvizError(

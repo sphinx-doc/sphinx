@@ -16,7 +16,7 @@ from sphinx._cli.util.colour import colourise
 from sphinx.errors import SphinxWarning
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping, Sequence, Set
+    from collections.abc import Generator, Mapping, Sequence, Set
     from typing import IO, Any, NoReturn
 
     from docutils.nodes import Node
@@ -253,7 +253,7 @@ class MemoryHandler(logging.handlers.BufferingHandler):
 
 
 @contextmanager
-def pending_warnings() -> Iterator[logging.Handler]:
+def pending_warnings() -> Generator[logging.Handler]:
     """Context manager to postpone logging warnings temporarily.
 
     Similar to :func:`pending_logging`.
@@ -281,7 +281,7 @@ def pending_warnings() -> Iterator[logging.Handler]:
 
 
 @contextmanager
-def suppress_logging() -> Iterator[MemoryHandler]:
+def suppress_logging() -> Generator[MemoryHandler]:
     """Context manager to suppress logging all logs temporarily.
 
     For example::
@@ -310,7 +310,7 @@ def suppress_logging() -> Iterator[MemoryHandler]:
 
 
 @contextmanager
-def pending_logging() -> Iterator[MemoryHandler]:
+def pending_logging() -> Generator[MemoryHandler]:
     """Context manager to postpone logging all logs temporarily.
 
     For example::
@@ -333,7 +333,7 @@ skip_warningiserror = nullcontext  # Deprecate in Sphinx 10
 
 
 @contextmanager
-def prefixed_warnings(prefix: str) -> Iterator[None]:
+def prefixed_warnings(prefix: str) -> Generator[None]:
     """Context manager to prepend prefix to all warning log records temporarily.
 
     For example::
@@ -383,11 +383,12 @@ class LogCollector:
         self.logs: list[logging.LogRecord] = []
 
     @contextmanager
-    def collect(self) -> Iterator[None]:
+    def collect(self) -> Generator[None]:
         with pending_logging() as memhandler:
-            yield
-
-            self.logs = memhandler.clear()
+            try:
+                yield
+            finally:
+                self.logs = memhandler.clear()
 
 
 class InfoFilter(logging.Filter):

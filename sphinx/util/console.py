@@ -5,7 +5,7 @@ from __future__ import annotations
 import shutil
 
 import sphinx._cli.util.colour
-from sphinx._cli.util.colour import (  # NoQA: F401
+from sphinx._cli.util.colour import (  # ruff: ignore[unused-import]
     _create_input_mode_colour_func,
     black,
     blink,

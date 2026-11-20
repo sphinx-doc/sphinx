@@ -40,11 +40,6 @@ def test_html_codeblock_linenos_style_inline(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx('html', testroot='reST-code-role')
 def test_html_code_role(app: SphinxTestApp) -> None:
-    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
-        sp = '<span class="w"> </span>'
-    else:
-        sp = ' '
-
     if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21):
         abc = '"abc"'
     else:
@@ -54,7 +49,7 @@ def test_html_code_role(app: SphinxTestApp) -> None:
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     common_content = (
-        f'<span class="k">def</span>{sp}<span class="nf">foo</span>'
+        f'<span class="k">def</span><span class="w"> </span><span class="nf">foo</span>'
         '<span class="p">(</span>'
         '<span class="mi">1</span> '
         '<span class="o">+</span> '

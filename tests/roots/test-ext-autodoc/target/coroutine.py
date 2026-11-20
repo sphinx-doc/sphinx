@@ -22,7 +22,7 @@ class AsyncClass:
         yield
 
 
-async def _other_coro_func():  # NoQA: RUF029
+async def _other_coro_func():  # ruff: ignore[unused-async]
     return 'run'
 
 

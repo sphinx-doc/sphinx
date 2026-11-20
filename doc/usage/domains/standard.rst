@@ -87,6 +87,24 @@ There is a set of directives allowing documenting command-line programs:
    Describes an environment variable that the documented code or program uses
    or defines.  Referenceable by :rst:role:`envvar`.
 
+   Example:
+
+   .. code-block:: rst
+
+      .. envvar:: PYTHONINSPECT
+
+         If this is set to a non-empty string, it is equivalent to specifying
+         the :option:`-i` option.
+
+   will be rendered as follows:
+
+   .. envvar:: PYTHONINSPECT
+      :no-contents-entry:
+      :no-index-entry:
+
+      If this is set to a non-empty string, it is equivalent to specifying
+      the :option:`-i` option.
+
 .. rst:directive:: .. program:: name
 
    Like :rst:dir:`py:currentmodule`, this directive produces no output.

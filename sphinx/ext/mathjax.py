@@ -87,7 +87,7 @@ def install_mathjax(
 ) -> None:
     if app.builder.format != 'html':
         return
-    if app.builder.math_renderer_name != 'mathjax':  # type: ignore[attr-defined]
+    if app.builder.math_renderer_name != 'mathjax':  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
         return
     if not app.config.mathjax_path:
         msg = 'mathjax_path config value must be set for the mathjax extension to work'

@@ -29,8 +29,8 @@ tex_replacements = [
     # map some special Unicode characters to similar ASCII ones
     # (even for Unicode LaTeX as may not be supported by OpenType font)
     ('⎽', r'\_'),
-    ('ℯ', r'e'),  # U+212F # NoQA: RUF001
-    ('ⅈ', r'i'),  # U+2148 # NoQA: RUF001
+    ('ℯ', r'e'),  # U+212F # ruff: ignore[ambiguous-unicode-character-string]
+    ('ⅈ', r'i'),  # U+2148 # ruff: ignore[ambiguous-unicode-character-string]
     # Greek alphabet not escaped: pdflatex handles it via textalpha and inputenc
     # OHM SIGN U+2126 is handled by LaTeX textcomp package
 ]

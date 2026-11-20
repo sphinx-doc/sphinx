@@ -252,8 +252,8 @@ class SphinxTestAppWrapperForSkipBuilding(SphinxTestApp):
 
 def _clean_up_global_state() -> None:
     # clean up Docutils global state
-    directives._directives.clear()  # type: ignore[attr-defined]
-    roles._roles.clear()  # type: ignore[attr-defined]
+    directives._directives.clear()  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+    roles._roles.clear()  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     for node in additional_nodes:
         delattr(nodes.GenericNodeVisitor, f'visit_{node.__name__}')
         delattr(nodes.GenericNodeVisitor, f'depart_{node.__name__}')

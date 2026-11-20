@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING
 import pytest
 
 from sphinx.builders.epub3 import _XML_NAME_PATTERN
-from sphinx.testing.util import SphinxTestApp
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -49,7 +48,7 @@ class EPUBElementTree:
 
     @classmethod
     def fromstring(cls, string: str | bytes) -> Self:
-        tree = ET.fromstring(string)  # NoQA: S314  # using known data in tests
+        tree = ET.fromstring(string)  # ruff: ignore[suspicious-xml-element-tree-usage]  # using known data in tests
         return cls(tree)
 
     def find(self, match: str) -> Self:
@@ -512,7 +511,7 @@ def test_run_epubcheck(app: SphinxTestApp) -> None:
 
     try:
         subprocess.run(
-            ['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],  # NoQA: S607
+            ['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],  # ruff: ignore[start-process-with-partial-path]
             capture_output=True,
             check=True,
         )
@@ -561,7 +560,7 @@ def test_epub_manifest_path_separator_normalization(app: SphinxTestApp) -> None:
     # Parse manifest and spine elements
     # Verify that all idrefs in spine match ids in manifest
 
-    tree = ET.parse(str(opf_path))  # noqa: S314
+    tree = ET.parse(str(opf_path))  # ruff: ignore[suspicious-xml-element-tree-usage]
     root = tree.getroot()
 
     # Define namespace
@@ -622,7 +621,7 @@ def test_epub_manifest_subdirectory_paths(app: SphinxTestApp) -> None:
     opf_path = app.outdir / 'content.opf'
     assert opf_path.exists()
 
-    tree = ET.parse(str(opf_path))  # noqa: S314
+    tree = ET.parse(str(opf_path))  # ruff: ignore[suspicious-xml-element-tree-usage]
     root = tree.getroot()
 
     ns: dict[str, str] = {'opf': 'http://www.idpf.org/2007/opf'}
@@ -653,7 +652,7 @@ def test_epub_spine_idref_consistency(app: SphinxTestApp) -> None:
 
     opf_path = app.outdir / 'content.opf'
 
-    tree = ET.parse(str(opf_path))  # noqa: S314
+    tree = ET.parse(str(opf_path))  # ruff: ignore[suspicious-xml-element-tree-usage]
     root = tree.getroot()
 
     ns: dict[str, str] = {'opf': 'http://www.idpf.org/2007/opf'}

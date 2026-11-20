@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any  # NoQA: TC003
+from typing import Any  # ruff: ignore[typing-only-standard-library-import]
 
 CONSTANT = 'foo'
 SENTINEL = object()
@@ -10,7 +10,7 @@ SENTINEL = object()
 def foo(
     name: str = CONSTANT,
     sentinel: Any = SENTINEL,
-    now: datetime = datetime.now(),  # NoQA: B008,DTZ005
+    now: datetime = datetime.now(),  # ruff: ignore[function-call-in-default-argument, call-datetime-now-without-tzinfo]
     color: int = 0xFFFFFF,
     *,
     kwarg1,
@@ -26,7 +26,7 @@ class Class:
         self,
         name: str = CONSTANT,
         sentinel: Any = SENTINEL,
-        now: datetime = datetime.now(),  # NoQA: B008,DTZ005
+        now: datetime = datetime.now(),  # ruff: ignore[function-call-in-default-argument, call-datetime-now-without-tzinfo]
         color: int = 0xFFFFFF,
         *,
         kwarg1,
@@ -39,7 +39,7 @@ class Class:
         cls,
         name: str = CONSTANT,
         sentinel: Any = SENTINEL,
-        now: datetime = datetime.now(),  # NoQA: B008,DTZ005
+        now: datetime = datetime.now(),  # ruff: ignore[function-call-in-default-argument, call-datetime-now-without-tzinfo]
         color: int = 0xFFFFFF,
         *,
         kwarg1,
@@ -48,7 +48,7 @@ class Class:
         """docstring"""
 
 
-get_sentinel = lambda custom=SENTINEL: custom  # NoQA: E731
+get_sentinel = lambda custom=SENTINEL: custom  # ruff: ignore[lambda-assignment]
 """docstring"""
 
 
@@ -74,5 +74,5 @@ class MultiLine:
     (lambda self: 4, doc='docstring'))
 
     prop5 = property\
-    (lambda self: 5, doc='docstring')  # NoQA: E211
+    (lambda self: 5, doc='docstring')  # ruff: ignore[whitespace-before-parameters]
     # fmt: on

@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 import pathlib
-from typing import TYPE_CHECKING, Tuple, TypeVar, Union  # NoQA: UP035
+from typing import (  # ruff: ignore[deprecated-import]
+    TYPE_CHECKING,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 if TYPE_CHECKING:
     from typing import Any
@@ -65,7 +70,7 @@ def tuple_args(x: tuple[int, int | str]) -> tuple[int, int]:
 
 
 class NewAnnotation:
-    def __new__(cls, i: int) -> NewAnnotation:  # NoQA: PYI034
+    def __new__(cls, i: int) -> NewAnnotation:  # ruff: ignore[non-self-return-type]
         pass
 
 

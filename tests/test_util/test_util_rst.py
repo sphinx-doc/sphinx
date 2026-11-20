@@ -183,5 +183,5 @@ def test_heading() -> None:
     assert heading(env, 'русский язык', 1) == 'русский язык\n============'
 
     # language=ja: ambiguous
-    env.language = 'ja'  # type: ignore[attr-defined]
+    env.language = 'ja'  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     assert heading(env, 'русский язык', 1) == 'русский язык\n======================='

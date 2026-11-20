@@ -45,7 +45,7 @@ class IntEnumDocumenter(ClassDocumenter):
         use_hex = self.options.hex
         self.add_line('', source_name)
 
-        for the_member_name, enum_member in enum_object.__members__.items():  # type: ignore[attr-defined]
+        for the_member_name, enum_member in enum_object.__members__.items():  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             the_member_value = enum_member.value
             if use_hex:
                 the_member_value = hex(the_member_value)

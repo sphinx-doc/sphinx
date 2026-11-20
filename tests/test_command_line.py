@@ -14,10 +14,7 @@ from sphinx.cmd.make_mode import run_make_mode
 if TYPE_CHECKING:
     from typing import Any
 
-broken_argparse = (
-    sys.version_info[:3] <= (3, 12, 6)
-    or sys.version_info[:3] == (3, 13, 0)
-)  # fmt: skip
+broken_argparse = sys.version_info[:3] == (3, 13, 0)
 
 DEFAULTS = {
     'filenames': [],

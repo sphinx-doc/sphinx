@@ -87,7 +87,7 @@ def merge_members_option(options: dict[str, Any]) -> None:
                     members.append(member)
 
 
-class Options(dict[str, Any]):  # NoQA: FURB189
+class Options(dict[str, Any]):  # ruff: ignore[subclass-builtin]
     """A dict/attribute hybrid that returns None on nonexisting keys."""
 
     def copy(self) -> Options:

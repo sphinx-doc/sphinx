@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import docutils
 from docutils.transforms.references import DanglingReferences
 
 from sphinx.transforms import SphinxTransform
@@ -42,7 +43,10 @@ class SphinxDomains(SphinxTransform):
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_transform(SphinxDanglingReferences)
+    # Docutils 1.0 splits reference matching and reporting into separate
+    # transforms, which are already provided by the standalone reader.
+    if docutils.__version_info__[:2] < (1, 0):
+        app.add_transform(SphinxDanglingReferences)
     app.add_transform(SphinxDomains)
 
     return {
