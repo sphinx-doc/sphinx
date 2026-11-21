@@ -18,6 +18,10 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #10152: The C++ domain now parses lambda expressions in declarations,
+  e.g. ``std::function<Status(FileWriter*)> writer_pre_finish
+  = [](FileWriter*) {return Status::OK();}``, instead of emitting
+  "Parsing of expression failed. Using fallback parser."
 
 Testing
 -------
