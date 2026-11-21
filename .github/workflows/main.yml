@@ -118,9 +118,11 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        # Python 3.16-dev deprecates typing.AnyStr, which pytest 9.2 still
-        # imports at startup; ignore deprecations from pytest's own modules.
-        PYTHONWARNINGS: "error,ignore::DeprecationWarning:_pytest"
+        # Python 3.16-dev is a moving target: third-party packages (e.g.
+        # pytest 9.2's ``from typing import AnyStr``) can trip new stdlib
+        # deprecations at import time, before pytest reads its config.
+        # Keep warnings-as-errors for our own code only.
+        PYTHONWARNINGS: "error,ignore::DeprecationWarning:^(?!sphinx|tests|conftest)"
 
   deadsnakes-free-threaded:
     runs-on: ubuntu-latest
@@ -152,9 +154,11 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        # Python 3.16-dev deprecates typing.AnyStr, which pytest 9.2 still
-        # imports at startup; ignore deprecations from pytest's own modules.
-        PYTHONWARNINGS: "error,ignore::DeprecationWarning:_pytest"
+        # Python 3.16-dev is a moving target: third-party packages (e.g.
+        # pytest 9.2's ``from typing import AnyStr``) can trip new stdlib
+        # deprecations at import time, before pytest reads its config.
+        # Keep warnings-as-errors for our own code only.
+        PYTHONWARNINGS: "error,ignore::DeprecationWarning:^(?!sphinx|tests|conftest)"
 
   windows:
     runs-on: windows-latest
