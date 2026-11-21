@@ -38,6 +38,7 @@ from sphinx.domains.cpp._ast import (
     ASTIdentifier,
     ASTIdExpression,
     ASTInitializer,
+    ASTLambdaExpr,
     ASTNamespace,
     ASTNestedName,
     ASTNestedNameElement,
@@ -302,6 +303,117 @@ class DefinitionParser(BaseParser):
             self.fail("Expected ')' to end binary fold expression.")
         return ASTFoldExpr(left_expr, op, right_expr)
 
+    def _parse_bracketed_span(self, open: str, close: str) -> str:
+        # Parse a bracketed span, starting at the opening bracket.
+        # Returns the verbatim text between the brackets.
+        # Nested brackets of any kind are matched, and string literals,
+        # character literals and comments are skipped, so that e.g. braces
+        # inside a lambda body do not end the span early.
+        assert self.current_char == open
+        self.pos += 1
+        start = self.pos
+        brackets = {'(': ')', '{': '}', '[': ']'}
+        stack = [close]
+        while True:
+            if self.eof:
+                self.fail('Expected "%s" to close bracketed span.' % close)
+            c = self.current_char
+            if c == '/' and self.definition[self.pos + 1 : self.pos + 2] == '/':
+                # line comment, skip to end of line
+                while not self.eof and self.current_char != '\n':
+                    self.pos += 1
+                continue
+            if c == '/' and self.definition[self.pos + 1 : self.pos + 2] == '*':
+                # block comment, skip to */
+                self.pos += 2
+                while not self.eof and self.definition[self.pos : self.pos + 2] != '*/':
+                    self.pos += 1
+                if self.eof:
+                    self.fail('Unterminated block comment.')
+                self.pos += 2
+                continue
+            if c == "'" and self.pos > 0 and self.definition[self.pos - 1].isdigit():
+                # digit separator (C++14), e.g. 1'000, not a character literal
+                self.pos += 1
+                continue
+            if c in {'"', "'"}:
+                quote = c
+                self.pos += 1
+                while not self.eof and self.current_char != quote:
+                    if self.current_char == '\\':
+                        self.pos += 1
+                    self.pos += 1
+                if self.eof:
+                    self.fail('Unterminated string or character literal.')
+                self.pos += 1
+                continue
+            if c in brackets:
+                stack.append(brackets[c])
+            elif stack and c == stack[-1]:
+                stack.pop()
+                if not stack:
+                    res = self.definition[start : self.pos]
+                    self.pos += 1
+                    return res
+            self.pos += 1
+
+    def _parse_lambda_expression(self) -> ASTLambdaExpr | None:
+        # lambda-expression
+        # -> lambda-introducer lambda-declarator[opt] compound-statement
+        # lambda-introducer
+        # -> "[" lambda-capture[opt] "]"
+        # lambda-declarator
+        # -> "(" parameter-declaration-clause ")"
+        #    lambda-specifiers[opt]
+        # lambda-specifiers
+        # -> "mutable"[opt] "constexpr"[opt] "consteval"[opt]
+        #    noexcept-specifier[opt] trailing-return-type[opt]
+        # The body (compound-statement) is kept verbatim, as a
+        # balanced-brace span, since we do not parse statements.
+        self.skip_ws()
+        if self.current_char != '[':
+            return None
+        capture = self._parse_bracketed_span('[', ']')
+        self.skip_ws()
+        params = None
+        if self.current_char == '(':
+            params = self._parse_parameters_and_qualifiers('function')
+        self.skip_ws()
+        specifiers = [
+            specifier
+            for specifier in ('mutable', 'constexpr', 'consteval')
+            if self.skip_word_and_ws(specifier)
+        ]
+        # _parse_parameters_and_qualifiers already consumed a noexcept
+        # specifier and a trailing return type when they directly follow
+        # the parameter list; only parse them here when they did not
+        # (e.g., after "mutable", or when there is no parameter list).
+        exception_spec = None
+        trailing_return = None
+        if params is None or (
+            params.exceptionSpec is None and params.trailingReturn is None
+        ):
+            self.skip_ws()
+            if self.skip_string('noexcept'):
+                if self.skip_string_and_ws('('):
+                    expr = self._parse_constant_expression(False)
+                    self.skip_ws()
+                    if not self.skip_string(')'):
+                        self.fail("Expecting ')' to end 'noexcept'.")
+                    exception_spec = ASTNoexceptSpec(expr)
+                else:
+                    exception_spec = ASTNoexceptSpec(None)
+            self.skip_ws()
+            if self.skip_string('->'):
+                trailing_return = self._parse_type(named=False)
+        self.skip_ws()
+        if self.current_char != '{':
+            self.fail('Expected "{" to start lambda body.')
+        body = self._parse_bracketed_span('{', '}')
+        return ASTLambdaExpr(
+            capture, params, specifiers, exception_spec, trailing_return, body
+        )
+
     def _parse_primary_expression(self) -> ASTExpression:
         # literal
         # "this"
@@ -316,7 +428,9 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         if self.skip_word('this'):
             return ASTThisLiteral()
-        # TODO: try lambda expression
+        res = self._parse_lambda_expression()
+        if res is not None:
+            return res
         res = self._parse_fold_or_paren_expression()
         if res is not None:
             return res

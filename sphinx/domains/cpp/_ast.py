@@ -682,6 +682,100 @@ class ASTParenExpr(ASTExpression):
         signode += addnodes.desc_sig_punctuation(')', ')')
 
 
+class ASTLambdaExpr(ASTExpression):
+    def __init__(
+        self,
+        capture: str,
+        params: ASTParametersQualifiers | None,
+        specifiers: list[str],
+        exceptionSpec: ASTNoexceptSpec | None,
+        trailingReturn: ASTType | None,
+        body: str,
+    ) -> None:
+        # The capture list and the body are kept verbatim, as strings,
+        # since we do not parse statements.
+        # "params" holds the parameter list together with the specifiers
+        # that directly follow it (cv-qualifiers, ref-qualifier, noexcept
+        # specifier, trailing return type); "specifiers" holds "mutable",
+        # "constexpr" and "consteval", and "exceptionSpec" and
+        # "trailingReturn" hold a noexcept specifier and a trailing return
+        # type that follow those specifiers (or that appear without a
+        # parameter list).
+        self.capture = capture
+        self.params = params
+        self.specifiers = specifiers
+        self.exceptionSpec = exceptionSpec
+        self.trailingReturn = trailingReturn
+        self.body = body
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTLambdaExpr):
+            return NotImplemented
+        return (
+            self.capture == other.capture
+            and self.params == other.params
+            and self.specifiers == other.specifiers
+            and self.exceptionSpec == other.exceptionSpec
+            and self.trailingReturn == other.trailingReturn
+            and self.body == other.body
+        )
+
+    def __hash__(self) -> int:
+        return hash((
+            self.capture,
+            self.params,
+            tuple(self.specifiers),
+            self.exceptionSpec,
+            self.trailingReturn,
+            self.body,
+        ))
+
+    def _stringify(self, transform: StringifyTransform) -> str:
+        res = ['[' + self.capture + ']']
+        if self.params is not None:
+            res.append(transform(self.params))
+        if self.specifiers:
+            res.append(' ' + ' '.join(self.specifiers))
+        if self.exceptionSpec:
+            res.append(' ' + transform(self.exceptionSpec))
+        if self.trailingReturn:
+            res.append(' -> ' + transform(self.trailingReturn))
+        res.append(' {' + self.body + '}')
+        return ''.join(res)
+
+    def get_id(self, version: int) -> str:
+        # There is no established mangling for lambda expressions in
+        # Sphinx, so fall back to the stringified form, like
+        # ASTFallbackExpr does.
+        return str(self)
+
+    def describe_signature(
+        self, signode: TextElement, mode: str, env: BuildEnvironment, symbol: Symbol
+    ) -> None:
+        signode += addnodes.desc_sig_punctuation('[', '[')
+        if self.capture:
+            signode += addnodes.desc_sig_name(self.capture, self.capture)
+        signode += addnodes.desc_sig_punctuation(']', ']')
+        if self.params is not None:
+            self.params.describe_signature(signode, mode, env, symbol)
+        for specifier in self.specifiers:
+            signode += addnodes.desc_sig_space()
+            signode += addnodes.desc_sig_keyword(specifier, specifier)
+        if self.exceptionSpec:
+            signode += addnodes.desc_sig_space()
+            self.exceptionSpec.describe_signature(signode, mode, env, symbol)
+        if self.trailingReturn:
+            signode += addnodes.desc_sig_space()
+            signode += addnodes.desc_sig_operator('->', '->')
+            signode += addnodes.desc_sig_space()
+            self.trailingReturn.describe_signature(signode, 'markType', env, symbol)
+        signode += addnodes.desc_sig_space()
+        signode += addnodes.desc_sig_punctuation('{', '{')
+        if self.body:
+            signode += nodes.literal(self.body, self.body)
+        signode += addnodes.desc_sig_punctuation('}', '}')
+
+
 class ASTIdExpression(ASTExpression):
     def __init__(self, name: ASTNestedName) -> None:
         # note: this class is basically to cast a nested name as an expression

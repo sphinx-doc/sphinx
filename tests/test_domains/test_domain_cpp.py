@@ -325,6 +325,48 @@ def test_domain_cpp_ast_expressions() -> None:
     expr_check('"abc"_udl', 'clL_Zli4_udlELA3_KcEE')
     # from https://github.com/sphinx-doc/sphinx/issues/7294
     expr_check('6.62607015e-34q_J', 'clL_Zli3q_JEL6.62607015e-34EE')
+    # lambda expressions, from https://github.com/sphinx-doc/sphinx/issues/10152
+
+    def lambda_expr_check(expr):
+        # like expr_check, but a lambda as a template argument is parsed
+        # as a constant expression (a subscript, "a[lambda]"), not as an
+        # array type, so the ids differ from expr_check's template:
+        # v2: the constant is stringified, v3/v4: "ix" + "1a" + lambda id.
+        id_dict = {
+            2: 'IE1CIXa[' + expr.format() + ']EE',
+            3: 'IE1CIXix1a' + expr.format() + 'EE',
+        }
+        check('class', 'template<> {key}C<a[%s]>' % expr, id_dict)
+
+        class Config:
+            cpp_id_attributes = ['id_attr']
+            cpp_paren_attributes = ['paren_attr']
+
+        parser = DefinitionParser(expr, location=None, config=Config())
+        parser.allowFallbackExpressionParsing = False
+        ast = parser.parse_expression()
+        parser.assert_end()
+        res = str(ast)
+        if res != expr:
+            print()
+            print('Input:    ', expr)
+            print('Result:   ', res)
+            raise DefinitionError
+        display_string = ast.get_display_string()
+        if res != display_string:
+            print()
+            print('Input:    ', expr)
+            print('Result:   ', res)
+            print('Display:  ', display_string)
+            raise DefinitionError
+
+    lambda_expr_check('[]() {{}}')
+    lambda_expr_check('[](int x) {{ return x; }}')
+    lambda_expr_check('[](FileWriter*) {{return Status::OK();}}')
+    lambda_expr_check('[&](int x) mutable -> int {{ return x; }}')
+    lambda_expr_check('[=, &y]() noexcept {{ return 1; }}')
+    lambda_expr_check('[]() {{ if (true) {{ return 1; }} return 0; }}')
+    lambda_expr_check("[x = 1'000]() {{ return x; }}")
 
     # fold expressions, paren, name
     expr_check('(... + Ns)', '(... + Ns)', id4='flpl2Ns')
@@ -1412,6 +1454,21 @@ def test_domain_cpp_ast_initializers() -> None:
     check('member', 'T v{42, 42, args...}', ids_member)
     # other
     check('member', 'T v = T{}', ids_member)
+
+
+def test_domain_cpp_ast_lambda_initializer() -> None:
+    # from https://github.com/sphinx-doc/sphinx/issues/10152
+    # A member with a lambda initializer must parse without falling back
+    # to the fallback expression parser (which used to emit
+    # "Parsing of expression failed. Using fallback parser.").
+    # parse() disables the fallback parser, so this fails if the
+    # lambda is not parsed properly.
+    check(
+        'member',
+        'std::function<Status(FileWriter*)> writer_pre_finish'
+        ' = [](FileWriter*) {return Status::OK();}',
+        {2: '17writer_pre_finish'},
+    )
 
 
 def test_domain_cpp_ast_attributes() -> None:
