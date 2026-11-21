@@ -38,7 +38,9 @@ Testing
   engine as a separate, Recommends-only plugin package): the CI workflows now
   install the neato layout plugin alongside graphviz, and the neato-specific
   assertion in ``test_graphviz_png_html`` moved to a dedicated test that is
-  skipped when the engine cannot render.
+  skipped when the engine cannot render. The CI workflows also stop treating
+  the ``typing.AnyStr`` deprecation raised by pytest itself on Python 3.16+
+  development builds as an error.
 
 Release 9.2.0 (released Oct 20, 2026)
 =====================================

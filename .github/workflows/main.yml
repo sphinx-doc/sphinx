@@ -91,7 +91,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
 
   deadsnakes:
     runs-on: ubuntu-latest
@@ -136,7 +139,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
 
   deadsnakes-free-threaded:
     runs-on: ubuntu-latest
@@ -177,7 +183,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
 
   windows:
     runs-on: windows-latest
@@ -214,7 +223,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
 
   macos:
     runs-on: macos-latest
@@ -243,7 +255,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
 
   docutils-latest:
     runs-on: ubuntu-latest
@@ -289,7 +304,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
         DO_EPUBCHECK: "1"
         EPUBCHECK_PATH: "/tmp/epubcheck/epubcheck-5.1.0/epubcheck.jar"
 
@@ -331,7 +349,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
 
   latex:
     runs-on: ubuntu-latest
@@ -362,7 +383,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
         DO_EPUBCHECK: "1"
 
   coverage:
