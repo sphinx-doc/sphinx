@@ -572,12 +572,18 @@ def test_index_entries_incremental_build(
     make_app_with_empty_project: Callable[..., SphinxTestApp], tmp_path: Path
 ) -> None:
     index_path = tmp_path / 'index.rst'
-    index_path.write_text('Index\n=====\n\n.. toctree::\n\n   retained\n   updated\n')
+    index_path.write_text(
+        'Index\n=====\n\n.. toctree::\n\n   retained\n   updated\n',
+        encoding='utf-8',
+    )
     (tmp_path / 'retained.rst').write_text(
-        'Retained\n========\n\n.. index:: single: Shared Entry\n'
+        'Retained\n========\n\n.. index:: single: Shared Entry\n',
+        encoding='utf-8',
     )
     updated = tmp_path / 'updated.rst'
-    updated.write_text('Updated\n=======\n\n.. index:: !single: Old Entry\n')
+    updated.write_text(
+        'Updated\n=======\n\n.. index:: !single: Old Entry\n', encoding='utf-8'
+    )
     app = make_app_with_empty_project('html')
     app.build()
     initial_bytes = (app.outdir / 'searchindex.js').read_bytes()
@@ -595,7 +601,8 @@ def test_index_entries_incremental_build(
 
     updated.write_text(
         'Updated\n=======\n\n.. index:: !single: New Entry\n'
-        '\n.. index:: single: Shared Entry\n'
+        '\n.. index:: single: Shared Entry\n',
+        encoding='utf-8',
     )
     updated_mtime = updated.stat().st_mtime + 2
     os.utime(updated, (updated_mtime, updated_mtime))
@@ -608,7 +615,9 @@ def test_index_entries_incremental_build(
     app.cleanup()
 
     (tmp_path / 'retained.rst').unlink()
-    index_path.write_text('Index\n=====\n\n.. toctree::\n\n   updated\n')
+    index_path.write_text(
+        'Index\n=====\n\n.. toctree::\n\n   updated\n', encoding='utf-8'
+    )
     index_mtime = index_path.stat().st_mtime + 2
     os.utime(index_path, (index_mtime, index_mtime))
     app = make_app_with_empty_project('html')
