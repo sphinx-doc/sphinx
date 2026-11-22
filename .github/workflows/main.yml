@@ -368,7 +368,11 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v6
       with:
-        python-version: "3"
+        # Pin instead of "3": the newest python-build-standalone (3.15.x)
+        # links against OPENSSL_3.3.0, which the sphinx-ci container's
+        # libcrypto.so.3 does not provide, so `import _ssl` (and therefore
+        # pytest) fails with ImportError in this job.
+        python-version: "3.13"
     - name: Check Python version
       run: python --version --version
     - name: Install uv
