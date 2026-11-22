@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import re
+import shutil
 import sys
 from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx.ext.graphviz import ClickableMapDefinition
+from sphinx.testing.fixtures import graphviz_executable_renders
 
 if TYPE_CHECKING:
     from sphinx.testing.util import SphinxTestApp
@@ -32,12 +34,6 @@ def test_graphviz_png_html(app: SphinxTestApp) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
-        '<img src=".*?" alt="digraph foo {\nbaz -&gt; qux\n}" '
-        'class="graphviz neato-graph" />'
-    )
-    assert re.search(html, content, re.DOTALL)
-
-    html = (
         r'<figure class="align-right" .*?>\s*'
         r'<div class="graphviz"><img .*?/></div>\s*<figcaption>\s*'
         r'<p><span class="caption-text">on <em>right</em></span>.*</p>\s*'
@@ -50,6 +46,24 @@ def test_graphviz_png_html(app: SphinxTestApp) -> None:
         r'<div class="graphviz"><img src=\".*\.png\" alt=\"digraph foo {\n'
         r'centered\n'
         r'}\" class="graphviz" /></div>\n</div>'
+    )
+    assert re.search(html, content, re.DOTALL)
+
+
+@pytest.mark.sphinx('html', testroot='ext-graphviz')
+@pytest.mark.usefixtures('if_graphviz_found', 'if_graphviz_neato_found')
+def test_graphviz_png_html_neato(app: SphinxTestApp) -> None:
+    """The ``:graphviz_dot: neato`` graph is rendered with the neato layout.
+
+    Skipped on graphviz installations that do not ship the neato layout
+    engine (recent graphviz releases package each layout engine separately).
+    """
+    app.build(force_all=True)
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    html = (
+        '<img src=".*?" alt="digraph foo {\\nbaz -&gt; qux\\n}" '
+        'class="graphviz neato-graph" />'
     )
     assert re.search(html, content, re.DOTALL)
 
@@ -218,3 +232,23 @@ def test_graphviz_parse_mapfile() -> None:
     assert cmap.id == 'inheritance66ff5471b9'
     assert len(cmap.clickable) == 0
     assert cmap.generate_clickable_map() == ''
+
+
+def test_graphviz_executable_renders_missing_executable() -> None:
+    # A nonexistent executable must be reported as unavailable (OSError path).
+    assert not graphviz_executable_renders('sphinx-nonexistent-graphviz-binary')
+
+
+def test_graphviz_executable_renders_failing_executable() -> None:
+    # An existing executable that rejects the arguments must be reported as
+    # unavailable (non-zero exit status path); the Python interpreter exits
+    # with an error for the unknown ``-Tpng`` option.
+    assert not graphviz_executable_renders(sys.executable)
+
+
+def test_graphviz_executable_renders_dot() -> None:
+    # When graphviz is installed, ``dot`` can render a trivial graph.
+    dot = shutil.which('dot')
+    if dot is None:
+        pytest.skip('graphviz "dot" is not available')
+    assert graphviz_executable_renders(dot)

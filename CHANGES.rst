@@ -13,6 +13,14 @@ Deprecated
 Features added
 --------------
 
+* #12323: Emit machine-readable license tags in the JavaScript that Sphinx
+  generates and ships with HTML output, so that tools such as GNU LibreJS
+  and REUSE/SPDX can recognise it as free software. The tags
+  (``@license`` magnet and ``SPDX-License-Identifier``/``SPDX-FileCopyrightText``)
+  are added to ``doctools.js``, ``searchtools.js``, ``sphinx_highlight.js``,
+  ``documentation_options.js``, and ``language_data.js``.
+  Patch by Aarav
+
 Bugs fixed
 ----------
 
@@ -25,6 +33,14 @@ Testing
 * #14690: Fix test isolation issues caused by shared test directories and
   inherited ``NO_COLOR`` and ``NO_COLOUR`` environment variables.
   Patch by Kilian Paul
+* #14829: Make the graphviz tests robust on systems where the ``neato``
+  layout engine is unavailable (recent graphviz releases package each layout
+  engine as a separate, Recommends-only plugin package): the CI workflows now
+  install the neato layout plugin alongside graphviz, and the neato-specific
+  assertion in ``test_graphviz_png_html`` moved to a dedicated test that is
+  skipped when the engine cannot render. The CI workflows also stop treating
+  the ``typing.AnyStr`` deprecation raised by pytest itself on Python 3.16+
+  development builds as an error.
 
 Release 9.2.0 (released Oct 20, 2026)
 =====================================

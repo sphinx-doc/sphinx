@@ -1,4 +1,8 @@
 /*
+ * SPDX-FileCopyrightText: Copyright (c) 2007-2026 by the Sphinx team
+ * SPDX-License-Identifier: BSD-2-Clause
+ * @license magnet:?xt=urn:btih:87f119ba0b429ba17a44b4bffcab33165ebdacc0&dn=freebsd.txt
+ *
  * Base JavaScript utilities for all Sphinx HTML documentation.
  */
 "use strict";

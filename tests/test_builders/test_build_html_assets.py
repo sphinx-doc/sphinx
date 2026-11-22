@@ -203,3 +203,22 @@ def test_extension_static_dir_registry(app: SphinxTestApp) -> None:
     # Verify the static dir is registered
     assert len(app.registry.static_dirs) == 1
     assert app.registry.static_dirs[0].name == 'static'
+
+
+@pytest.mark.sphinx('html', testroot='basic')
+def test_js_files_include_machine_readable_license(app: SphinxTestApp) -> None:
+    """Sphinx-generated JavaScript should carry LibreJS/SPDX license tags."""
+    app.build(force_all=True)
+
+    # Files that are always generated and copied to ``_static`` on every build.
+    licensed_js = [
+        '_static/documentation_options.js',
+        '_static/doctools.js',
+        '_static/sphinx_highlight.js',
+    ]
+    for relpath in licensed_js:
+        path = app.outdir / relpath
+        assert path.is_file(), f'{relpath} was not generated'
+        content = path.read_text(encoding='utf8')
+        assert 'SPDX-License-Identifier: BSD-2-Clause' in content, relpath
+        assert '@license magnet:' in content, relpath

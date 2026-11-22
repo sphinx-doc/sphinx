@@ -65,7 +65,16 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: |
+        sudo apt-get install --no-install-recommends --yes graphviz
+        # Since graphviz 13, each layout engine is shipped as a separate plugin
+        # package that is only pulled in through Recommends.  Install the neato
+        # layout plugin explicitly (when it is packaged separately), otherwise
+        # `neato` fails with: There is no layout engine support for "neato".
+        neato_plugin="$(apt-cache search --names-only 'libgvplugin-neato-layout' | grep -v -- '-dbgsym$' | awk '{print $1}' | head -n 1)"
+        if [ -n "$neato_plugin" ]; then
+          sudo apt-get install --no-install-recommends --yes "$neato_plugin"
+        fi
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
@@ -82,7 +91,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
 
   deadsnakes:
     runs-on: ubuntu-latest
@@ -108,7 +120,16 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: |
+        sudo apt-get install --no-install-recommends --yes graphviz
+        # Since graphviz 13, each layout engine is shipped as a separate plugin
+        # package that is only pulled in through Recommends.  Install the neato
+        # layout plugin explicitly (when it is packaged separately), otherwise
+        # `neato` fails with: There is no layout engine support for "neato".
+        neato_plugin="$(apt-cache search --names-only 'libgvplugin-neato-layout' | grep -v -- '-dbgsym$' | awk '{print $1}' | head -n 1)"
+        if [ -n "$neato_plugin" ]; then
+          sudo apt-get install --no-install-recommends --yes "$neato_plugin"
+        fi
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -118,7 +139,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
 
   deadsnakes-free-threaded:
     runs-on: ubuntu-latest
@@ -142,7 +166,16 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: |
+        sudo apt-get install --no-install-recommends --yes graphviz
+        # Since graphviz 13, each layout engine is shipped as a separate plugin
+        # package that is only pulled in through Recommends.  Install the neato
+        # layout plugin explicitly (when it is packaged separately), otherwise
+        # `neato` fails with: There is no layout engine support for "neato".
+        neato_plugin="$(apt-cache search --names-only 'libgvplugin-neato-layout' | grep -v -- '-dbgsym$' | awk '{print $1}' | head -n 1)"
+        if [ -n "$neato_plugin" ]; then
+          sudo apt-get install --no-install-recommends --yes "$neato_plugin"
+        fi
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -150,7 +183,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
 
   windows:
     runs-on: windows-latest
@@ -187,7 +223,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
 
   macos:
     runs-on: macos-latest
@@ -216,7 +255,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
 
   docutils-latest:
     runs-on: ubuntu-latest
@@ -240,7 +282,16 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: |
+        sudo apt-get install --no-install-recommends --yes graphviz
+        # Since graphviz 13, each layout engine is shipped as a separate plugin
+        # package that is only pulled in through Recommends.  Install the neato
+        # layout plugin explicitly (when it is packaged separately), otherwise
+        # `neato` fails with: There is no layout engine support for "neato".
+        neato_plugin="$(apt-cache search --names-only 'libgvplugin-neato-layout' | grep -v -- '-dbgsym$' | awk '{print $1}' | head -n 1)"
+        if [ -n "$neato_plugin" ]; then
+          sudo apt-get install --no-install-recommends --yes "$neato_plugin"
+        fi
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
@@ -253,7 +304,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
         DO_EPUBCHECK: "1"
         EPUBCHECK_PATH: "/tmp/epubcheck/epubcheck-5.1.0/epubcheck.jar"
 
@@ -273,7 +327,16 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: |
+        sudo apt-get install --no-install-recommends --yes graphviz
+        # Since graphviz 13, each layout engine is shipped as a separate plugin
+        # package that is only pulled in through Recommends.  Install the neato
+        # layout plugin explicitly (when it is packaged separately), otherwise
+        # `neato` fails with: There is no layout engine support for "neato".
+        neato_plugin="$(apt-cache search --names-only 'libgvplugin-neato-layout' | grep -v -- '-dbgsym$' | awk '{print $1}' | head -n 1)"
+        if [ -n "$neato_plugin" ]; then
+          sudo apt-get install --no-install-recommends --yes "$neato_plugin"
+        fi
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
@@ -286,7 +349,10 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
 
   latex:
     runs-on: ubuntu-latest
@@ -299,25 +365,35 @@ jobs:
     - uses: actions/checkout@v6
       with:
         persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3"
-    - name: Check Python version
-      run: python --version --version
+    - name: Set up Python from the container
+      # Do not use actions/setup-python here: its python-build-standalone
+      # builds link the *system* libcrypto.so.3 with OPENSSL_3.3.0 versioned
+      # symbols, which the sphinx-ci container's (older) libcrypto does not
+      # provide, so `import _ssl` fails. The container's own python3 is built
+      # against the container's libcrypto and works.
+      run: |
+        if ! command -v python3 >/dev/null; then
+          apt-get update -qq && apt-get install -y -qq python3 python3-venv
+        fi
+        python3 --version --version
+    - name: Create virtualenv
+      run: python3 -m venv .venv
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install . --group test
+      run: uv pip install --python .venv/bin/python . --group test
     - name: Install Docutils' HEAD
-      run: uv pip install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
+      run: uv pip install --python .venv/bin/python "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
     - name: Test with pytest
-      run: python -m pytest -vv --durations 25
+      run: .venv/bin/python -m pytest -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
+        # that pytest itself triggers when imported on Python 3.16+ dev builds
+        # (it is raised before pytest can apply its own filterwarnings config).
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"
         DO_EPUBCHECK: "1"
 
   coverage:
@@ -337,7 +413,16 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: |
+        sudo apt-get install --no-install-recommends --yes graphviz
+        # Since graphviz 13, each layout engine is shipped as a separate plugin
+        # package that is only pulled in through Recommends.  Install the neato
+        # layout plugin explicitly (when it is packaged separately), otherwise
+        # `neato` fails with: There is no layout engine support for "neato".
+        neato_plugin="$(apt-cache search --names-only 'libgvplugin-neato-layout' | grep -v -- '-dbgsym$' | awk '{print $1}' | head -n 1)"
+        if [ -n "$neato_plugin" ]; then
+          sudo apt-get install --no-install-recommends --yes "$neato_plugin"
+        fi
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:

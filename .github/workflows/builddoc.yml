@@ -29,7 +29,16 @@ jobs:
       with:
         python-version: "3"
     - name: Install graphviz
-      run: sudo apt-get install --no-install-recommends --yes graphviz
+      run: |
+        sudo apt-get install --no-install-recommends --yes graphviz
+        # Since graphviz 13, each layout engine is shipped as a separate plugin
+        # package that is only pulled in through Recommends.  Install the neato
+        # layout plugin explicitly (when it is packaged separately), otherwise
+        # `neato` fails with: There is no layout engine support for "neato".
+        neato_plugin="$(apt-cache search --names-only 'libgvplugin-neato-layout' | grep -v -- '-dbgsym$' | awk '{print $1}' | head -n 1)"
+        if [ -n "$neato_plugin" ]; then
+          sudo apt-get install --no-install-recommends --yes "$neato_plugin"
+        fi
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:

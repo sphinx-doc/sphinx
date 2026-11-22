@@ -220,6 +220,27 @@ def _shared_result_cache() -> None:
     SharedResult.cache.clear()
 
 
+def graphviz_executable_renders(executable: str) -> bool:
+    """Return whether a graphviz executable can render a trivial graph.
+
+    This probes the executable itself (e.g. ``dot`` or ``neato``) rather than
+    merely checking that it exists: recent graphviz releases (>= 13) ship each
+    layout engine as a separate plugin package that is only pulled in through
+    Recommends, so a minimal installation provides an executable that fails
+    with ``There is no layout engine support for "<layout>"``.
+    """
+    try:
+        proc = subprocess.run(
+            [executable, '-Tpng'],
+            input=b'digraph { a -> b }',
+            capture_output=True,
+            check=False,
+        )
+    except OSError:  # No such file or directory
+        return False
+    return proc.returncode == 0
+
+
 @pytest.fixture
 def if_graphviz_found(app: SphinxTestApp) -> None:
     """The test will be skipped when using 'if_graphviz_found' fixture and graphviz
@@ -235,6 +256,15 @@ def if_graphviz_found(app: SphinxTestApp) -> None:
         pass
 
     pytest.skip('graphviz "dot" is not available')
+
+
+@pytest.fixture
+def if_graphviz_neato_found(app: SphinxTestApp) -> None:
+    """The test will be skipped when using 'if_graphviz_neato_found' fixture and the
+    graphviz ``neato`` layout engine is not available.
+    """
+    if not graphviz_executable_renders('neato'):
+        pytest.skip('graphviz "neato" layout engine is not available')
 
 
 @pytest.fixture(scope='session')
