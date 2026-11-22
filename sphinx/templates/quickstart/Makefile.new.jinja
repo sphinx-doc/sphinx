@@ -16,6 +16,11 @@ help:
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
+# Escape the target name so wildcard checks one literal path.
+%: private sphinx_fallback_path = $(subst $(strip ) ,\ ,$(subst [,\[,$(subst ?,\?,$(subst *,\*,$@))))
+
+# Skip existing prerequisites unless they were requested as goals.
 %: Makefile
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	$(if $(filter-out $(MAKECMDGOALS),$(wildcard $(sphinx_fallback_path))),,\
+		@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O))
 
