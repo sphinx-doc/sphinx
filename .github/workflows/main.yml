@@ -365,27 +365,30 @@ jobs:
     - uses: actions/checkout@v6
       with:
         persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        # Pin instead of "3": the newest python-build-standalone (3.15.x)
-        # links against OPENSSL_3.3.0, which the sphinx-ci container's
-        # libcrypto.so.3 does not provide, so `import _ssl` (and therefore
-        # pytest) fails with ImportError in this job.
-        python-version: "3.13"
-    - name: Check Python version
-      run: python --version --version
+    - name: Set up Python from the container
+      # Do not use actions/setup-python here: its python-build-standalone
+      # builds link the *system* libcrypto.so.3 with OPENSSL_3.3.0 versioned
+      # symbols, which the sphinx-ci container's (older) libcrypto does not
+      # provide, so `import _ssl` fails. The container's own python3 is built
+      # against the container's libcrypto and works.
+      run: |
+        if ! command -v python3 >/dev/null; then
+          apt-get update -qq && apt-get install -y -qq python3 python3-venv
+        fi
+        python3 --version --version
+    - name: Create virtualenv
+      run: python3 -m venv .venv
     - name: Install uv
       uses: astral-sh/setup-uv@v7
       with:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install . --group test
+      run: uv pip install --python .venv/bin/python . --group test
     - name: Install Docutils' HEAD
-      run: uv pip install "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
+      run: uv pip install --python .venv/bin/python "docutils @ git+https://repo.or.cz/docutils.git#subdirectory=docutils"
     - name: Test with pytest
-      run: python -m pytest -vv --durations 25
+      run: .venv/bin/python -m pytest -vv --durations 25
       env:
         # Treat all warnings as errors, but ignore the "typing.AnyStr" deprecation
         # that pytest itself triggers when imported on Python 3.16+ dev builds
