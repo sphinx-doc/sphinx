@@ -39,7 +39,7 @@ def test_translation_progress_note(app: SphinxTestApp) -> None:
 
     output = (app.outdir / 'translation_progress.html').read_text(encoding='utf-8')
     assert 'translation-progress' in output
-    assert '68.64% translated based on word count.' in output
+    assert '68.64% translated.' in output
     assert 'Some content is still in the original language.' in output
 
 
@@ -51,7 +51,7 @@ def test_translation_progress_note(app: SphinxTestApp) -> None:
         'locale_dirs': ['.'],
         'gettext_compact': False,
         'translation_progress_title': 'Help translate this page',
-        'translation_progress_message': 'Word progress: {percentage}',
+        'translation_progress_message': 'Word progress: {percentage}. `Help translate <https://example.org/translate>`_.',
     },
     copy_test_root=True,
 )
@@ -64,6 +64,7 @@ def test_translation_progress_note_config(app: SphinxTestApp) -> None:
     output = (app.outdir / 'translation_progress.html').read_text(encoding='utf-8')
     assert 'Help translate this page' in output
     assert 'Word progress: 68.64%' in output
+    assert 'href="https://example.org/translate">Help translate</a>' in output
 
 
 @pytest.mark.sphinx(
@@ -83,7 +84,7 @@ def test_translation_progress_note_singlehtml_child(app: SphinxTestApp) -> None:
     app.build()
 
     output = (app.outdir / 'index.html').read_text(encoding='utf-8')
-    assert '68.64% translated based on word count.' in output
+    assert '68.64% translated.' in output
 
 
 @pytest.mark.sphinx(
@@ -103,7 +104,7 @@ def test_translation_progress_note_latex_child(app: SphinxTestApp) -> None:
     app.build()
 
     output = next(app.outdir.glob('*.tex')).read_text(encoding='utf-8')
-    assert '68.64\\% translated based on word count.' in output
+    assert '68.64\\% translated.' in output
 
 
 @pytest.mark.sphinx(
@@ -150,7 +151,7 @@ def test_progress_counts_source_words_of_a_translated_literal_block(
     output = (app.outdir / 'progress_literal.html').read_text(encoding='utf-8')
     # 11 of 19 source words: the title (2) and the nine-word literal block are translated,
     # the eight-word paragraph is not. Counting the one-word translation would say 27.27%.
-    assert '57.89% translated based on word count.' in output
+    assert '57.89% translated.' in output
 
 
 @pytest.mark.sphinx(
@@ -204,13 +205,56 @@ def test_progress_counts_each_toctree_entry(
     app.build(filenames=[app.srcdir / f'{docname}.txt'])
     output = (app.outdir / f'{docname}.html').read_text(encoding='utf-8')
     expected = '37.50%' if translate_entry else '25.00%'
-    assert f'{expected} translated based on word count.' in output
+    assert f'{expected} translated.' in output
     from sphinx import addnodes
 
     toc = next(app.env.get_doctree(docname).findall(addnodes.toctree))
     assert any(
         title == ('UN' if translate_entry else 'One') for title, _ in toc['entries']
     )
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='intl',
+    confoverrides={
+        'language': 'xx',
+        'locale_dirs': ['.'],
+        'gettext_compact': False,
+        'extensions': ['sphinx.ext.translation_progress'],
+    },
+    copy_test_root=True,
+)
+@pytest.mark.parametrize('custom', [False, True])
+def test_untranslated_page_warning(app: SphinxTestApp, custom: bool) -> None:
+    from docutils import nodes
+
+    if custom:
+        app.config.translation_progress_untranslated_message = (
+            'At {percentage}; `contribute <https://example.org/translate>`_.'
+        )
+    # A real, but empty, catalogue distinguishes zero translated words
+    # from a document for which no translation data is available.
+    name = 'untranslated'
+    (app.srcdir / f'{name}.txt').write_text(
+        'Original title\n==============\n\nOriginal content.\n', encoding='utf-8'
+    )
+    (app.srcdir / 'xx' / 'LC_MESSAGES' / f'{name}.po').write_text(
+        'msgid ""\nmsgstr ""\n"Language: xx\\n"\n'
+        '"Content-Type: text/plain; charset=UTF-8\\n"\n',
+        encoding='utf-8',
+    )
+    _compile_catalog(app, name)
+    app.build(filenames=[app.srcdir / f'{name}.txt'])
+    tree = app.env.get_doctree(name)
+    notice = next(tree.findall(nodes.warning))
+    assert 'translation-progress' in notice['classes']
+    if custom:
+        ref = next(notice.findall(nodes.reference))
+        assert ref['refuri'] == 'https://example.org/translate'
+        assert notice.astext() == 'At 0.00%; contribute.'
+    else:
+        assert 'This page has not been translated yet' in notice.astext()
 
 
 def test_default_messages_remain_source_ids(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -231,6 +275,7 @@ def test_default_messages_remain_source_ids(monkeypatch: pytest.MonkeyPatch) -> 
         namespace = runpy.run_module('sphinx.ext.translation_progress')
     assert namespace['_DEFAULT_TITLE'] == 'Translation progress'
     assert namespace['_DEFAULT_MESSAGE'].startswith('This page is')
+    assert namespace['_DEFAULT_UNTRANSLATED_MESSAGE'].startswith('This page has not')
 
 
 def test_default_messages_follow_current_language(
@@ -241,11 +286,14 @@ def test_default_messages_follow_current_language(
     from typing import cast
 
     from docutils import nodes
+    from docutils.frontend import get_default_settings
+    from docutils.parsers.rst import Parser
     from docutils.utils import new_document
 
     from sphinx.ext.translation_progress import (
         _DEFAULT_MESSAGE,
         _DEFAULT_TITLE,
+        _DEFAULT_UNTRANSLATED_MESSAGE,
         add_translation_progress_note,
     )
     from sphinx.locale import translators
@@ -264,15 +312,24 @@ def test_default_messages_follow_current_language(
             config=SimpleNamespace(
                 translation_progress_title=_DEFAULT_TITLE,
                 translation_progress_message=_DEFAULT_MESSAGE,
+                translation_progress_untranslated_message=_DEFAULT_UNTRANSLATED_MESSAGE,
             )
         ),
     )
     for language in ('French', 'German'):
         monkeypatch.setitem(translators, ('general', 'sphinx'), Translator(language))
-        doctree = new_document('test')
+        doctree = new_document('test', settings=get_default_settings(Parser))
         doctree['translation_progress'] = {'total_words': 2, 'translated_words': 1}
         add_translation_progress_note(app, doctree)
         note = doctree[0]
         assert isinstance(note, nodes.admonition)
         assert note[0].astext() == f'{language} Translation progress'
         assert note[1].astext().startswith(f'{language} This page is 50.00%')
+        doctree = new_document('test', settings=get_default_settings(Parser))
+        doctree['translation_progress'] = {'total_words': 2, 'translated_words': 0}
+        add_translation_progress_note(app, doctree)
+        warning = doctree[0]
+        assert isinstance(warning, nodes.warning)
+        assert warning.astext().startswith(
+            f'{language} This page has not been translated'
+        )
