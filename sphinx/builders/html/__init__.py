@@ -290,7 +290,8 @@ class StandaloneHTMLBuilder(Builder):
         self._js_files = []
         self.add_js_file('documentation_options.js', priority=200)
         self.add_js_file('doctools.js', priority=200)
-        self.add_js_file('sphinx_highlight.js', priority=200)
+        if self.config.html_highlight_js:
+            self.add_js_file('sphinx_highlight.js', priority=200)
 
         for filename, attrs in self._registry.js_files:
             self.add_js_file(filename or '', **attrs)
@@ -538,6 +539,7 @@ class StandaloneHTMLBuilder(Builder):
             'script_files': self._js_files,
             'language': convert_locale_to_language_tag(self.config.language),
             'css_files': self._css_files,
+            'highlighting_enabled': self.config.html_highlight_js,
             'sphinx_version': __display_version__,
             'sphinx_version_tuple': sphinx_version,
             'docutils_version_info': docutils.__version_info__[:5],
@@ -1475,6 +1477,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_favicon', None, 'html', types=frozenset({str}))
     app.add_config_value('html_css_files', [], 'html', types=frozenset({list, tuple}))
     app.add_config_value('html_js_files', [], 'html', types=frozenset({list, tuple}))
+    app.add_config_value('html_highlight_js', True, 'html', types=frozenset({bool}))
     app.add_config_value('html_static_path', [], 'html', types=frozenset({list, tuple}))
     app.add_config_value('html_extra_path', [], 'html', types=frozenset({list, tuple}))
     app.add_config_value('html_last_updated_fmt', None, 'html', types=frozenset({str}))

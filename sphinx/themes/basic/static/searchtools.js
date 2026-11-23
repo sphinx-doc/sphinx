@@ -105,8 +105,7 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
     listItem.appendChild(document.createElement("span")).innerHTML =
       ` (${_escapeHTML(descr)})`;
     // highlight search terms in the description
-    if (SPHINX_HIGHLIGHT_ENABLED)
-      // SPHINX_HIGHLIGHT_ENABLED is set in sphinx_highlight.js
+    if (DOCUMENTATION_OPTIONS.HIGHLIGHTING_ENABLED)
       highlightTerms.forEach((term) =>
         _highlightText(listItem, term, "highlighted"),
       );
@@ -119,8 +118,7 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
             Search.makeSearchSummary(data, searchTerms, anchor),
           );
         // highlight search terms in the summary
-        if (SPHINX_HIGHLIGHT_ENABLED)
-          // SPHINX_HIGHLIGHT_ENABLED is set in sphinx_highlight.js
+        if (DOCUMENTATION_OPTIONS.HIGHLIGHTING_ENABLED)
           highlightTerms.forEach((term) =>
             _highlightText(listItem, term, "highlighted"),
           );
@@ -323,8 +321,7 @@ const Search = {
       }
     });
 
-    if (SPHINX_HIGHLIGHT_ENABLED) {
-      // SPHINX_HIGHLIGHT_ENABLED is set in sphinx_highlight.js
+    if (DOCUMENTATION_OPTIONS.HIGHLIGHTING_ENABLED) {
       localStorage.setItem(
         "sphinx_highlight_terms",
         [...highlightTerms].join(" "),

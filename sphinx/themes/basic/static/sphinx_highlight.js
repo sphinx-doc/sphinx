@@ -1,8 +1,6 @@
 /* Highlighting utilities for Sphinx HTML documentation. */
 "use strict";
 
-const SPHINX_HIGHLIGHT_ENABLED = true;
-
 /**
  * highlight a given string on a node by wrapping it in
  * span elements with the given class name.
@@ -71,7 +69,7 @@ const SphinxHighlight = {
    * highlight the search words provided in localstorage in the text
    */
   highlightSearchWords: () => {
-    if (!SPHINX_HIGHLIGHT_ENABLED) return; // bail if no highlight
+    if (!DOCUMENTATION_OPTIONS.HIGHLIGHTING_ENABLED) return; // bail if no highlight
 
     // get and clear terms from localstorage
     const url = new URL(window.location);

@@ -1710,6 +1710,16 @@ and also make use of these options.
    .. versionchanged:: 3.5
       Support the *priority* attribute
 
+.. confval:: html_highlight_js
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Whether to load the ``sphinx_highlight.js`` JavaScript file.
+   If set to ``False``, search results remain available but the search terms
+   are no longer highlighted.
+
+   .. versionadded:: 9.3.0
+
 .. confval:: html_static_path
    :type: :code-py:`list[str]`
    :default: :code-py:`[]`
