@@ -1,7 +1,7 @@
 Documentation.addTranslations({
     "locale": "ka",
     "messages": {
-        "%(filename)s &#8212; %(docstitle)s": "",
+        "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
         "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": "",
         "About these documents": "\u10d0\u10db \u10d3\u10dd\u10d9\u10e3\u10db\u10d4\u10dc\u10e2\u10d4\u10d1\u10d8\u10e1 \u10e8\u10d4\u10e1\u10d0\u10ee\u10d4\u10d1",
