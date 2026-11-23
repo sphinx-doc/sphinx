@@ -396,6 +396,12 @@ class _NodeUpdater:
         self.node.children = self.patch.children
 
 
+# Kept as a plain attribute rather than a node attribute: the writers would
+# otherwise emit it as an extra HTML/XML/LaTeX attribute of every translated node.
+_SOURCE_WORDS_ATTR = 'translation_progress_source_words'
+_TRANSLATED_SOURCE_WORDS_ATTR = 'translation_progress_translated_source_words'
+
+
 class Locale(SphinxTransform):
     """Replace translatable nodes with their translated doctree."""
 
@@ -426,7 +432,29 @@ class Locale(SphinxTransform):
 
         # phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
+            # Count the source words here, before the translation rewrites ``rawsource``
+            # (a translated literal block keeps only its translated text there).
+            # A plain attribute, not a node attribute: the latter would be written out
+            # as an extra HTML/XML/LaTeX attribute by the builders.
             msgstr = merged.get(msg, '')
+            word_count = len(msg.split())
+            if isinstance(node, addnodes.translatable):
+                # A toctree can expose several independent messages on one node.
+                setattr(
+                    node,
+                    _SOURCE_WORDS_ATTR,
+                    getattr(node, _SOURCE_WORDS_ATTR, 0) + word_count,
+                )
+                setattr(
+                    node,
+                    _TRANSLATED_SOURCE_WORDS_ATTR,
+                    getattr(node, _TRANSLATED_SOURCE_WORDS_ATTR, 0)
+                    + (word_count if msgstr.strip() else 0),
+                )
+                # Process each entry in phase two; a single per-node flag in
+                # phase one can otherwise skip translations for other entries.
+                continue
+            setattr(node, _SOURCE_WORDS_ATTR, word_count)
 
             # There is no point in having noqa on literal blocks because
             # they cannot contain references.  Recognizing it would just
@@ -641,14 +669,27 @@ class TranslationProgressTotaliser(SphinxTransform):
             return
 
         total = translated = 0
+        total_words = translated_words = 0
         for node in NodeMatcher(nodes.Element, translated=Any).findall(self.document):
+            words = getattr(node, _SOURCE_WORDS_ATTR, None)
+            if words is None:
+                # Inline nodes created while patching have no count of their own.
+                words = len((node.rawsource or node.astext()).split())
             total += 1
+            total_words += words
+            message_words = getattr(node, _TRANSLATED_SOURCE_WORDS_ATTR, None)
+            if message_words is not None:
+                translated_words += message_words
             if node['translated']:
                 translated += 1
+                if message_words is None:
+                    translated_words += words
 
         self.document['translation_progress'] = {
             'total': total,
             'translated': translated,
+            'total_words': total_words,
+            'translated_words': translated_words,
         }
 
 
