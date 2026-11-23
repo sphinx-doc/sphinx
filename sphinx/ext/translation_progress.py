@@ -64,6 +64,7 @@ def add_translation_progress_note(app: Sphinx, doctree: nodes.document) -> None:
     inliner.init_customizations(doctree.settings)
     memo = SimpleNamespace(
         document=doctree,
+        reporter=doctree.reporter,
         language=languages.get_language(doctree.settings.language_code),
     )
     children, messages = inliner.parse(text, 1, memo, paragraph)
