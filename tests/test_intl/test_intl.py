@@ -2146,3 +2146,41 @@ def test_customize_today_date_format(
         content = (app.outdir / 'refs.html').read_text(encoding='utf8')
 
     assert '2015-08-09' in content
+
+
+@pytest.mark.sphinx(
+    'gettext',
+    testroot='intl_py_module_synopsis',
+    srcdir='intl_py_module_synopsis_gettext',
+    confoverrides={'gettext_compact': False},
+    copy_test_root=True,
+)
+def test_gettext_py_module_synopsis(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    pot = (app.outdir / 'index.pot').read_text(encoding='utf8')
+    assert 'msgid "Tools for reading coastal observations."' in pot
+    assert 'msgid "Not in the catalog."' in pot
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='intl_py_module_synopsis',
+    confoverrides={
+        'language': _CATALOG_LOCALE,
+        'locale_dirs': ['.'],
+        'gettext_compact': False,
+    },
+    copy_test_root=True,
+)
+def test_html_py_module_synopsis_translated(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+
+    modindex = (app.outdir / 'py-modindex.html').read_text(encoding='utf8')
+    assert 'TOOLS FOR READING COASTAL OBSERVATIONS (TRANSLATED).' in modindex
+    assert 'Tools for reading coastal observations.' not in modindex
+    # synopses without a translation are kept as they are
+    assert 'Not in the catalog.' in modindex
+    # the synopsis node must not leak into the page body
+    index = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert 'TRANSLATED' not in index

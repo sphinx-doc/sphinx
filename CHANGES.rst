@@ -13,6 +13,10 @@ Deprecated
 Features added
 --------------
 
+* #9935: Make the ``:synopsis:`` option of the :rst:dir:`py:module` directive
+  translatable.  The synopsis is now extracted into the message catalog of the
+  document and the translation is shown in the Python module index.
+
 Bugs fixed
 ----------
 
