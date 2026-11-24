@@ -1758,6 +1758,8 @@ class LaTeXTranslator(SphinxTranslator):
             )  # avoid disappearance if no text next issues/11079
         elif self.in_minipage:
             self.body.append(CR + r'\begin{center}')
+            if any(isinstance(child, nodes.caption) for child in node):
+                self.body.append(CR + r'\sphinxfigcapstart')
             self.context.append(r'\end{center}' + CR)
         else:
             self.body.append(CR + r'\begin{figure}[%s]' % align + CR)

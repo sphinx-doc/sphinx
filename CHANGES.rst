@@ -18,6 +18,7 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #3705: LaTeX: Place figure reference anchors above images in topics and sidebars.
 
 Testing
 -------

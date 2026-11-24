@@ -2317,3 +2317,37 @@ def test_latex_contents_topic_sidebar(app: SphinxTestApp) -> None:
         'text of sidebar\n'
         '\\end{sphinxsidebar}\n'
     ) in result
+
+
+@pytest.mark.sphinx('latex', testroot='latex-contents-topic-sidebar')
+def test_latex_figure_anchor_in_topic(app: SphinxTestApp) -> None:
+    image = TEST_ROOTS_DIR / 'test-local-logo' / 'images' / 'img.png'
+    copyfile(image, app.srcdir / 'image.png')
+    (app.srcdir / 'index.rst').write_text(
+        'Figure anchors\n'
+        '==============\n'
+        '\n'
+        '.. topic:: Figures\n'
+        '\n'
+        '   .. figure:: image.png\n'
+        '      :name: topic-figure\n'
+        '\n'
+        '      Caption.\n'
+        '\n'
+        '   .. figure:: image.png\n',
+        encoding='utf8',
+    )
+    app.build()
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
+
+    assert (
+        '\\begin{center}\n'
+        '\\sphinxfigcapstart\n'
+        '\\noindent\\sphinxincludegraphics{{image}.png}\n'
+        r'\captionof{figure}{Caption.}\label{\detokenize{index:topic-figure}}'
+    ) in result
+    assert (
+        '\\begin{center}\n'
+        '\\noindent\\sphinxincludegraphics{{image}.png}\n'
+        r'\end{center}'
+    ) in result
