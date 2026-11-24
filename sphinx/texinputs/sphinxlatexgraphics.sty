@@ -7,6 +7,7 @@
 %
 % - macros:
 %
+%   - \sphinxfigcapstart
 %   - \sphinxfigcaption
 %   - \sphinxincludegraphics
 %
@@ -102,6 +103,9 @@
 }%
 % Use the "safe" one by default (2.0)
 \def\sphinxincludegraphics{\sphinxsafeincludegraphics}
+
+% Set the caption type before placing the anchor for a figure in a minipage.
+\newcommand*\sphinxfigcapstart{\def\@captype{figure}\capstart}
 
 
 %% FIGURE IN TABLE
