@@ -72,6 +72,43 @@ class ModuleEntry(NamedTuple):
     deprecated: bool
 
 
+class module_synopsis(nodes.Invisible, nodes.Element, addnodes.translatable):
+    """Invisible node carrying the synopsis of a module for translation.
+
+    The synopsis is only shown on the module index, so the node is skipped by
+    all writers.  It exists so that the message can be extracted into, and
+    translated from, the message catalog of the document.
+    """
+
+    def preserve_original_messages(self) -> None:
+        self['original_synopsis'] = self['synopsis']
+
+    def apply_translated_message(
+        self, original_message: str, translated_message: str
+    ) -> None:
+        if self.get('original_synopsis') == original_message:
+            self['synopsis'] = translated_message
+
+    def extract_original_messages(self) -> Sequence[str]:
+        return [self['original_synopsis']]
+
+
+def _skip_module_synopsis(self: Any, node: Element) -> None:
+    raise nodes.SkipNode
+
+
+def _apply_translated_synopsis(app: Sphinx, doctree: nodes.document) -> None:
+    """Propagate translated synopses to the module index."""
+    domain = app.env.domains.python_domain
+    docname = app.env.current_document.docname
+    for node in doctree.findall(module_synopsis):
+        module = domain.modules.get(node['module'])
+        if module is None or module.docname != docname:
+            continue
+        if module.synopsis != node['synopsis']:
+            domain.modules[node['module']] = module._replace(synopsis=node['synopsis'])
+
+
 class PyFunction(PyObject):
     """Description of a function."""
 
@@ -532,6 +569,11 @@ class PyModule(SphinxDirective):
                 # The node order is: index node first, then target node.
                 ret.append(inode)
             ret.append(target)
+            if synopsis := self.options.get('synopsis', ''):
+                # make the synopsis available for translation
+                synopsis_node = module_synopsis('', module=modname, synopsis=synopsis)
+                self.set_source_info(synopsis_node)
+                ret.append(synopsis_node)
         ret.extend(content_nodes)
         return ret
 
@@ -1102,6 +1144,11 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.directives')
 
     app.add_domain(PythonDomain)
+    skip = (_skip_module_synopsis, None)
+    app.add_node(
+        module_synopsis, html=skip, latex=skip, text=skip, man=skip, texinfo=skip
+    )
+    app.connect('doctree-read', _apply_translated_synopsis)
     app.add_config_value(
         'python_use_unqualified_type_names', False, 'env', types=frozenset({bool})
     )
