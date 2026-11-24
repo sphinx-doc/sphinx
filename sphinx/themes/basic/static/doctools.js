@@ -51,7 +51,7 @@ const Documentation = {
   ngettext: (singular, plural, n) => {
     const translated = Documentation.TRANSLATIONS[singular];
     if (typeof translated !== "undefined")
-      return translated[Documentation.PLURAL_EXPR(n)];
+      return translated[Number(Documentation.PLURAL_EXPR(n))];
     return n === 1 ? singular : plural;
   },
 
