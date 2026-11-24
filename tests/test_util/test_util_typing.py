@@ -1044,7 +1044,10 @@ def test_stringify_type_ForwardRef():
     sys.version_info[:2] < (3, 14),
     reason='annotations are only deferred from Python 3.14',
 )
-def test_stringify_type_ForwardRef_annotationlib_placeholders():
+@pytest.mark.parametrize(
+    'annotation', ['UndefinedMapping[str, int]', 'UndefinedCallable[[str], int]']
+)
+def test_stringify_type_ForwardRef_annotationlib_placeholders(annotation):
     # https://github.com/sphinx-doc/sphinx/issues/14457
     import annotationlib  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
@@ -1053,12 +1056,12 @@ def test_stringify_type_ForwardRef_annotationlib_placeholders():
     # it gets a real PEP 649 deferred annotation instead.
     ns: dict[str, Any] = {}
     code = compile(
-        'def func(x: UndefinedMapping[str, int]) -> UndefinedMapping[str, int]: ...',
+        f'def func(x: {annotation}) -> {annotation}: ...',
         '<test>',
         'exec',
         dont_inherit=True,
     )
-    exec(code, ns)  # NoQA: S102
+    exec(code, ns)  # ruff: ignore[exec-builtin]
     func = ns['func']
 
     ann = annotationlib.get_annotations(func, format=annotationlib.Format.FORWARDREF)
@@ -1067,9 +1070,9 @@ def test_stringify_type_ForwardRef_annotationlib_placeholders():
     # annotationlib stores the real objects under placeholder names
     assert '__annotationlib_name_' in ref.__forward_arg__
 
-    assert stringify_annotation(ref) == 'UndefinedMapping[str, int]'
-    assert stringify_annotation(ref, 'smart') == 'UndefinedMapping[str, int]'
-    assert restify(ref) == ':py:class:`UndefinedMapping[str, int]`'
+    assert stringify_annotation(ref) == annotation
+    assert stringify_annotation(ref, 'smart') == annotation
+    assert restify(ref) == f':py:class:`{annotation}`'
 
 
 def test_stringify_type_hints_paramspec():

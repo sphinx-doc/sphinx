@@ -246,7 +246,8 @@ def _forward_ref_arg(ref: typing.ForwardRef) -> str:
     ``TYPE_CHECKING``).  The real objects are kept in ``__extra_names__``.
     Evaluating the reference in ``STRING`` format gives the clean text on
     Python 3.14.5+ (python/cpython#148680); substituting ``__extra_names__``
-    by hand covers earlier 3.14 releases.
+    by hand covers releases that still expose placeholders, including
+    Python 3.15.0rc2.
     """
     forward_arg: str = ref.__forward_arg__
     if sys.version_info[:2] < (3, 14) or '__annotationlib_name_' not in forward_arg:
@@ -261,7 +262,7 @@ def _forward_ref_arg(ref: typing.ForwardRef) -> str:
     if isinstance(evaluated, str) and '__annotationlib_name_' not in evaluated:
         return evaluated
 
-    # Older 3.14 releases leave the placeholders in; substitute by hand.
+    # Some releases still leave placeholders in; substitute by hand.
     extra_names: dict[str, Any] | None = getattr(ref, '__extra_names__', None)
     if extra_names:
         for name, value in extra_names.items():
