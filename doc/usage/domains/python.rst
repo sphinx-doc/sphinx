@@ -39,6 +39,13 @@ declarations:
       Consist of one sentence describing the module's purpose -- it is currently
       only used in the Global Module Index.
 
+      The synopsis is extracted into the message catalog of the document,
+      so it can be translated like the rest of the document.
+
+      .. versionchanged:: 9.3
+
+         The synopsis is translatable.
+
    .. rst:directive:option:: deprecated
       :type: no argument
 
