@@ -18,6 +18,8 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* Fix JavaScript translations for languages whose plural expressions return
+  boolean values, such as German.
 
 Testing
 -------
