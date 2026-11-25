@@ -165,7 +165,6 @@ def test_ModuleAnalyzer_find_attr_docs() -> None:
     assert docs['Foo', 'attr9'] == ['string after attr9', '']
     assert analyzer.tagorder == {
         'Foo': 0,
-        'Foo.__init__': 8,
         'Foo.attr1': 1,
         'Foo.attr2': 2,
         'Foo.attr3': 3,
@@ -173,13 +172,14 @@ def test_ModuleAnalyzer_find_attr_docs() -> None:
         'Foo.attr5': 5,
         'Foo.attr6': 6,
         'Foo.attr7': 7,
-        'Foo.attr8': 10,
-        'Foo.attr9': 12,
-        'Foo.bar': 13,
-        'baz': 14,
-        'Qux': 15,
-        'Qux.attr1': 16,
-        'Qux.attr2': 17,
+        'Foo.__init__': 8,
+        'Foo.attr8': 9,
+        'Foo.attr9': 10,
+        'Foo.bar': 11,
+        'baz': 12,
+        'Qux': 13,
+        'Qux.attr1': 14,
+        'Qux.attr2': 15,
     }
 
 

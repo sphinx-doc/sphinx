@@ -18,6 +18,10 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #14881: autodoc: Fix ``:member-order: bysource`` sorting some of a class's
+  own members after inherited ones when the class redefines a name,
+  e.g. a property with a setter.
+  Patch by Josiah Lund.
 
 Testing
 -------

@@ -271,7 +271,11 @@ class VariableCommentPicker(ast.NodeVisitor):
     def add_entry(self, name: str) -> None:
         qualname = self.get_qualname_for(name)
         if qualname:
-            self.deforders['.'.join(qualname)] = next(self.counter)
+            key = '.'.join(qualname)
+            # Number each name once, at its first definition (e.g. a property getter),
+            # so autodoc's 'bysource' sort keeps inherited members after the class's own.
+            if key not in self.deforders:
+                self.deforders[key] = next(self.counter)
 
     def add_final_entry(self, name: str) -> None:
         qualname = self.get_qualname_for(name)

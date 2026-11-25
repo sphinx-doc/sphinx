@@ -252,10 +252,10 @@ def test_class() -> None:
     assert parser.deforders == {
         'Foo': 0,
         'Foo.attr1': 1,
+        'Foo.attr2': 2,
         'Foo.__init__': 3,
         'Foo.a': 4,
-        'Foo.attr2': 5,
-        'Foo.some_method': 6,
+        'Foo.some_method': 5,
     }
 
 
@@ -358,6 +358,26 @@ def test_decorators() -> None:
         'Foo': ('class', 11, 15),
         'Foo.method': ('def', 13, 15),
     }
+
+
+def test_property_setter() -> None:
+    source = (
+        'class Foo:\n'
+        '    @property\n'
+        '    def prop(self):\n'
+        '        return 1\n'
+        '\n'
+        '    @prop.setter\n'
+        '    def prop(self, value):\n'
+        '        pass\n'
+        '\n'
+        '    def method(self):\n'
+        '        pass\n'
+    )
+    parser = Parser(source)
+    parser.parse()
+    # The getter and setter share one entry, at the getter's position.
+    assert parser.deforders == {'Foo': 0, 'Foo.prop': 1, 'Foo.method': 2}
 
 
 def test_async_function_and_method() -> None:
