@@ -33,22 +33,32 @@ def test_build_info_theme_hash_changes_when_theme_file_changes(
     make_app: Callable[..., SphinxTestApp], tmp_path: Path
 ) -> None:
     """BuildInfo theme_hash should change when a theme file is modified."""
-    (tmp_path / 'conf.py').touch()
+    # Use a project-local theme, so the test never modifies a theme
+    # shipped with Sphinx (other tests may be reading it in parallel).
+    theme_dir = tmp_path / '_themes' / 'local'
+    theme_dir.mkdir(parents=True)
+    (theme_dir / 'theme.toml').write_text(
+        '[theme]\ninherit = "basic"\n', encoding='utf-8'
+    )
+    layout = theme_dir / 'layout.html'
+    layout.write_text('{% extends "basic/layout.html" %}\n', encoding='utf-8')
+    (tmp_path / 'conf.py').write_text(
+        "html_theme = 'local'\nhtml_theme_path = ['_themes']\n", encoding='utf-8'
+    )
     (tmp_path / 'index.rst').write_text('Test\n====\n', encoding='utf-8')
 
     app = make_app('html', srcdir=tmp_path)
     builder = app.builder
     assert isinstance(builder, StandaloneHTMLBuilder)
+    assert builder.theme._dirs[0] == theme_dir
 
     # Get initial theme hash
     build_info_before = builder.create_build_info()
 
-    # Modify a theme template file
-    theme_dir = builder.theme._dirs[0]
-    theme_files = list(theme_dir.rglob('*.html'))
-    assert theme_files, 'No HTML files found in theme'
-
-    theme_files[0].write_bytes(theme_files[0].read_bytes() + b'\n<!-- test change -->')
+    # Modify the local theme's template
+    layout.write_text(
+        layout.read_text(encoding='utf-8') + '<!-- test change -->\n', encoding='utf-8'
+    )
 
     # Get new theme hash
     build_info_after = builder.create_build_info()
