@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import json
-from io import BytesIO
+import os
+from io import BytesIO, StringIO
 from typing import TYPE_CHECKING
 
 import pytest
 from docutils import frontend, utils
 from docutils.parsers import rst
 
-from sphinx.search import IndexBuilder
+from sphinx.search import IndexBuilder, js_index
 
 from tests.utils import TESTS_ROOT
 
@@ -514,3 +515,117 @@ def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
         f'Search index fixture {existing_searchindex} does not match regenerated copy.'
     )
     assert fresh_searchindex.read_bytes() == existing_searchindex.read_bytes(), msg
+
+
+def test_index_builder_index_entries_load_and_prune() -> None:
+    env = DummyEnvironment('1.0', DummyDomainsContainer())
+    index = IndexBuilder(env, 'en', {}, '')  # type: ignore[arg-type]
+    index._titles = {'doc1': 'Title 1', 'doc2': 'Title 2'}
+    index._filenames = {'doc1': 'doc1.rst', 'doc2': 'doc2.rst'}
+    index._all_titles = {'doc1': [('Title 1', None)], 'doc2': [('Title 2', None)]}
+    index._index_entries = {
+        'doc1': [('Alpha', 'index-0', 'main'), ('beta', 'index-1', '')],
+        'doc2': [('Gamma', 'index-0', '')],
+    }
+
+    expected_entries = {
+        'alpha': [(0, 'index-0', True)],
+        'beta': [(0, 'index-1', False)],
+        'gamma': [(1, 'index-0', False)],
+    }
+    assert index.freeze()['indexentries'] == expected_entries
+
+    # Round-trip via pickle
+    pickle_stream = BytesIO()
+    index.dump(pickle_stream, 'pickle')
+    pickle_stream.seek(0)
+    loaded_pickle = IndexBuilder(
+        DummyEnvironment('1.0', DummyDomainsContainer()),  # type: ignore[arg-type]
+        'en',
+        {},
+        '',
+    )
+    loaded_pickle.load(pickle_stream, 'pickle')
+    assert loaded_pickle.freeze()['indexentries'] == expected_entries
+
+    # Round-trip via JSON (Search.setIndex(...))
+    json_stream = StringIO()
+    index.dump(json_stream, js_index)
+    json_stream.seek(0)
+    loaded_json = IndexBuilder(
+        DummyEnvironment('1.0', DummyDomainsContainer()),  # type: ignore[arg-type]
+        'en',
+        {},
+        '',
+    )
+    loaded_json.load(json_stream, js_index)
+    assert loaded_json.freeze()['indexentries'] == expected_entries
+
+    # Prune removes entries for deleted/rebuilt documents
+    loaded_pickle.prune(['doc2'])
+    assert loaded_pickle.freeze()['indexentries'] == {
+        'gamma': [(0, 'index-0', False)],
+    }
+
+
+def test_index_entries_preserved_on_incremental_rebuild(
+    make_app: Any, tmp_path: Path
+) -> None:
+    srcdir = tmp_path / 'src'
+    builddir = tmp_path / 'build'
+    srcdir.mkdir()
+    (srcdir / 'conf.py').write_text("project = 'test'\n", encoding='utf-8')
+    (srcdir / 'index.rst').write_text(
+        'Main\n====\n\n.. index:: ! main_entry\n\n.. toctree::\n\n   other\n',
+        encoding='utf-8',
+    )
+    other_rst = srcdir / 'other.rst'
+    other_rst.write_text(
+        'Other\n=====\n\n.. index:: other_entry\n\nBody text.\n',
+        encoding='utf-8',
+    )
+
+    # Initial fresh build
+    app1 = make_app('html', srcdir=srcdir, builddir=builddir)
+    app1.build()
+    expected = {
+        'main_entry': [[0, 'index-0', True]],
+        'other_entry': [[1, 'index-0', False]],
+    }
+    assert load_searchindex(app1.outdir / 'searchindex.js')['indexentries'] == expected
+
+    # Non-fresh no-change rebuild preserves indexentries
+    app2 = make_app('html', srcdir=srcdir, builddir=builddir)
+    app2.build()
+    assert load_searchindex(app2.outdir / 'searchindex.js')['indexentries'] == expected
+
+    # Partial rebuild updating only other.rst preserves index.rst entries
+    # Ensure mtime advances on filesystems with coarse timestamp resolution
+    mtime = other_rst.stat().st_mtime + 2
+    other_rst.write_text(
+        'Other\n=====\n\n.. index:: updated_entry\n\nBody text.\n',
+        encoding='utf-8',
+    )
+    os.utime(other_rst, (mtime, mtime))
+
+    app3 = make_app('html', srcdir=srcdir, builddir=builddir)
+    app3.build()
+    assert load_searchindex(app3.outdir / 'searchindex.js')['indexentries'] == {
+        'main_entry': [[0, 'index-0', True]],
+        'updated_entry': [[1, 'index-0', False]],
+    }
+
+    # Deleting other.rst removes its indexentries cleanly without KeyError
+    (srcdir / 'index.rst').write_text(
+        'Main\n====\n\n.. index:: ! main_entry\n',
+        encoding='utf-8',
+    )
+    idx_mtime = (srcdir / 'index.rst').stat().st_mtime + 2
+    os.utime(srcdir / 'index.rst', (idx_mtime, idx_mtime))
+    other_rst.unlink()
+
+    app4 = make_app('html', srcdir=srcdir, builddir=builddir)
+    app4.build()
+    assert load_searchindex(app4.outdir / 'searchindex.js')['indexentries'] == {
+        'main_entry': [[0, 'index-0', True]],
+    }
