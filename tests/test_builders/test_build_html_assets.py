@@ -115,16 +115,16 @@ def test_assets_order(app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch) -> No
     'html', testroot='basic', confoverrides={'html_highlight_js': False}
 )
 def test_html_highlight_js_disabled(app: SphinxTestApp) -> None:
-    """Check that html_highlight_js is absent when setup to false in config"""
+    """Check that html_highlight_js is absent when set to false in config."""
     app.build(force_all=True)
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    assert not '_static/sphinx_highlight.js' in content
+    assert '_static/sphinx_highlight.js' not in content
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_highlight_js': True})
 def test_html_highlight_js_enabled(app: SphinxTestApp) -> None:
-    """Check that html_highlight_js is present when setup to true in config"""
+    """Check that html_highlight_js is present when set to true in config."""
     app.build(force_all=True)
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
