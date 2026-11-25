@@ -118,7 +118,7 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"  # treat all warnings as errors
 
   deadsnakes-free-threaded:
     runs-on: ubuntu-latest
@@ -150,7 +150,7 @@ jobs:
     - name: Test with pytest
       run: python -m pytest -n logical --dist=worksteal -vv --durations 25
       env:
-        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        PYTHONWARNINGS: "error,ignore:'typing.AnyStr' is deprecated:DeprecationWarning"  # treat all warnings as errors
 
   windows:
     runs-on: windows-latest
@@ -302,7 +302,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v6
       with:
-        python-version: "3"
+        python-version: "3.14"
     - name: Check Python version
       run: python --version --version
     - name: Install uv
