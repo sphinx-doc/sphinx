@@ -299,10 +299,6 @@ jobs:
     - uses: actions/checkout@v6
       with:
         persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3.14"
     - name: Check Python version
       run: python --version --version
     - name: Install uv
