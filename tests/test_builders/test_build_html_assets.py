@@ -119,7 +119,16 @@ def test_html_highlight_js_disabled(app: SphinxTestApp) -> None:
     app.build(force_all=True)
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    assert not re.search(r'src="_static/sphinx_highlight\.js"', content)
+    assert not '_static/sphinx_highlight.js' in content
+
+
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_highlight_js': True})
+def test_html_highlight_js_enabled(app: SphinxTestApp) -> None:
+    """Check that html_highlight_js is present when setup to true in config"""
+    app.build(force_all=True)
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+
+    assert '_static/sphinx_highlight.js' in content
 
 
 @pytest.mark.sphinx('html', testroot='html_file_checksum')
