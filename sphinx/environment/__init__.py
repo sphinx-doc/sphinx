@@ -816,7 +816,10 @@ class BuildEnvironment:
         # Call _check_toc_parents here rather than in  _get_toctree_ancestors()
         # because that method is called multiple times per document and would
         # lead to duplicate warnings.
-        _check_toc_parents(self.toctree_includes)
+        _check_toc_parents(
+            self.toctree_includes,
+            self.config.toc_multiple_parents_warning,
+        )
 
         # call check-consistency for all extensions
         self.domains._check_consistency()
@@ -939,15 +942,19 @@ def _traverse_toctree(
                 traversed.add(sub_docname)
 
 
-def _check_toc_parents(toctree_includes: dict[str, list[str]]) -> None:
+def _check_toc_parents(
+    toctree_includes: dict[str, list[str]], emit_warning: bool
+) -> None:
+    log = logger.warning if emit_warning else logger.info
     toc_parents: dict[str, list[str]] = {}
+
     for parent, children in toctree_includes.items():
         for child in children:
             toc_parents.setdefault(child, []).append(parent)
 
     for doc, parents in sorted(toc_parents.items()):
         if len(parents) > 1:
-            logger.info(
+            log(
                 __(
                     'document is referenced in multiple toctrees: %s, selecting: %s <- %s'
                 ),

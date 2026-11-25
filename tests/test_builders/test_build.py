@@ -61,6 +61,18 @@ def test_multiple_parents_toctree(app: SphinxTestApp) -> None:
     ) in app.status.getvalue()
 
 
+@pytest.mark.sphinx(
+    'text',
+    testroot='toctree-multiple-parents',
+    confoverrides={'toc_multiple_parents_warning': True},
+)
+def test_multiple_parents_toctree_warning(app: SphinxTestApp) -> None:
+    app.build(force_all=True)
+    assert (
+        "document is referenced in multiple toctrees: ['bravo', 'delta'], selecting: delta <- charlie"
+    ) in app.warning.getvalue()
+
+
 @pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('dummy', testroot='images')
 def test_image_glob(app: SphinxTestApp) -> None:

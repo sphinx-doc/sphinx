@@ -1076,6 +1076,21 @@ Options for object signatures
 
    .. versionadded:: 5.2
 
+.. confval:: toc_multiple_parents_warning
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+   If :code-py:`True`, emit a warning of type
+   ``toc.multiple_toc_parents`` when a document is referenced in
+   multiple toctrees, instead of an informational message.
+
+   This allows the build to fail when warnings are treated as errors.
+
+   By default, the message is informational.
+
+.. versionadded:: 9.3
+      
+
 
 Options for source files
 ------------------------

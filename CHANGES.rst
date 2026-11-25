@@ -13,6 +13,11 @@ Deprecated
 Features added
 --------------
 
+* #14820: Add the :confval:`toc_multiple_parents_warning` configuration option
+  to emit a warning instead of an informational message when a document is
+  referenced in multiple toctrees.
+  Patch by Ana Beatriz Barbosa Yoshida.
+
 Bugs fixed
 ----------
 

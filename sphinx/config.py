@@ -251,6 +251,7 @@ class Config:
         'toc_object_entries_show_parents': _Opt(
             'domain', 'env', ENUM('domain', 'all', 'hide')
         ),
+        'toc_multiple_parents_warning': _Opt(False, 'env', frozenset((bool,))),
         'trim_footnote_reference_space': _Opt(False, 'env', frozenset((bool,))),
         'show_authors': _Opt(False, 'env', frozenset((bool,))),
         'pygments_style': _Opt(None, 'html', frozenset((str,))),
