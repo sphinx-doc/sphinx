@@ -160,7 +160,6 @@ class StandaloneHTMLBuilder(Builder):
         )
 
     def init(self) -> None:
-        self.build_info = self.create_build_info()
         # basename of images directory
         self.imagedir = '_images'
         # section numbers for headings in the currently visited document
@@ -169,6 +168,8 @@ class StandaloneHTMLBuilder(Builder):
         self.current_docname: str = ''
 
         self.init_templates()
+        # after init_templates(), as the build info hashes the theme's files
+        self.build_info = self.create_build_info()
         self.init_highlighter()
         self.init_css_files()
         self.init_js_files()
@@ -186,7 +187,7 @@ class StandaloneHTMLBuilder(Builder):
         self.use_index = self.get_builder_config('use_index', 'html')
 
     def create_build_info(self) -> BuildInfo:
-        return BuildInfo(self.config, self.tags, frozenset({'html'}))
+        return BuildInfo(self.config, self.tags, frozenset({'html'}), self.theme)
 
     def _get_translations_js(self) -> Path | None:
         for dir_ in self.config.locale_dirs:

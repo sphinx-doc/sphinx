@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from typing import TYPE_CHECKING
 
 from sphinx.locale import __
@@ -12,6 +13,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from sphinx.config import Config, _ConfigRebuild
+    from sphinx.theming import Theme
     from sphinx.util.tags import Tags
 
 
@@ -42,6 +44,10 @@ class BuildInfo:
         build_info = BuildInfo()
         build_info.config_hash = lines[2].removeprefix('config: ').strip()
         build_info.tags_hash = lines[3].removeprefix('tags: ').strip()
+        # theme_hash is optional for backward compatibility
+        # with old .buildinfo files that don't have it
+        if len(lines) > 4 and lines[4].startswith('theme: '):
+            build_info.theme_hash = lines[4].removeprefix('theme: ').strip()
         return build_info
 
     def __init__(
@@ -49,9 +55,11 @@ class BuildInfo:
         config: Config | None = None,
         tags: Tags | None = None,
         config_categories: Set[_ConfigRebuild] = frozenset(),
+        theme: Theme | None = None,
     ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
+        self.theme_hash = ''
 
         if config:
             values = {c.name: c.value for c in config.filter(config_categories)}
@@ -60,13 +68,29 @@ class BuildInfo:
         if tags:
             self.tags_hash = stable_hash(sorted(tags))
 
+        if theme:
+            # Hash every file in every theme directory (including inherited
+            # themes), so that editing a template or static file triggers
+            # a full rebuild. Paths are relative to their theme directory
+            # so the hash does not depend on where the project lives.
+            theme_files = {}
+            for i, theme_dir in enumerate(theme._dirs):
+                for path in sorted(theme_dir.rglob('*')):
+                    if path.is_file():
+                        key = f'{i}:{path.relative_to(theme_dir).as_posix()}'
+                        digest = hashlib.md5(path.read_bytes(), usedforsecurity=False)
+                        theme_files[key] = digest.hexdigest()
+            self.theme_hash = stable_hash(theme_files)
+
     def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]
         return (
-            self.config_hash == other.config_hash and self.tags_hash == other.tags_hash
+            self.config_hash == other.config_hash
+            and self.tags_hash == other.tags_hash
+            and self.theme_hash == other.theme_hash
         )
 
     def __hash__(self) -> int:
-        return hash((self.config_hash, self.tags_hash))
+        return hash((self.config_hash, self.tags_hash, self.theme_hash))
 
     def dump(self, filename: Path, /) -> None:
         build_info = (
@@ -75,5 +99,6 @@ class BuildInfo:
             'When it is not found, a full rebuild will be done.\n'
             f'config: {self.config_hash}\n'
             f'tags: {self.tags_hash}\n'
+            f'theme: {self.theme_hash}\n'
         )
         filename.write_text(build_info, encoding='utf-8')
