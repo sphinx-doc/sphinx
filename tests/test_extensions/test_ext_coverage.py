@@ -134,7 +134,7 @@ def test_show_missing_items_quiet(app: SphinxTestApp) -> None:
 class FakeProxy:
     """A proxy-like object that raises when its __class__ is accessed."""
 
-    def __getattribute__(self, name: str):
+    def __getattribute__(self, name: str) -> object:
         if name == '__class__':
             msg = 'Proxy was evaluated'
             raise RuntimeError(msg)
@@ -145,8 +145,10 @@ class FakeProxy:
 def test_coverage_lazy_proxy(
     app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from grog.coverage_not_ignored import Documented
-
-    monkeypatch.setattr(Documented, 'proxy', FakeProxy(), raising=False)
+    monkeypatch.setattr(
+        'grog.coverage_not_ignored.Documented.proxy',
+        FakeProxy(),
+        raising=False,
+    )
 
     app.build(force_all=True)
