@@ -1078,6 +1078,24 @@ def test_autodoc_member_order() -> None:
     ]
 
 
+def test_autodoc_member_order_bysource_redefined_name() -> None:
+    # A property setter defines the property's name a second time.
+    # Inherited members must still sort after all of the class's own members.
+    options = {
+        'members': None,
+        'inherited-members': None,
+        'member-order': 'bysource',
+    }
+    actual = do_autodoc('class', 'target.sort_by_source.Derived', options=options)
+    assert [line for line in actual if '::' in line] == [
+        '.. py:class:: Derived()',
+        '   .. py:property:: Derived.prop',
+        '   .. py:method:: Derived.first_meth()',
+        '   .. py:method:: Derived.last_meth()',
+        '   .. py:method:: Derived.inherited_meth()',
+    ]
+
+
 def test_autodoc_module_member_order() -> None:
     # case member-order='bysource'
     options = {
