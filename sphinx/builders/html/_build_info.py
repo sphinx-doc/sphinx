@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from typing import TYPE_CHECKING
 
 from sphinx.locale import __
@@ -68,12 +69,17 @@ class BuildInfo:
             self.tags_hash = stable_hash(sorted(tags))
 
         if theme:
-            # Hash all files in all theme dirs to detect any changes
+            # Hash every file in every theme directory (including inherited
+            # themes), so that editing a template or static file triggers
+            # a full rebuild. Paths are relative to their theme directory
+            # so the hash does not depend on where the project lives.
             theme_files = {}
-            for theme_dir in theme._dirs:
+            for i, theme_dir in enumerate(theme._dirs):
                 for path in sorted(theme_dir.rglob('*')):
                     if path.is_file():
-                        theme_files[str(path)] = path.read_bytes()
+                        key = f'{i}:{path.relative_to(theme_dir).as_posix()}'
+                        digest = hashlib.md5(path.read_bytes(), usedforsecurity=False)
+                        theme_files[key] = digest.hexdigest()
             self.theme_hash = stable_hash(theme_files)
 
     def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]

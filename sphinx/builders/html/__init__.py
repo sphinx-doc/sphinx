@@ -160,14 +160,15 @@ class StandaloneHTMLBuilder(Builder):
         )
 
     def init(self) -> None:
-
         # basename of images directory
         self.imagedir = '_images'
         # section numbers for headings in the currently visited document
         self.secnumbers: dict[str, tuple[int, ...]] = {}
         # currently written docname
         self.current_docname: str = ''
+
         self.init_templates()
+        # after init_templates(), as the build info hashes the theme's files
         self.build_info = self.create_build_info()
         self.init_highlighter()
         self.init_css_files()
