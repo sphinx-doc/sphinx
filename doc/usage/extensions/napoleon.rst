@@ -576,7 +576,7 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``:
    :default: :code-py:`None`
 
    A mapping to translate type names to other names or references. Works
-   only when ``napoleon_use_param = True``.
+   only when ``napoleon_preprocess_types = True``.
 
    With:
 
