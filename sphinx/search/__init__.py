@@ -334,12 +334,21 @@ class IndexBuilder:
         self._filenames = dict(zip(index2fn, frozen['filenames'], strict=True))
         self._titles = dict(zip(index2fn, frozen['titles'], strict=True))
         self._all_titles = {}
+        self._index_entries = {}
 
         for docname in self._titles:
             self._all_titles[docname] = []
+            self._index_entries[docname] = []
         for title, doc_tuples in frozen['alltitles'].items():
             for doc, titleid in doc_tuples:
                 self._all_titles[index2fn[doc]].append((title, titleid))
+        for entry, doc_tuples in frozen['indexentries'].items():
+            for doc, entry_id, main_entry in doc_tuples:
+                self._index_entries[index2fn[doc]].append((
+                    entry,
+                    entry_id,
+                    'main' if main_entry else '',
+                ))
 
         def load_terms(mapping: dict[str, Any]) -> dict[str, set[str]]:
             rv = {}
@@ -441,7 +450,7 @@ class IndexBuilder:
                 alltitles.setdefault(title, []).append((fn2index[docname], titleid))
 
         index_entries: dict[str, list[tuple[int, str, bool]]] = {}
-        for docname, entries in self._index_entries.items():
+        for docname, entries in sorted(self._index_entries.items()):
             for entry, entry_id, main_entry in entries:
                 index_entries.setdefault(entry.lower(), []).append((
                     fn2index[docname],
@@ -471,14 +480,18 @@ class IndexBuilder:
         new_titles = {}
         new_alltitles = {}
         new_filenames = {}
+        new_index_entries = {}
         for docname in docnames:
             if docname in self._titles:
                 new_titles[docname] = self._titles[docname]
                 new_alltitles[docname] = self._all_titles[docname]
                 new_filenames[docname] = self._filenames[docname]
+                if docname in self._index_entries:
+                    new_index_entries[docname] = self._index_entries[docname]
         self._titles = new_titles
         self._filenames = new_filenames
         self._all_titles = new_alltitles
+        self._index_entries = new_index_entries
         for wordnames in self._mapping.values():
             wordnames.intersection_update(docnames)
         for wordnames in self._title_mapping.values():
