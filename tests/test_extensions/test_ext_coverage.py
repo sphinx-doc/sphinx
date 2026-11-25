@@ -129,3 +129,26 @@ def test_show_missing_items_quiet(app: SphinxTestApp) -> None:
     ) in app.warning.getvalue()
 
     assert 'undocumented c api: Py_SphinxTest [function]' in app.warning.getvalue()
+
+
+class FakeProxy:
+    """A proxy-like object that raises when its __class__ is accessed."""
+
+    def __getattribute__(self, name: str) -> object:
+        if name == '__class__':
+            msg = 'Proxy was evaluated'
+            raise RuntimeError(msg)
+        return object.__getattribute__(self, name)
+
+
+@pytest.mark.sphinx('coverage', testroot='ext-coverage')
+def test_coverage_lazy_proxy(
+    app: SphinxTestApp, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        'grog.coverage_not_ignored.Documented.proxy',
+        FakeProxy(),
+        raising=False,
+    )
+
+    app.build(force_all=True)

@@ -13,6 +13,7 @@ import pickle
 import pkgutil
 import re
 import sys
+import types
 from importlib import import_module
 from typing import TYPE_CHECKING
 
@@ -357,8 +358,11 @@ class CoverageBuilder(Builder):
                                 attr = safe_getattr(obj, attr_name)
                             except AttributeError:
                                 continue
-                            if not (inspect.ismethod(attr) or inspect.isfunction(attr)):
+                            if not issubclass(
+                                type(attr), (types.MethodType, types.FunctionType)
+                            ):
                                 continue
+
                             if attr_name[0] == '_':
                                 # starts with an underscore, ignore it
                                 continue
