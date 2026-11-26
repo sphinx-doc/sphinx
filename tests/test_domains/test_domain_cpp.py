@@ -610,6 +610,8 @@ def test_domain_cpp_ast_member_definitions() -> None:
 def test_domain_cpp_ast_function_definitions() -> None:
     check('function', 'void f(volatile int)', {1: 'f__iV', 2: '1fVi'})
     check('function', 'void f(std::size_t)', {1: 'f__std::s', 2: '1fNSt6size_tE'})
+    with pytest.raises(DefinitionError):
+        parse('function', 'void f(std:size_t)')
     check('function', 'operator bool() const', {1: 'castto-b-operatorC', 2: 'NKcvbEv'})
     check(
         'function',
