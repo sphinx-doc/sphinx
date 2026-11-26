@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #14825: C++ domain: report invalid bit-field declarators in function
+  parameters as parse errors instead of crashing the build.
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
