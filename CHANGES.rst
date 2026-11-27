@@ -18,6 +18,8 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #14307: linkcheck: ignore hyperlinks to IETF reserved domains and TLDs.
+  Patch by James Addison
 
 Testing
 -------
