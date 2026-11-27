@@ -299,8 +299,8 @@ class HyperlinkAvailabilityChecker:
     # ... minus https://github.com/sphinx-doc/sphinx/issues/14307#issuecomment-3910787066
     IETF_RESERVED_TLDS = frozenset({
         # "test",
-        'example',
-        'invalid',
+        '.example',
+        '.invalid',
         # "localhost",
     })
 
@@ -363,11 +363,12 @@ class HyperlinkAvailabilityChecker:
 
     def is_ignored_uri(self, uri: str) -> bool:
         host = f'.{urlsplit(uri).hostname}'
-        if any(host.endswith(domain) for domain in self.IETF_RESERVED_DOMAINS):
+        domain, tld = host.rsplit('.', 2)[-2:]
+
+        if f'.{domain}.{tld}' in self.IETF_RESERVED_DOMAINS:
             return True
 
-        domain, _, tld = host.rpartition('.')
-        if domain and tld and tld in self.IETF_RESERVED_TLDS:
+        if f'.{tld}' in self.IETF_RESERVED_TLDS:
             return True
 
         return any(pat.match(uri) for pat in self.to_ignore)
