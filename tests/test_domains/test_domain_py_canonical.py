@@ -114,3 +114,77 @@ def test_canonical_duplicated(app: SphinxTestApp) -> None:
 
     restructuredtext.parse(app, text)
     assert app.warning.getvalue() != ''
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_merge_domaindata_alias_does_not_override_definition(
+    app: SphinxTestApp,
+) -> None:
+    """A ``:canonical:`` alias merged from a worker must not replace an
+    already-merged definition registered for the same name.
+    """
+    from sphinx.domains.python import ObjectEntry
+
+    domain = app.env.domains.python_domain
+    domain.objects['pkg.mod.Apple'] = ObjectEntry(
+        docname='index',
+        node_id='pkg.mod.Apple',
+        objtype='class',
+        aliased=False,
+    )
+
+    other = {
+        'objects': {
+            'pkg.mod.Apple': ObjectEntry(
+                docname='other',
+                node_id='pkg.Apple',
+                objtype='class',
+                aliased=True,
+            ),
+        },
+        'modules': {},
+    }
+    domain.merge_domaindata({'other'}, other)
+
+    assert domain.objects['pkg.mod.Apple'] == (
+        'index',
+        'pkg.mod.Apple',
+        'class',
+        False,
+    )
+
+
+@pytest.mark.sphinx('html', testroot='_blank')
+def test_merge_domaindata_definition_replaces_alias(app: SphinxTestApp) -> None:
+    """A definition merged from a worker replaces an already-merged alias
+    registered for the same name.
+    """
+    from sphinx.domains.python import ObjectEntry
+
+    domain = app.env.domains.python_domain
+    domain.objects['pkg.mod.Apple'] = ObjectEntry(
+        docname='other',
+        node_id='pkg.Apple',
+        objtype='class',
+        aliased=True,
+    )
+
+    other = {
+        'objects': {
+            'pkg.mod.Apple': ObjectEntry(
+                docname='index',
+                node_id='pkg.mod.Apple',
+                objtype='class',
+                aliased=False,
+            ),
+        },
+        'modules': {},
+    }
+    domain.merge_domaindata({'index'}, other)
+
+    assert domain.objects['pkg.mod.Apple'] == (
+        'index',
+        'pkg.mod.Apple',
+        'class',
+        False,
+    )

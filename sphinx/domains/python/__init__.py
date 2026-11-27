@@ -844,9 +844,16 @@ class PythonDomain(Domain):
             del self.modules[fullname]
 
     def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
-        # XXX check duplicates?
         for fullname, obj in otherdata['objects'].items():
             if obj.docname in docnames:
+                if obj.aliased:
+                    existing = self.objects.get(fullname)
+                    if existing is not None and not existing.aliased:
+                        # A ``:canonical:`` alias from a worker must not replace
+                        # an already-merged definition, mirroring the priority
+                        # rule applied by :meth:`note_object` within a single
+                        # worker.
+                        continue
                 self.objects[fullname] = obj
         for modname, mod in otherdata['modules'].items():
             if mod.docname in docnames:

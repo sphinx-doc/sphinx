@@ -18,6 +18,10 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #14885: Python domain: a ``:canonical:`` alias merged from a parallel-read
+  worker no longer replaces an already-merged definition registered for the
+  same name, matching the priority rule applied within a single worker.
+  Patch by Mengjia Shang
 
 Testing
 -------
