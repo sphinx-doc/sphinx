@@ -295,6 +295,22 @@ class Hyperlink(NamedTuple):
 
 
 class HyperlinkAvailabilityChecker:
+    # https://datatracker.ietf.org/doc/html/rfc2606#section-2
+    # ... minus https://github.com/sphinx-doc/sphinx/issues/14307#issuecomment-3910787066
+    IETF_RESERVED_TLDS = frozenset({
+        # "test",
+        '.example',
+        '.invalid',
+        # "localhost",
+    })
+
+    # https://datatracker.ietf.org/doc/html/rfc2606#section-3
+    IETF_RESERVED_DOMAINS = frozenset({
+        '.example.com',
+        '.example.net',
+        '.example.org',
+    })
+
     def __init__(self, config: Config) -> None:
         self.config = config
         self.rate_limits: dict[str, RateLimit] = {}
@@ -346,6 +362,15 @@ class HyperlinkAvailabilityChecker:
             self.wqueue.put(CheckRequest(CHECK_IMMEDIATELY, None), False)
 
     def is_ignored_uri(self, uri: str) -> bool:
+        host = f'.{urlsplit(uri).hostname}'
+        domain, tld = host.rsplit('.', 2)[-2:]
+
+        if f'.{domain}.{tld}' in self.IETF_RESERVED_DOMAINS:
+            return True
+
+        if f'.{tld}' in self.IETF_RESERVED_TLDS:
+            return True
+
         return any(pat.match(uri) for pat in self.to_ignore)
 
 
