@@ -16,6 +16,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re
 from sphinx.util.typing import OptionSpec
+from sphinx.util.virtualdoc import VIRTUAL_DOCS
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -82,6 +83,7 @@ class TocTree(SphinxDirective):
         # glob target documents
         all_docnames = self.env.found_docs.copy()
         all_docnames.remove(self.env.docname)  # remove current document
+        all_docnames.difference_update(VIRTUAL_DOCS)
 
         ret: List[Node] = []
         excluded = Matcher(self.config.exclude_patterns)
@@ -118,6 +120,8 @@ class TocTree(SphinxDirective):
                 docname = docname_join(self.env.docname, docname)
                 if url_re.match(ref) or ref == 'self':
                     toctree['entries'].append((title, ref))
+                elif ref in VIRTUAL_DOCS:
+                    toctree['entries'].append((title or VIRTUAL_DOCS[ref][1], ref))
                 elif docname not in self.env.found_docs:
                     if excluded(self.env.doc2path(docname, False)):
                         message = __('toctree contains reference to excluded document %r')

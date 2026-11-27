@@ -13,6 +13,7 @@ from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.locale import __
 from sphinx.transforms import SphinxContentsFilter
 from sphinx.util import logging, url_re
+from sphinx.util.virtualdoc import VIRTUAL_DOCS
 
 N = TypeVar('N')
 
@@ -172,7 +173,7 @@ class TocTreeCollector(EnvironmentCollector):
             if depth == 0:
                 return
             for (_title, ref) in toctreenode['entries']:
-                if url_re.match(ref) or ref == 'self':
+                if url_re.match(ref) or ref == 'self' or ref in VIRTUAL_DOCS:
                     # don't mess with those
                     continue
                 elif ref in assigned:

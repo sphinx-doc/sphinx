@@ -124,6 +124,50 @@ def test_glob(app):
         assert 'index' in app.env.files_to_rebuild[file]
     assert 'index' in app.env.glob_toctrees
     assert app.env.numbered_toctrees == set()
+    glob_entries = {ref for tree in app.env.tocs['index'].findall(addnodes.toctree)
+                    for _title, ref in tree['entries']}
+    assert not glob_entries & {'genindex', 'modindex', 'search'}
+
+
+@pytest.mark.sphinx('html', testroot='toctree-empty')
+def test_virtual_documents_in_toctree(app, warning):
+    (app.srcdir / 'index.rst').write_text(
+        'Virtual pages\n=============\n\n'
+        '.. toctree::\n'
+        '   :numbered:\n\n'
+        '   genindex\n'
+        '   modindex\n'
+        '   search\n',
+        encoding='utf8')
+
+    app.builder.build_all()
+
+    assert warning.getvalue() == ''
+    toctree = next(app.env.get_doctree('index').findall(addnodes.toctree))
+    assert toctree['entries'] == [
+        ('Index', 'genindex'),
+        ('Module Index', 'modindex'),
+        ('Search Page', 'search'),
+    ]
+    assert toctree['includefiles'] == []
+    assert app.env.toctree_includes['index'] == []
+    assert 'genindex' not in app.builder.relations
+    assert 'modindex' not in app.builder.relations
+    assert 'search' not in app.builder.relations
+    assert 'genindex' not in app.env.metadata
+    assert 'modindex' not in app.env.metadata
+    assert 'search' not in app.env.metadata
+    assert 'genindex' not in app.env.toc_secnumbers
+    assert 'modindex' not in app.env.toc_secnumbers
+    assert 'search' not in app.env.toc_secnumbers
+
+    resolved = TocTree(app.env).resolve('index', app.builder, toctree)
+    references = resolved.findall(reference)
+    assert [(ref['refuri'], ref.astext()) for ref in references] == [
+        ('genindex.html', 'Index'),
+        ('py-modindex.html', 'Module Index'),
+        ('search.html', 'Search Page'),
+    ]
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')

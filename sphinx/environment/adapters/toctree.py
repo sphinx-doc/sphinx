@@ -10,6 +10,7 @@ from sphinx.locale import __
 from sphinx.util import logging, url_re
 from sphinx.util.matching import Matcher
 from sphinx.util.nodes import clean_astext, process_only_nodes
+from sphinx.util.virtualdoc import VIRTUAL_DOCS
 
 if TYPE_CHECKING:
     from sphinx.builders import Builder
@@ -138,6 +139,15 @@ class TocTree:
                         para = addnodes.compact_paragraph('', '', reference)
                         item = nodes.list_item('', para)
                         # don't show subitems
+                        toc = nodes.bullet_list('', item)
+                    elif ref in VIRTUAL_DOCS:
+                        target, default_title = VIRTUAL_DOCS[ref]
+                        reference = nodes.reference('', '', internal=True,
+                                                    refuri=target,
+                                                    anchorname='',
+                                                    *[nodes.Text(title or default_title)])
+                        para = addnodes.compact_paragraph('', '', reference)
+                        item = nodes.list_item('', para)
                         toc = nodes.bullet_list('', item)
                     else:
                         if ref in parents:
