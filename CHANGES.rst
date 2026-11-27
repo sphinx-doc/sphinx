@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #14797: Add missing hyphen to CVE and CWE role formats.
+  Patch by Hugo van Kemenade
 * #14221: Fix a regression from Sphinx v8.2.0 onwards that could cause links
   produced by ``singlehtml`` builds to contain multiple fragment delimiters
   (``#``), and withdraw the deprecation of
