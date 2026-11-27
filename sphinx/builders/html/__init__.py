@@ -352,7 +352,7 @@ class StandaloneHTMLBuilder(Builder):
                     msg = __(
                         'build_info mismatch, copying .buildinfo to .buildinfo.bak'
                     )
-                    logger.info(bold(__('building [html]: ')) + msg)  # NoQA: G003
+                    logger.info(bold(__('building [html]: ')) + msg)  # ruff: ignore[logging-string-concat]
 
                 yield from self.env.found_docs
                 return
@@ -367,7 +367,7 @@ class StandaloneHTMLBuilder(Builder):
                 # Let users know they have a newer template
                 if template_mtime > old_mtime:
                     logger.info(
-                        bold('building [html]: ')  # NoQA: G003
+                        bold('building [html]: ')  # ruff: ignore[logging-string-concat]
                         + __(
                             'template %s has been changed since the previous build, '
                             'all docs will be rebuilt'
@@ -449,14 +449,14 @@ class StandaloneHTMLBuilder(Builder):
         # html_domain_indices can be False/True or a list of index names
         if indices_config := self.config.html_domain_indices:
             if not isinstance(indices_config, bool):
-                check_names = True
                 indices_config = frozenset(indices_config)
-            else:
-                check_names = False
             for domain in self.env.domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
-                    if check_names and index_name not in indices_config:
+                    if (
+                        not isinstance(indices_config, bool)
+                        and index_name not in indices_config
+                    ):
                         continue
                     content, collapse = index_cls(domain).generate()
                     if content:
@@ -515,7 +515,7 @@ class StandaloneHTMLBuilder(Builder):
         self._orig_js_files = list(dict.fromkeys(self._js_files))
         styles = list(self._get_style_filenames())
 
-        self.globalcontext = {
+        self.globalcontext: dict[str, Any] = {
             'embedded': self.embedded,
             'project': self.config.project,
             'release': return_codes_re.sub('', self.config.release),
@@ -860,7 +860,7 @@ class StandaloneHTMLBuilder(Builder):
                     self._static_dir,
                     excluded=DOTFILES,
                     context=context,
-                    renderer=self.templates,
+                    renderer=self.templates,  # pyrefly: ignore[bad-argument-type]
                     onerror=onerror,
                     force=True,
                 )
@@ -887,7 +887,7 @@ class StandaloneHTMLBuilder(Builder):
                 self._static_dir,
                 excluded=excluded,
                 context=context,
-                renderer=self.templates,
+                renderer=self.templates,  # pyrefly: ignore[bad-argument-type]
                 onerror=onerror,
                 force=True,
             )
@@ -1024,7 +1024,7 @@ class StandaloneHTMLBuilder(Builder):
     ) -> str:
         if 'includehidden' not in kwargs:
             kwargs['includehidden'] = False
-        if kwargs.get('maxdepth') == '':  # NoQA: PLC1901
+        if kwargs.get('maxdepth') == '':  # ruff: ignore[compare-to-empty-string]
             kwargs.pop('maxdepth')
         toctree = global_toctree_for_doc(
             self.env, docname, self, tags=self.tags, collapse=collapse, **kwargs
@@ -1351,7 +1351,7 @@ def validate_math_renderer(app: Sphinx) -> None:
     if app.builder.format != 'html':
         return
 
-    name = app.builder.math_renderer_name  # type: ignore[attr-defined]
+    name = app.builder.math_renderer_name  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
     if name is None:
         msg = __(
             'Many math_renderers are registered. But no math_renderer is selected.'

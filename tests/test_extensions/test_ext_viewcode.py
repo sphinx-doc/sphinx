@@ -15,10 +15,10 @@ if TYPE_CHECKING:
 
 
 def check_viewcode_output(app: SphinxTestApp) -> str:
-    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
-        sp = '<span> </span>'
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 21):
+        ds = '"""this is Class1"""'
     else:
-        sp = ' '
+        ds = '&quot;&quot;&quot;this is Class1&quot;&quot;&quot;'
 
     warnings = re.sub(r'\\+', '/', app.warning.getvalue())
     assert re.findall(
@@ -48,11 +48,10 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
         '<a class="viewcode-back" href="../../index.html#spam.Class1">[docs]</a>\n'
     ) in result
     assert '<span>@decorator</span>\n' in result
-    assert f'<span>class</span>{sp}<span>Class1</span><span>:</span>\n' in result
     assert (
-        '<span>    </span>'
-        '<span>&quot;&quot;&quot;this is Class1&quot;&quot;&quot;</span></div>\n'
-    ) in result
+        '<span>class</span><span> </span><span>Class1</span><span>:</span>\n' in result
+    )
+    assert f'<span>    </span><span>{ds}</span></div>\n' in result
 
     return result
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime  # ruff: ignore[unconventional-import-alias]
 import os
 import time
 from pathlib import Path
@@ -59,7 +59,7 @@ def test_catalog_write_mo(tmp_path: Path) -> None:
 
 
 def test_format_date() -> None:
-    date = datetime.datetime(2016, 2, 7, 5, 11, 17, 0)  # NoQA: DTZ001
+    date = datetime.datetime(2016, 2, 7, 5, 11, 17, 0)  # ruff: ignore[call-datetime-without-tzinfo]
 
     # strftime format
     format = '%B %d, %Y'
@@ -99,7 +99,7 @@ def test_format_date() -> None:
 def test_format_date_timezone() -> None:
     dt = datetime.datetime(2016, 8, 7, 5, 11, 17, 0, tzinfo=datetime.UTC)
     if time.localtime(dt.timestamp()).tm_gmtoff == 0:
-        raise pytest.skip('Local time zone is GMT')  # NoQA: EM101,TRY003
+        raise pytest.skip('Local time zone is GMT')  # ruff: ignore[raw-string-in-exception, raise-vanilla-args]
 
     fmt = '%Y-%m-%d %H:%M:%S'
 

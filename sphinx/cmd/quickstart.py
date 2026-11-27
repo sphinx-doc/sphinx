@@ -37,7 +37,7 @@ try:
         # MyPy doesn't realise that this raises a ModuleNotFoundError
         # on Windows, and complains that 'parse_and_bind' is not defined.
         # This condition is always False at runtime, but tricks type checkers.
-        raise ImportError  # NoQA: TRY301
+        raise ImportError  # ruff: ignore[raise-within-try]
 except ImportError:
     READLINE_AVAILABLE = USE_LIBEDIT = False
 else:
@@ -285,8 +285,8 @@ def ask_user(d: dict[str, Any]) -> None:
         print()
         print(
             __(
-                'Inside the root directory, two more directories will be created; "_templates"\n'  # NoQA: E501
-                'for custom HTML templates and "_static" for custom stylesheets and other static\n'  # NoQA: E501
+                'Inside the root directory, two more directories will be created; "_templates"\n'  # ruff: ignore[line-too-long]
+                'for custom HTML templates and "_static" for custom stylesheets and other static\n'  # ruff: ignore[line-too-long]
                 'files. You can enter another prefix (such as ".") to replace the underscore.'
             )
         )
@@ -750,7 +750,7 @@ def main(argv: Sequence[str] = (), /) -> int:
     try:
         args = parser.parse_args(argv or sys.argv[1:])
     except SystemExit as err:
-        return err.code  # type: ignore[return-value]
+        return err.code  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
     d = vars(args)
     # delete None or False value
@@ -806,7 +806,7 @@ def main(argv: Sequence[str] = (), /) -> int:
         print('[Interrupted.]')
         return 130  # 128 + SIGINT
 
-    for variable in d.get('variables', []):  # type: ignore[union-attr]
+    for variable in d.get('variables', []):  # type: ignore[union-attr]  # ty: ignore[not-iterable]
         try:
             name, value = variable.split('=')
             d[name] = value

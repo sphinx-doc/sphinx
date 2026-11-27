@@ -23,6 +23,12 @@ from sphinx.addnodes import (
     desc_signature_line,
     pending_xref,
 )
+from sphinx.domains.cpp._ast import (
+    ASTDeclaration,
+    ASTTemplateDeclarationPrefix,
+    ASTTemplateParam,
+    ASTTemplateParams,
+)
 from sphinx.domains.cpp._ids import _id_prefix, _max_id
 from sphinx.domains.cpp._parser import DefinitionParser
 from sphinx.domains.cpp._symbol import Symbol
@@ -36,8 +42,6 @@ from tests.utils import extract_node
 
 if TYPE_CHECKING:
     from io import StringIO
-
-    from sphinx.domains.cpp._ast import ASTTemplateParamType
 
 
 def parse(name, string):
@@ -1521,9 +1525,17 @@ def test_domain_cpp_ast_xref_parsing() -> None:
     ],
 )
 def test_domain_cpp_template_parameters_is_pack(param: str, is_pack: bool) -> None:
-    def parse_template_parameter(param: str) -> ASTTemplateParamType:
+    def parse_template_parameter(param: str) -> ASTTemplateParam:
         ast = parse('type', 'template<' + param + '> X')
-        return ast.templatePrefix.templates[0].params[0]
+        assert isinstance(ast, ASTDeclaration)
+        prefix = ast.templatePrefix
+        assert isinstance(prefix, ASTTemplateDeclarationPrefix)
+        assert isinstance(prefix.templates, list)
+        template = prefix.templates[0]
+        assert isinstance(template, ASTTemplateParams)
+        template_param = template.params[0]
+        assert isinstance(template_param, ASTTemplateParam)
+        return template_param
 
     ast = parse_template_parameter(param)
     assert ast.isPack == is_pack

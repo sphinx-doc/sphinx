@@ -98,6 +98,24 @@ There are two ways to ensure this:
      the :confval:`autodoc_mock_imports` setting.
 
 
+Using native modules instead of type stubs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Starting with Sphinx 9.1, autodoc may use a neighboring ``.pyi`` type stub
+when importing a module. For native extension modules whose documentation is
+available only on the runtime objects, set the
+``SPHINX_AUTODOC_IGNORE_NATIVE_MODULE_TYPE_STUBS`` environment variable
+to a non-empty value to make autodoc import the native module directly:
+
+.. code-block:: console
+
+   $ SPHINX_AUTODOC_IGNORE_NATIVE_MODULE_TYPE_STUBS=1 sphinx-build ...
+
+On Windows, set the variable in the shell before running
+the :program:`sphinx-build` command.
+
+.. versionadded:: 9.1
+
 Usage
 ^^^^^
 
@@ -1480,7 +1498,8 @@ member should be included in the documentation by using the following event:
    :param obj_type: the type of the object which the docstring belongs to (one of
       ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'decorator'``,
       ``'method'``, ``'property'``, ``'attribute'``, ``'data'``, or ``'type'``)
-   :param name: the fully qualified name of the object
+   :param name: the unqualified name of the member within the namespace of the
+      object being documented
    :param obj: the object itself
    :param skip: a boolean indicating if autodoc will skip this member if the
       user handler does not override the decision

@@ -81,6 +81,7 @@ Contributors
 * Justus Magin -- napoleon improvements
 * Kazuya Take -- ``sphinx.testing.path`` bug fix
 * Kevin Dunn -- MathJax extension
+* Kilian Paul -- Docutils compatibility, intl tests, and viewcode fixes
 * KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
 * Kurt McKee -- documentation updates
 * Lars Hupfeldt Nielsen - OpenSSL FIPS mode md5 bug fix
@@ -118,6 +119,7 @@ Contributors
 * Thomas Waldmann -- apidoc module fixes
 * Till Hoffmann -- doctest option to exit after first failed test
 * Tim Hoffmann -- theme improvements
+* Tim Pillinger -- documentation improvements
 * Valentin Heinisch -- warning types improvement
 * Victor Wheeler -- documentation improvements
 * Vince Salvino -- JavaScript search improvements

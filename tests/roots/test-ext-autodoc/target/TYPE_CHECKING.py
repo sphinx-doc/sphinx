@@ -1,7 +1,9 @@
-# NoQA: N999
+# ruff: ignore[invalid-module-name]
 from __future__ import annotations
 
-from gettext import NullTranslations  # NoQA: TC003
+from gettext import (
+    NullTranslations,  # ruff: ignore[typing-only-standard-library-import]
+)
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

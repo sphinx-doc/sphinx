@@ -3,7 +3,7 @@
 """Refresh and update language stemming data from the Snowball project."""
 
 # /// script
-# requires-python = ">=3.12"
+# requires-python = ">=3.13"
 # dependencies = [
 #     "requests>=2.30",
 # ]

@@ -8,6 +8,7 @@ import unicodedata
 from io import StringIO
 from typing import TYPE_CHECKING, Any, cast
 
+import docutils
 from docutils import nodes
 from docutils.nodes import Node
 
@@ -138,7 +139,7 @@ def apply_source_workaround(node: Element) -> None:
         )
         definition_list_item = node.parent
         node.source = definition_list_item.source
-        node.line = definition_list_item.line - 1  # type: ignore[operator]
+        node.line = definition_list_item.line - 1  # type: ignore[operator]  # ty: ignore[unsupported-operator]
         node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
     elif isinstance(node, nodes.classifier) and not node.source:
         # docutils-0.15 fills in rawsource attribute, but not in source.
@@ -234,7 +235,7 @@ def is_translatable(node: Node) -> bool:
     if isinstance(node, nodes.image) and (node.get('translatable') or node.get('alt')):
         return True
 
-    if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore[operator]
+    if isinstance(node, nodes.Inline) and 'translatable' not in node:  # type: ignore[operator]  # ty: ignore[unsupported-operator]
         # inline node must not be translated if 'translatable' is not set
         return False
 
@@ -285,6 +286,15 @@ LITERAL_TYPE_NODES = (
 IMAGE_TYPE_NODES = (
     nodes.image,
 )  # fmt: skip
+
+
+def _is_doctest_block(node: Node) -> bool:
+    if docutils.__version_info__[:2] >= (1, 0) and isinstance(
+        node, nodes.literal_block
+    ):
+        return 'doctest' in node['classes']
+    # Also accept doctest_block nodes from third-party parsers on Docutils 1.0.
+    return isinstance(node, nodes.doctest_block)
 
 
 def _clean_extracted_message(text: str) -> str:
@@ -338,7 +348,7 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
         elif isinstance(node, nodes.meta):
             msg = node['content']
         else:
-            text = node.rawsource  # type: ignore[attr-defined]
+            text = node.rawsource  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             msg = _clean_extracted_message(text)
 
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
@@ -504,7 +514,7 @@ def inline_all_toctrees(
             if includefile not in traversed:
                 try:
                     traversed.append(includefile)
-                    logger.info(indent + colorfunc(includefile))  # NoQA: G003
+                    logger.info(indent + colorfunc(includefile))  # ruff: ignore[logging-string-concat]
                     subtree = inline_all_toctrees(
                         builder,
                         docnameset,

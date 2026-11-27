@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
 try:
-    import jieba  # type: ignore[import-not-found]
+    import jieba  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
     jieba_load_userdict = jieba.load_userdict
     cut_for_search = jieba.cut_for_search

@@ -54,6 +54,7 @@ The behavior can be modified in the following ways:
   (that is e.g. shown as a tool-tip on mouse-hover)
   will always be the full target name.
 
+The ``!`` and ``~`` modifiers currently cannot be combined.
 
 .. _ref-objects:
 

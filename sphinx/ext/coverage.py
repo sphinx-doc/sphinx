@@ -177,7 +177,7 @@ class CoverageBuilder(Builder):
         self.c_sourcefiles: list[str] = []
         for pattern in self.config.coverage_c_path:
             pattern = self.srcdir / pattern
-            self.c_sourcefiles.extend(glob.glob(str(pattern)))  # NoQA: PTH207
+            self.c_sourcefiles.extend(glob.glob(str(pattern)))  # ruff: ignore[glob]
 
         self.c_regexes: list[tuple[str, re.Pattern[str]]] = []
         for name, exp in self.config.coverage_c_regexes.items():
@@ -264,7 +264,7 @@ class CoverageBuilder(Builder):
                             )
                         else:
                             logger.info(
-                                red('undocumented  ')  # NoQA: G003
+                                red('undocumented  ')  # ruff: ignore[logging-string-concat]
                                 + f'c   api       {f"{name} [{typ:>9}]":<30}'
                                 + red(' - in file ')
                                 + filename
@@ -456,7 +456,7 @@ class CoverageBuilder(Builder):
                             else:
                                 for func in undoc['funcs']:
                                     logger.info(
-                                        red('undocumented  ')  # NoQA: G003
+                                        red('undocumented  ')  # ruff: ignore[logging-string-concat]
                                         + f'py  function  {func:<30}'
                                         + red(' - in module ')
                                         + name
@@ -476,7 +476,7 @@ class CoverageBuilder(Builder):
                                         )
                                     else:
                                         logger.info(
-                                            red('undocumented  ')  # NoQA: G003
+                                            red('undocumented  ')  # ruff: ignore[logging-string-concat]
                                             + f'py  class     {class_name:<30}'
                                             + red(' - in module ')
                                             + name
@@ -499,7 +499,7 @@ class CoverageBuilder(Builder):
                                     else:
                                         for meth in methods:
                                             logger.info(
-                                                red('undocumented  ')  # NoQA: G003
+                                                red('undocumented  ')  # ruff: ignore[logging-string-concat]
                                                 + f'py  method    {f"{class_name}.{meth}":<30}'
                                                 + red(' - in module ')
                                                 + name

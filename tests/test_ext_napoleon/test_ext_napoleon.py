@@ -37,12 +37,12 @@ def _private_undoc() -> None:
     pass
 
 
-def __special_doc__() -> None:  # NoQA: N807
+def __special_doc__() -> None:  # ruff: ignore[dunder-function-name]
     """module.__special_doc__.DOCSTRING"""
     pass
 
 
-def __special_undoc__() -> None:  # NoQA: N807
+def __special_undoc__() -> None:  # ruff: ignore[dunder-function-name]
     pass
 
 
@@ -54,15 +54,15 @@ class SampleClass:
     def _private_undoc(self) -> None:
         pass
 
-    def __special_doc__(self) -> None:  # NoQA: PLW3201
+    def __special_doc__(self) -> None:  # ruff: ignore[bad-dunder-method-name]
         """SampleClass.__special_doc__.DOCSTRING"""
         pass
 
-    def __special_undoc__(self) -> None:  # NoQA: PLW3201
+    def __special_undoc__(self) -> None:  # ruff: ignore[bad-dunder-method-name]
         pass
 
     @simple_decorator
-    def __decorated_func__(self) -> None:  # NoQA: PLW3201
+    def __decorated_func__(self) -> None:  # ruff: ignore[bad-dunder-method-name]
         """Doc"""
         pass
 
@@ -75,15 +75,15 @@ class SampleError(Exception):
     def _private_undoc(self) -> None:
         pass
 
-    def __special_doc__(self) -> None:  # NoQA: PLW3201
+    def __special_doc__(self) -> None:  # ruff: ignore[bad-dunder-method-name]
         """SampleError.__special_doc__.DOCSTRING"""
         pass
 
-    def __special_undoc__(self) -> None:  # NoQA: PLW3201
+    def __special_undoc__(self) -> None:  # ruff: ignore[bad-dunder-method-name]
         pass
 
 
-SampleNamedTuple = namedtuple('SampleNamedTuple', 'user_id block_type def_id')  # NoQA: PYI024
+SampleNamedTuple = namedtuple('SampleNamedTuple', 'user_id block_type def_id')  # ruff: ignore[collections-named-tuple]
 
 
 class TestProcessDocstring:

@@ -138,7 +138,7 @@ extlinks = {
 }
 
 # modify tags from conf.py
-tags.add('confpytag')  # NoQA: F821 (tags is injected into conf.py)
+tags.add('confpytag')  # ruff: ignore[undefined-name] (tags is injected into conf.py)
 
 
 # -- extension API

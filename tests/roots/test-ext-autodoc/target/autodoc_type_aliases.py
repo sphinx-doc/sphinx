@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import io  # NoQA: TC003
+import io  # ruff: ignore[typing-only-standard-library-import]
 from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
@@ -15,7 +15,7 @@ variable: myint
 variable2 = None  # type: myint
 
 #: docstring
-variable3: Optional[myint]  # NoQA: UP045
+variable3: Optional[myint]  # ruff: ignore[non-pep604-annotation-optional]
 
 
 def read(r: io.BytesIO) -> io.StringIO:

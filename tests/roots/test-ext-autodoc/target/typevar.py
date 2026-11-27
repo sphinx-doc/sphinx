@@ -12,10 +12,10 @@ T2 = TypeVar('T2')  # A TypeVar not having doc comment
 T3 = TypeVar('T3', int, str)
 
 #: T4
-T4 = TypeVar('T4', covariant=True)  # NoQA: PLC0105
+T4 = TypeVar('T4', covariant=True)  # ruff: ignore[type-name-incorrect-variance]
 
 #: T5
-T5 = TypeVar('T5', contravariant=True)  # NoQA: PLC0105
+T5 = TypeVar('T5', contravariant=True)  # ruff: ignore[type-name-incorrect-variance]
 
 #: T6
 T6 = NewType('T6', date)

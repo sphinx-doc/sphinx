@@ -429,7 +429,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         ):
             dest = self.images[src]
             try:
-                img = Image.open(self.srcdir / src)
+                img: Image.Image = Image.open(self.srcdir / src)
             except OSError:
                 if not self.is_vector_graphics(src):
                     logger.warning(
@@ -459,7 +459,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 nw = self.config.epub_max_image_width
                 if width > nw:
                     nh = round((height * nw) / width)
-                    img = img.resize((nw, nh), Image.BICUBIC)
+                    img = img.resize((nw, nh), Image.BICUBIC)  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
             try:
                 img.save(self.outdir / self.imagedir / dest)
             except OSError as err:

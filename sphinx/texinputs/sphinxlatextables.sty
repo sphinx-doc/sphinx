@@ -1,7 +1,7 @@
 %% TABLES (WITH SUPPORT FOR MERGED CELLS OF GENERAL CONTENTS)
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatextables}[2025/12/30 v9.1.0 tables]%
+\ProvidesPackage{sphinxlatextables}[2026/06/09 v9.1.1 tables]%
 
 % Provides support for this output mark-up from Sphinx latex writer
 % and table templates:
@@ -72,16 +72,34 @@
 %    its availability anymore) 
 %
 % Executes \RequirePackage for:
+          %
+          % Release v1.0l 2026-05-01 of colortbl.sty modified its way of
+          % hacking into \everycr, as it got broken by array.sty v2.7b dated
+          % 2026/02/24 (which requires the June 2026 LaTeX format).
+          % https://github.com/davidcarlisle/dpctex/pull/66
+          %
+          % This change broke Sphinx, cf sphinx-doc/sphinx#14465.
+          %
+          % We need some time to cleanly resolve the new situation, and opted to
+          % "pin to the previous array": this causes colortbl to act as expected
+          % by us here.  We then need to also "pin longtable" to an earlier
+          % version due to https://github.com/davidcarlisle/dpctex/issues/69.
+          % Only one roll-back of longtable is available and we use it.
 %
-% - tabulary
+% - tabulary, which loads array
 % - longtable
 % - varwidth
 % - colortbl
 % - booktabs if 'booktabs' in latex_table_style
-%
+
+% N.B.: array must *not* have been loaded prior to this location, but this is
+% not guaranteed if templates/latex/latex.tex.jinja gets altered.
+\IfFileExists{array-2024-06-01.sty}
+   {\RequirePackage{array}[=v2.6]}
+   {\RequirePackage{array}}
+
 % Extends tabulary and longtable via patches and custom macros to support
 % merged cells possibly containing code-blocks in complex tables
-
 \RequirePackage{tabulary}
 % tabulary has a bug with its re-definition of \multicolumn in its first pass
 % which is not \long. But now Sphinx does not use LaTeX's \multicolumn but its
@@ -100,7 +118,11 @@
 % using here T (for Tabulary) feels less of a problem than the X could be
 \newcolumntype{T}{J}%
 % For tables allowing pagebreaks
-\RequirePackage{longtable}
+% About why pinning longtable version to an older one, see discussion at top
+% of this file about issue #14465.  This is perhaps a provisory work-around.
+\IfFileExists{longtable-2020-01-07.sty}
+    {\RequirePackage{longtable}[=v4.13]}
+    {\RequirePackage{longtable}}
 % User interface to set-up whitespace before and after tables:
 \newcommand*\sphinxtablepre {0pt}%
 \newcommand*\sphinxtablepost{\medskipamount}%
@@ -900,9 +922,9 @@
 \def\spx@table@@toprule@rowcolorON{%
         \noalign{%
           % Because of tabulary 2-pass system, the colour set-up at end of table
-          % would contaminate the header colours at start of table, so must reset
+          % would contaminate the header colours at start of table, so we must reset
           % them here.  We want all header rows to obey same colours, so we don't
-          % use original \CT@everycr which sets \CT@row@color to \relax.
+          % use the original \CT@everycr which sets \CT@row@color to \relax.
           \global\CT@everycr{\the\everycr}%
           \global\sphinxcolorlet{sphinxTableRowColor}{sphinxTableRowColorHeader}%
           \global\sphinxcolorlet{sphinxTableMergeColor}{\sphinxTableMergeColorHeader}%
