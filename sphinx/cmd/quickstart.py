@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import io
 import locale
 import os
 import os.path
@@ -226,6 +227,13 @@ def ask_user(d: dict[str, Any]) -> None:
     * makefile:  make Makefile
     * batchfile: make command file
     """
+    # A single byte from the console that is undecodable with stdin's encoding
+    # makes ``input()`` raise ``UnicodeDecodeError`` on an arbitrary prompt,
+    # because stdin buffers reads ahead (see sphinx-doc/sphinx#9247).  Replace
+    # undecodable bytes instead of crashing; project files are written as UTF-8.
+    if isinstance(sys.stdin, io.TextIOWrapper):
+        sys.stdin.reconfigure(errors='replace')
+
     print(
         bold(__('Welcome to the Sphinx %s quickstart utility.')) % __display_version__
     )
