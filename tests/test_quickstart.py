@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import io
+import sys
 import time
 from io import StringIO
 from typing import TYPE_CHECKING
@@ -203,6 +205,27 @@ def test_generated_files_eol(tmp_path: Path) -> None:
 
     assert_eol(tmp_path / 'make.bat', '\r\n')
     assert_eol(tmp_path / 'Makefile', '\n')
+
+
+def test_quickstart_undecodable_stdin_bytes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Bytes from the console that are invalid for stdin's encoding must not
+    # crash quickstart (https://github.com/sphinx-doc/sphinx/issues/9247).
+    answers = str(tmp_path).encode() + b'\n\n\nSphinx Test\nM\xe4user' + b'\n' * 40
+    stdin = io.TextIOWrapper(io.BytesIO(answers), encoding='utf-8')
+    monkeypatch.setattr(sys, 'stdin', stdin)
+    qs.term_input = real_input
+    try:
+        d: dict[str, Any] = {}
+        qs.ask_user(d)
+        qs.generate(d)
+    finally:
+        qs.term_input = mock_input({})
+
+    conffile = tmp_path / 'conf.py'
+    assert conffile.is_file()
+    assert 'M\ufffduser' in conffile.read_text(encoding='utf-8')
 
 
 def test_quickstart_and_build(tmp_path: Path) -> None:
