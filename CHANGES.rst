@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #9247: quickstart: Replace undecodable bytes from the console instead of
+  crashing with a ``UnicodeDecodeError``.
+  Patch by Anish Pentyala
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
