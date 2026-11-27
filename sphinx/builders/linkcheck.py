@@ -306,9 +306,9 @@ class HyperlinkAvailabilityChecker:
 
     # https://datatracker.ietf.org/doc/html/rfc2606#section-3
     IETF_RESERVED_DOMAINS = frozenset({
-        'example.com',
-        'example.net',
-        'example.org',
+        '.example.com',
+        '.example.net',
+        '.example.org',
     })
 
     def __init__(self, config: Config) -> None:
@@ -362,11 +362,11 @@ class HyperlinkAvailabilityChecker:
             self.wqueue.put(CheckRequest(CHECK_IMMEDIATELY, None), False)
 
     def is_ignored_uri(self, uri: str) -> bool:
-        netloc = urlsplit(uri).netloc
-        if any(netloc.endswith(domain) for domain in self.IETF_RESERVED_DOMAINS):
+        host = f'.{urlsplit(uri).hostname}'
+        if any(host.endswith(domain) for domain in self.IETF_RESERVED_DOMAINS):
             return True
 
-        domain, _, tld = netloc.rpartition('.')
+        domain, _, tld = host.rpartition('.')
         if domain and tld and tld in self.IETF_RESERVED_TLDS:
             return True
 
