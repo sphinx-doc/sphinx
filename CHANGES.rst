@@ -18,6 +18,10 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #14873: LaTeX: array roll-back is fatal on early TeXLive2026
+  not updated to the June 2026 LaTeX release; and longtable
+  roll-back causes a benign hyperref warning.
+  Patch by Jean-François B.
 
 Testing
 -------
