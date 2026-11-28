@@ -88,10 +88,14 @@ def _update_module_annotations_from_type_comments(mod: ModuleType) -> None:
                         cls = mod
                         for part in classname.split('.'):
                             cls = safe_getattr(cls, part)
-                        annotations = dict(inspect.getannotations(cls))
-                        # Ignore errors setting __annotations__
-                        with contextlib.suppress(TypeError, AttributeError):
-                            cls.__annotations__ = annotations
+                        existing_annotations = inspect.getannotations(cls)
+                        if isinstance(existing_annotations, dict):
+                            annotations = existing_annotations
+                        else:
+                            annotations = dict(existing_annotations)
+                            # Ignore errors setting __annotations__
+                            with contextlib.suppress(TypeError, AttributeError):
+                                cls.__annotations__ = annotations
                     except AttributeError:
                         annotations = {}
                     class_annotations[classname] = annotations
