@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatexliterals}[2025/12/26 v9.1.0 code-blocks and parsed literals]
+\ProvidesPackage{sphinxlatexliterals}[2026/11/28 v9.3.0 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -61,6 +61,15 @@
 % LaTeX code.  But dropping fancyvrb and keeping its native features and those
 % we added by hacking into it would require a significant effort.
 \RequirePackage{fancyvrb}
+\@ifpackagelater{fancyvrb}{2026/10/20}
+  {%
+    \def\spx@verb@MakeLineTarget{\leavevmode\MakeLinkTarget{FancyVerbLine}}%
+    \def\spx@verb@LinkTargetOff{\LinkTargetOff}%
+  }
+  {%
+    \let\spx@verb@MakeLineTarget\relax
+    \let\spx@verb@LinkTargetOff\relax
+  }
 % Next line is in order to let TAB characters (ascii 9) obey tab stops,
 % MEMO: attow (2025/12/26), a TAB can not be found inside a code-block
 %       rendered by sphinxVerbatim because it has been replaced earlier by a
@@ -486,6 +495,7 @@
      \setbox\spx@tempboxa=\vtop{\hsize\linewidth
           \raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
+          \spx@verb@MakeLineTarget
           \FV@ObeyTabs{\strut\spx@verb@FV@Line\strut}%
 % MEMO: since LaTeX 2021-06-01, there might be some hooks executed at
 % start and end of paragraphs (in future: PDF tagging), but we need an
@@ -493,7 +503,9 @@
 % are executed but not the ones at its end.
           \par
           }%
-     \setbox\spx@tempboxa=\vtop{\unvbox\spx@tempboxa
+     \setbox\spx@tempboxa=\vtop{%
+          \spx@verb@LinkTargetOff
+          \unvbox\spx@tempboxa
           \setbox\spx@tempboxb\lastbox
           {\spx@verb@@ProcessLines}%
           \FV@ProcessLine{\box\spx@tempboxb}%
