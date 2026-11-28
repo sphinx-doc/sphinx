@@ -1,7 +1,7 @@
 %% TABLES (WITH SUPPORT FOR MERGED CELLS OF GENERAL CONTENTS)
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatextables}[2026/06/09 v9.1.1 tables]%
+\ProvidesPackage{sphinxlatextables}[2026/11/28 v9.3.0 tables]%
 
 % Provides support for this output mark-up from Sphinx latex writer
 % and table templates:
@@ -94,8 +94,10 @@
 
 % N.B.: array must *not* have been loaded prior to this location, but this is
 % not guaranteed if templates/latex/latex.tex.jinja gets altered.
+% The version based roll-back [=v2.6] broke people with early TL2026 who
+% did not update to the June 2026 LaTeX release.  Use date-based roll-back.
 \IfFileExists{array-2024-06-01.sty}
-   {\RequirePackage{array}[=v2.6]}
+   {\RequirePackage{array}[=2024-06-01]}
    {\RequirePackage{array}}
 
 % Extends tabulary and longtable via patches and custom macros to support
@@ -121,7 +123,15 @@
 % About why pinning longtable version to an older one, see discussion at top
 % of this file about issue #14465.  This is perhaps a provisory work-around.
 \IfFileExists{longtable-2020-01-07.sty}
-    {\RequirePackage{longtable}[=v4.13]}
+    {\RequirePackage{longtable}[=v4.13]%
+     % Since 2021/06/05 hyperref expects \LT@p@ftntext to be \long
+     % (latex3/hyperref#193): it unconditionally overwrites it with
+     % its own version, but emits a (benign) warning if it is not \long.
+     % If the rollback file exists, we can assume hyperref (whose version
+     % we cannot easily test here as it is not yet loaded) is new enough
+     % to expect the \long prefix.  So let us restore it by force.
+     \long\expandafter\def\expandafter\LT@p@ftntext
+       \expandafter##\expandafter1\expandafter{\LT@p@ftntext{##1}}}
     {\RequirePackage{longtable}}
 % User interface to set-up whitespace before and after tables:
 \newcommand*\sphinxtablepre {0pt}%
