@@ -18,6 +18,9 @@ Bugs fixed
 
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
+* #14822: LaTeX: duplicate destination warnings for wrapped long
+  code lines since fancyvrb 4.8.
+  Patch by Jean-François B.
 
 Testing
 -------
