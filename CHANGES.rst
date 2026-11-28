@@ -19,6 +19,10 @@ Bugs fixed
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 
+* #14891: autodoc: Preserve deferred annotations when updating
+  ``__annotations__`` from type comments.
+  Patch by LittleChenLiya
+
 Testing
 -------
 

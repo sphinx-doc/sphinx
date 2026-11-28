@@ -2513,6 +2513,16 @@ def test_autodoc_TYPE_CHECKING() -> None:
     ]
 
 
+@pytest.mark.skipif(sys.version_info < (3, 14), reason='requires deferred annotations')
+def test_autodoc_preserves_typed_dict_deferred_annotations() -> None:
+    options = {
+        'members': None,
+        'undoc-members': None,
+    }
+    actual = do_autodoc('module', 'target.typed_dict_annotations', options=options)
+    assert '   .. py:attribute:: Crate.weight' in actual
+
+
 def test_autodoc_TYPE_CHECKING_circular_import() -> None:
     options = {
         'members': None,
